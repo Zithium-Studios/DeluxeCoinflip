@@ -1,0 +1,20 @@
+name: DeluxeCoinflip
+version: 2.6.3
+main: fun.lewisdev.deluxecoinflip.DeluxeCoinflipPlugin
+author: ItsLewizzz
+api-version: 1.13
+
+softdepend:
+  - PlaceholderAPI
+  - Vault
+  - TokenEnchant
+  - TokenManager
+  - UltraPrisonCore
+  - PlayerPoints
+  - GamePoints
+  - BeastTokens
+  - RevEnchants
+
+permissions:
+  coinflip.admin:
+    default: op

@@ -1,0 +1,2 @@
+DeluxeCoinflip Plugin
+Copyright (c) 2021 - ${year} Lewis D (ItsLewizzz). All rights reserved.
