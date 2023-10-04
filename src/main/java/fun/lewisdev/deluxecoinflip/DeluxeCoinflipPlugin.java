@@ -63,7 +63,7 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         try {
             storageManager.onEnable();
         }catch (Exception ex) {
-            ex.printStackTrace();
+            getLogger().log(Level.SEVERE, "There was an issue attempting to load the storager handler.", ex);
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
