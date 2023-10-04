@@ -47,7 +47,7 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         getLogger().log(Level.INFO, "");
         getLogger().log(Level.INFO, " __ __    DeluxeCoinflip v" + getDescription().getVersion());
         getLogger().log(Level.INFO, "/  |_     Author: " + getDescription().getAuthors().get(0));
-        getLogger().log(Level.INFO, "\\_ |      (c) Lewis D 2020-2022. All rights reserved.");
+        getLogger().log(Level.INFO, "\\_ |      (c) Lewis D 2020-2023. All rights reserved.");
         getLogger().log(Level.INFO, "");
 
         listenerCache = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).maximumSize(500).build();
