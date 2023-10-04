@@ -44,11 +44,11 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
     public void onEnable() {
         long start = System.currentTimeMillis();
 
-        getLogger().log(Level.INFO,"");
-        getLogger().log(Level.INFO," __ __    DeluxeCoinflip v" + getDescription().getVersion());
-        getLogger().log(Level.INFO,"/  |_     Author: " + getDescription().getAuthors().get(0));
-        getLogger().log(Level.INFO,"\\_ |      (c) Lewis D 2020-2022. All rights reserved.");
-        getLogger().log(Level.INFO,"");
+        getLogger().log(Level.INFO, "");
+        getLogger().log(Level.INFO, " __ __    DeluxeCoinflip v" + getDescription().getVersion());
+        getLogger().log(Level.INFO, "/  |_     Author: " + getDescription().getAuthors().get(0));
+        getLogger().log(Level.INFO, "\\_ |      (c) Lewis D 2020-2022. All rights reserved.");
+        getLogger().log(Level.INFO, "");
 
         listenerCache = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).maximumSize(500).build();
 
@@ -62,8 +62,8 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         storageManager = new StorageManager(this);
         try {
             storageManager.onEnable();
-        }catch (Exception ex) {
-            getLogger().log(Level.SEVERE, "There was an issue attempting to load the storager handler.", ex);
+        } catch (Exception ex) {
+            getLogger().log(Level.SEVERE, "There was an issue attempting to load the storage handler.", ex);
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
@@ -85,18 +85,18 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         new PlayerChatListener(this);
 
         // PlaceholderAPI Hook
-        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PlaceholderAPIHook(this).register();
-            getLogger().log(Level.INFO,"Hooked into PlaceholderAPI successfully");
+            getLogger().log(Level.INFO, "Hooked into PlaceholderAPI successfully");
         }
 
-        getLogger().log(Level.INFO,"");
-        getLogger().log(Level.INFO,"Successfully loaded in " + (System.currentTimeMillis() - start) + "ms");
-        getLogger().log(Level.INFO,"");
+        getLogger().log(Level.INFO, "");
+        getLogger().log(Level.INFO, "Successfully loaded in " + (System.currentTimeMillis() - start) + "ms");
+        getLogger().log(Level.INFO, "");
     }
 
     public void onDisable() {
-        if(storageManager != null) storageManager.onDisable(true);
+        if (storageManager != null) storageManager.onDisable(true);
     }
 
     // Plugin reload handling
