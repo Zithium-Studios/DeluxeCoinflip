@@ -85,13 +85,17 @@ public class CoinflipGUI {
                 count++;
                 gui.getGuiItems().clear();
 
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (!player.isOnline()) gui.close(player);
+                });
+
                 if(count >= 12) {
                     // Completed animation
                     gui.setItem(13, winnerHead);
                     gui.getFiller().fill(new GuiItem(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE.parseItem()));
                     gui.update();
 
-                    player.playSound(player.getLocation(), XSound.ENTITY_PLAYER_LEVELUP.parseSound(), 1L, 0L);
+                    if (player.isOnline()) player.playSound(player.getLocation(), XSound.ENTITY_PLAYER_LEVELUP.parseSound(), 1L, 0L);
 
                     // Check for tax
                     double taxRate = config.getDouble("settings.tax.rate");
@@ -169,7 +173,7 @@ public class CoinflipGUI {
                     alternate = true;
                 }
 
-                player.playSound(player.getLocation(), XSound.BLOCK_WOODEN_BUTTON_CLICK_ON.parseSound(), 1L, 0L);
+                if (player.isOnline()) player.playSound(player.getLocation(), XSound.BLOCK_WOODEN_BUTTON_CLICK_ON.parseSound(), 1L, 0L);
                 gui.update();
             }
         }.runTaskTimerAsynchronously(plugin, 0L, 10L);
