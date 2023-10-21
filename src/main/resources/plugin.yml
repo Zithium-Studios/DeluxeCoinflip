@@ -1,5 +1,5 @@
 name: DeluxeCoinflip
-version: 2.6.3
+version: '${version}'
 main: fun.lewisdev.deluxecoinflip.DeluxeCoinflipPlugin
 author: ItsLewizzz
 api-version: 1.13
