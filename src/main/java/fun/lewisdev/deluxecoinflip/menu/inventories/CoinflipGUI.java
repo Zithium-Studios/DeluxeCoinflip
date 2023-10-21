@@ -62,7 +62,7 @@ public class CoinflipGUI {
     private void runAnimation(Player player, OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game) {
 
         Gui gui = new Gui(3, TextUtil.color(config.getString("coinflip-gui.title")));
-        gui.setDefaultClickAction(event -> event.setCancelled(true));
+        gui.disableAllInteractions();
 
         GuiItem winnerHead, loserHead;
         if(winner.equals(game.getOfflinePlayer())) {
@@ -153,10 +153,10 @@ public class CoinflipGUI {
                     }
 
                     // Close anyone that still has the animation GUI open after 100 ticks (5 seconds)
-                    Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                        // We must clone the viewer list to prevent a ConcurrentModificationException
-                        for (HumanEntity viewer : new ArrayList<>(gui.getInventory().getViewers())) viewer.closeInventory();
-                    },100L);
+                    //Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                    //    // We must clone the viewer list to prevent a ConcurrentModificationException
+                    //    for (HumanEntity viewer : new ArrayList<>(gui.getInventory().getViewers())) viewer.closeInventory();
+                    //},100L);
 
                     cancel();
                     return;
