@@ -44,12 +44,7 @@ public class EconomyManager {
         Stream.of(
                 new VaultProvider(),
                 new TokenEnchantProvider(),
-                new TokenManagerProvider(),
-                new UltraPrisonCoreTokensProvider(),
-                new GamePointsProvider(),
-                new PlayerPointsProvider(),
-                new BeastTokensProvider()
-                //new RevEnchantsProvider() todo: NEEDS FIXING, GETTING NOSUCHMETHODEXCEPTION
+                new TokenManagerProvider()
         ).forEach(provider -> registerEconomyProvider(provider, provider.getIdentifier()));
 
         Bukkit.getScheduler().runTask(plugin, () -> {
