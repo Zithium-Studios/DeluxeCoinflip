@@ -1,11 +1,10 @@
 plugins {
     id 'java'
-    id "net.minecrell.licenser" version "0.4.1"
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'fun.lewisdev'
-version = '2.6.3'
+version = '2.6.4'
 description = 'DeluxeCoinflip'
 sourceCompatibility = '1.8'
 
@@ -22,10 +21,10 @@ repositories {
 }
 
 dependencies {
-    implementation 'me.mattstudios.utils:matt-framework:1.4.4'
-    implementation 'dev.triumphteam:triumph-gui:3.1.2'
+    implementation 'me.mattstudios.utils:matt-framework:1.4.6'
+    implementation 'dev.triumphteam:triumph-gui:3.1.6'
 
-    compileOnly 'org.spigotmc:spigot-api:1.19.1-R0.1-SNAPSHOT'
+    compileOnly 'org.spigotmc:spigot-api:1.20.1-R0.1-SNAPSHOT'
 
     compileOnly 'me.clip:placeholderapi:2.10.6'
     compileOnly 'com.mojang:authlib:1.5.21'
@@ -36,7 +35,6 @@ dependencies {
     }
     compileOnly 'net.milkbowl.vault:VaultAPI:1.7'
     compileOnly 'com.vk2gpz.tokenenchant:TokenEnchantAPI:18.37.1'
-    compileOnly 'me.lucko:helper:5.6.5'
     compileOnly fileTree(dir: 'libs', include: '*.jar')
 }
 
@@ -44,20 +42,9 @@ compileJava {
     options.encoding = "UTF-8"
 }
 
-license {
-    include '**/*.java'
-
-    matching('**/*.java') {
-        header = file('copyright.txt')
-    }
-
-    ext { year = 2022 }
-}
-
 shadowJar {
     minimize()
     archiveFileName = "DeluxeCoinflip-${project.version}.jar"
     relocate 'dev.triumphteam.gui', 'fun.lewisdev.deluxecoinflip.libs.gui'
     relocate 'me.mattstudios.mf', 'fun.lewisdev.deluxecoinflip.libs.command'
-    destinationDir file("C:/Users/lewis/Documents/Development/Test Server (LATEST)/plugins")
 }
