@@ -75,7 +75,7 @@ public class Base64Util {
     }
 
     public static ItemStack getSkull(UUID uuid) {
-        if(cache.containsKey(uuid.toString())) return cache.get(uuid.toString());
+        if (cache.containsKey(uuid.toString())) return cache.get(uuid.toString());
 
         String skinUrl = getUrl(uuid.toString());
         ItemStack head = XMaterial.PLAYER_HEAD.parseItem();

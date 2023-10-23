@@ -65,21 +65,22 @@ public class CoinflipGUI {
         gui.disableAllInteractions();
 
         GuiItem winnerHead, loserHead;
-        if(winner.equals(game.getOfflinePlayer())) {
+        if (winner.equals(game.getOfflinePlayer())) {
             winnerHead = new GuiItem(new ItemStackBuilder(game.getCachedHead()).withName(ChatColor.YELLOW + winner.getName()).build());
             loserHead = new GuiItem(new ItemStackBuilder(XMaterial.PLAYER_HEAD.parseItem()).withName(ChatColor.YELLOW + loser.getName()).setSkullOwner(loser).build());
-        }else{
+        } else {
             winnerHead = new GuiItem(new ItemStackBuilder(XMaterial.PLAYER_HEAD.parseItem()).withName(ChatColor.YELLOW + winner.getName()).setSkullOwner(winner).build());
             loserHead = new GuiItem(new ItemStackBuilder(game.getCachedHead()).withName(ChatColor.YELLOW + loser.getName()).build());
         }
 
-        if(winner.isOnline()) gui.open(winner.getPlayer());
-        if(loser.isOnline()) gui.open(loser.getPlayer());
+        if (winner.isOnline()) gui.open(winner.getPlayer());
+        if (loser.isOnline()) gui.open(loser.getPlayer());
 
         new BukkitRunnable() {
             boolean alternate = false;
             int count = 0;
             long winAmount = game.getAmount() * 2;
+
             @Override
             public void run() {
                 count++;
@@ -89,18 +90,19 @@ public class CoinflipGUI {
                     if (!player.isOnline()) gui.close(player);
                 });
 
-                if(count >= 12) {
+                if (count >= 12) {
                     // Completed animation
                     gui.setItem(13, winnerHead);
                     gui.getFiller().fill(new GuiItem(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE.parseItem()));
                     gui.update();
 
-                    if (player.isOnline()) player.playSound(player.getLocation(), XSound.ENTITY_PLAYER_LEVELUP.parseSound(), 1L, 0L);
+                    if (player.isOnline())
+                        player.playSound(player.getLocation(), XSound.ENTITY_PLAYER_LEVELUP.parseSound(), 1L, 0L);
 
                     // Check for tax
                     double taxRate = config.getDouble("settings.tax.rate");
                     long taxed = 0;
-                    if(config.getBoolean("settings.tax.enabled")) {
+                    if (config.getBoolean("settings.tax.enabled")) {
                         taxed = (long) ((taxRate * winAmount) / 100.0);
                         winAmount = winAmount - taxed;
                     }
@@ -114,19 +116,19 @@ public class CoinflipGUI {
                     // Update player stats
                     StorageManager storageManager = plugin.getStorageManager();
                     Optional<PlayerData> winnerPlayerDataOptional = storageManager.getPlayer(winner.getUniqueId());
-                    if(winnerPlayerDataOptional.isPresent()) {
+                    if (winnerPlayerDataOptional.isPresent()) {
                         PlayerData winnerPlayerData = winnerPlayerDataOptional.get();
                         winnerPlayerData.updateWins();
                         winnerPlayerData.updateProfit(winAmount);
-                    }else{
+                    } else {
                         storageManager.updateOfflinePlayerWin(winner.getUniqueId(), winAmount);
                     }
 
                     Optional<PlayerData> loserPlayerDataOptional = storageManager.getPlayer(loser.getUniqueId());
-                    if(loserPlayerDataOptional.isPresent()) {
+                    if (loserPlayerDataOptional.isPresent()) {
                         PlayerData loserPlayerData = loserPlayerDataOptional.get();
                         loserPlayerData.updateLosses();
-                    }else{
+                    } else {
                         storageManager.updateOfflinePlayerLoss(winner.getUniqueId());
                     }
 
@@ -142,10 +144,10 @@ public class CoinflipGUI {
                     }
 
                     // Broadcast to the server
-                    if(winAmount >= config.getLong("settings.minimum-broadcast-winnings")) {
+                    if (winAmount >= config.getLong("settings.minimum-broadcast-winnings")) {
                         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
                             storageManager.getPlayer(player.getUniqueId()).ifPresent(playerData -> {
-                                if(playerData.isDisplayBroadcastMessages()) {
+                                if (playerData.isDisplayBroadcastMessages()) {
                                     Messages.COINFLIP_BROADCAST.send(player, replacePlaceholders(String.valueOf(taxRate), taxedFormatted, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmountFormatted));
                                 }
                             });
@@ -155,7 +157,8 @@ public class CoinflipGUI {
                     // Close anyone that still has the animation GUI open after 100 ticks (5 seconds)
                     //Bukkit.getScheduler().runTaskLater(plugin, () -> {
                     //    // We must clone the viewer list to prevent a ConcurrentModificationException
-                    //    for (HumanEntity viewer : new ArrayList<>(gui.getInventory().getViewers())) viewer.closeInventory();
+                    //    for (HumanEntity viewer : new ArrayList<>(gui.getInventory().getViewers()))
+                    //    viewer.closeInventory();
                     //},100L);
 
                     cancel();
@@ -163,17 +166,18 @@ public class CoinflipGUI {
                 }
 
                 // Do animation
-                if(alternate) {
+                if (alternate) {
                     gui.setItem(13, winnerHead);
                     gui.getFiller().fill(new GuiItem(XMaterial.YELLOW_STAINED_GLASS_PANE.parseItem()));
                     alternate = false;
-                }else{
+                } else {
                     gui.setItem(13, loserHead);
                     gui.getFiller().fill(new GuiItem(XMaterial.GRAY_STAINED_GLASS_PANE.parseItem()));
                     alternate = true;
                 }
 
-                if (player.isOnline()) player.playSound(player.getLocation(), XSound.BLOCK_WOODEN_BUTTON_CLICK_ON.parseSound(), 1L, 0L);
+                if (player.isOnline())
+                    player.playSound(player.getLocation(), XSound.BLOCK_WOODEN_BUTTON_CLICK_ON.parseSound(), 1L, 0L);
                 gui.update();
             }
         }.runTaskTimerAsynchronously(plugin, 0L, 10L);

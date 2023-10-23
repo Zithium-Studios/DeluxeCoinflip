@@ -28,6 +28,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.NumberFormat;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class GamesGUI {
@@ -36,10 +37,19 @@ public class GamesGUI {
     private final EconomyManager economyManager;
     private final FileConfiguration config;
 
+    private final ItemStackBuilder materialBuilder;
+
     public GamesGUI(DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
         this.economyManager = plugin.getEconomyManager();
         this.config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
+
+        if (config.contains("games-gui.coinflip-game.material") && !config.getString("games-gui.coinflip-game.material").equalsIgnoreCase("PLAYER_HEAD")) {
+            materialBuilder = new ItemStackBuilder(XMaterial.matchXMaterial(config.getString("games-gui.coinflip-game.material")).get().parseItem());
+        } else {
+            materialBuilder = null; // Set it to null if not configured
+        }
+
     }
 
     public void openInventory(Player player) {
@@ -56,20 +66,7 @@ public class GamesGUI {
         PaginatedGui gui = new PaginatedGui(config.getInt("games-gui.rows"), TextUtil.color(config.getString("games-gui.title")));
         gui.setDefaultClickAction(event -> event.setCancelled(true));
 
-        ConfigurationSection section = config.getConfigurationSection("games-gui.filler-items");
-        if (section != null) {
-            for (String entry : section.getKeys(false)) {
-                ItemStackBuilder builder = ItemStackBuilder.getItemStack(config.getConfigurationSection(section.getCurrentPath() + "." + entry));
-                if (config.contains(section.getCurrentPath() + "." + entry + ".slots")) {
-                    for (String slot : config.getStringList(section.getCurrentPath() + "." + entry + ".slots")) {
-                        gui.setItem(Integer.parseInt(slot), new GuiItem(builder.build()));
-                    }
-                } else if (config.contains(section.getCurrentPath() + "." + entry + ".slot")) {
-                    int slot = config.getInt(section.getCurrentPath() + "." + entry + ".slot");
-                    gui.setItem(slot, new GuiItem(builder.build()));
-                }
-            }
-        }
+        loadFillerItems(gui);
 
         // Navigation items
         gui.setItem(config.getInt("games-gui.previous-page.slot"), new GuiItem(ItemStackBuilder.getItemStack(config.getConfigurationSection("games-gui.previous-page")).build(), event -> gui.previous()));
@@ -93,11 +90,11 @@ public class GamesGUI {
             }
             if (meta.hasLore()) {
                 newItemBuilder.withLore(meta.getLore().stream().map(line -> line
-                        .replace("{WINS}", String.valueOf(playerData.getWins()))
-                        .replace("{LOSSES}", String.valueOf(playerData.getLosses()))
-                        .replace("{PROFIT}", String.valueOf(playerData.getProfitFormatted()))
-                        .replace("{WIN_PERCENTAGE}", String.valueOf(playerData.getWinPercentage()))
-                        .replace("{PLAYER}", player.getName()))
+                                .replace("{WINS}", String.valueOf(playerData.getWins()))
+                                .replace("{LOSSES}", String.valueOf(playerData.getLosses()))
+                                .replace("{PROFIT}", String.valueOf(playerData.getProfitFormatted()))
+                                .replace("{WIN_PERCENTAGE}", String.valueOf(playerData.getWinPercentage()))
+                                .replace("{PLAYER}", player.getName()))
                         .collect(Collectors.toList()));
             }
 
@@ -139,19 +136,31 @@ public class GamesGUI {
                 OfflinePlayer playerFromID = coinflipGame.getOfflinePlayer();
                 if (playerFromID == null) continue;
 
+
                 ItemStackBuilder builder;
+                if (materialBuilder != null) {
+                    // Create a new instance with the same properties as materialBuilder
+                    builder = new ItemStackBuilder(materialBuilder.build());
+                } else {
+                    builder = new ItemStackBuilder(coinflipGame.getCachedHead());
+                }
+
+
+                /*
                 if (config.contains("games-gui.coinflip-game.material") && !config.getString("games-gui.coinflip-game.material").equalsIgnoreCase("PLAYER_HEAD")) {
                     builder = new ItemStackBuilder(XMaterial.matchXMaterial(config.getString("games-gui.coinflip-game.material")).get().parseItem());
                 } else {
                     builder = new ItemStackBuilder(coinflipGame.getCachedHead());
                 }
+                */
+
 
                 builder.withName(config.getString("games-gui.coinflip-game.display_name").replace("{PLAYER}", playerFromID.getName()));
                 builder.withLore(config.getStringList("games-gui.coinflip-game.lore").stream().map(line -> line
-                        .replace("{TAX_RATE}", String.valueOf(taxRate))
-                        .replace("{TAX_DEDUCTION}", taxedFormatted)
-                        .replace("{AMOUNT}", valueFormatted)
-                        .replace("{CURRENCY}", economyManager.getEconomyProvider(coinflipGame.getProvider()).getDisplayName()))
+                                .replace("{TAX_RATE}", String.valueOf(taxRate))
+                                .replace("{TAX_DEDUCTION}", taxedFormatted)
+                                .replace("{AMOUNT}", valueFormatted)
+                                .replace("{CURRENCY}", economyManager.getEconomyProvider(coinflipGame.getProvider()).getDisplayName()))
                         .collect(Collectors.toList()));
 
                 GuiItem guiItem = new GuiItem(builder.build());
@@ -190,7 +199,45 @@ public class GamesGUI {
         }
 
         gui.open(player);
-        player.updateInventory();
+        gui.update();
+        //player.updateInventory();
     }
+
+    private void loadFillerItems(PaginatedGui gui) {
+        ConfigurationSection section = config.getConfigurationSection("games-gui.filler-items");
+
+        if (section != null) {
+            for (String entry : section.getKeys(false)) {
+                ConfigurationSection fillerConfig = config.getConfigurationSection(section.getCurrentPath() + "." + entry);
+
+                if (fillerConfig != null) {
+                    ItemStackBuilder builder = ItemStackBuilder.getItemStack(fillerConfig);
+
+                    if (fillerConfig.contains("slots")) {
+                        List<String> slotStrings = fillerConfig.getStringList("slots");
+                        slotStrings.forEach(slotString -> {
+                            try {
+                                int slot = Integer.parseInt(slotString);
+                                gui.setItem(slot, new GuiItem(builder.build()));
+                            } catch (NumberFormatException e) {
+                                // Handle invalid slot format (e.g., not a number)
+                                plugin.getLogger().log(Level.WARNING, "Invalid slot format in filler items configuration: " + slotString);
+                            }
+                        });
+                    } else if (fillerConfig.contains("slot")) {
+                        int slot = fillerConfig.getInt("slot");
+                        gui.setItem(slot, new GuiItem(builder.build()));
+                    }
+                } else {
+                    // Handle missing or invalid filler item configuration
+                    plugin.getLogger().log(Level.WARNING, "Invalid or missing configuration for filler item: " + entry);
+                }
+            }
+        } else {
+            // Handle missing filler items section in the configuration
+            plugin.getLogger().log(Level.SEVERE, "Could not find the filler items section in the configuration file!");
+        }
+    }
+
 
 }

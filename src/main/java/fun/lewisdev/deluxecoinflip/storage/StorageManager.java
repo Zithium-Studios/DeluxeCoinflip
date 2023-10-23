@@ -122,7 +122,7 @@ public class StorageManager {
                 final long profit = playerDataConfig.getLong("stats.profit");
                 playerDataMap.put(uuid, new PlayerData(uuid, wins, losses, profit));
                 dataFile.delete();
-            }else {
+            } else {
                 playerDataMap.put(uuid, storageHandler.getPlayer(uuid));
             }
         });
@@ -141,9 +141,9 @@ public class StorageManager {
     }
 
     private static boolean isDirectoryEmpty(final Path directory) {
-        try(DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
             return !dirStream.iterator().hasNext();
-        }catch (IOException ex) {
+        } catch (IOException ex) {
             return false;
         }
     }
