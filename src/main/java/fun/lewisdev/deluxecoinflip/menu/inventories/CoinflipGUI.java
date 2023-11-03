@@ -56,6 +56,7 @@ public class CoinflipGUI implements Listener {
     }
 
     private void runAnimation(Player player, OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game) {
+        @SuppressWarnings("deprecation") // Suppressing new Gui() deprecation error.
         Gui gui = new Gui(3, TextUtil.color(config.getString("coinflip-gui.title")));
         gui.disableAllInteractions();
 
