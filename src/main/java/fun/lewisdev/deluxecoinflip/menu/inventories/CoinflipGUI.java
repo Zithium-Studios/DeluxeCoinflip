@@ -89,6 +89,7 @@ public class CoinflipGUI implements Listener {
                     // Completed animation
                     gui.setItem(13, winnerHead);
                     gui.getFiller().fill(new GuiItem(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE.parseItem()));
+                    gui.disableAllInteractions();
                     gui.update();
 
                     if (player.isOnline()) {
