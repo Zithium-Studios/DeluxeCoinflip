@@ -1,8 +1,3 @@
-/*
- * DeluxeCoinflip Plugin
- * Copyright (c) 2021 - 2022 Lewis D (ItsLewizzz). All rights reserved.
- */
-
 package fun.lewisdev.deluxecoinflip.menu.inventories;
 
 import dev.triumphteam.gui.guis.Gui;
@@ -25,56 +20,59 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
 
-public class CoinflipGUI {
+public class CoinflipGUI implements Listener {
 
     private final DeluxeCoinflipPlugin plugin;
     private final EconomyManager economyManager;
-    private final Random rand;
     private final FileConfiguration config;
+    private final Random rand;
 
     public CoinflipGUI(DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
         this.economyManager = plugin.getEconomyManager();
-        rand = new Random();
-        config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
+        this.config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
+        this.rand = new Random();
     }
 
     public void startGame(Player player, OfflinePlayer otherPlayer, CoinflipGame game) {
-
-        if (otherPlayer.isOnline()) {
-            Messages.PLAYER_CHALLENGE.send(otherPlayer.getPlayer(), "{OPPONENT}", player.getName());
+        if (!player.isOnline() || !otherPlayer.isOnline()) {
+            // One of the players is not online, end the game.
+            return;
         }
 
-        OfflinePlayer winner = rand.nextInt(2) == 0 ? player : otherPlayer;
+        Messages.PLAYER_CHALLENGE.send(otherPlayer.getPlayer(), "{OPPONENT}", player.getName());
 
-        if (winner.getUniqueId().equals(player.getUniqueId()))
-            runAnimation(player, player, otherPlayer, game);
-        else
-            runAnimation(player, otherPlayer, player, game);
+        OfflinePlayer winner = rand.nextBoolean() ? player : otherPlayer;
+        OfflinePlayer loser = winner.equals(player) ? otherPlayer : player;
+
+        runAnimation(player, winner, loser, game);
     }
 
     private void runAnimation(Player player, OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game) {
-
         Gui gui = new Gui(3, TextUtil.color(config.getString("coinflip-gui.title")));
         gui.disableAllInteractions();
 
-        GuiItem winnerHead, loserHead;
-        if (winner.equals(game.getOfflinePlayer())) {
-            winnerHead = new GuiItem(new ItemStackBuilder(game.getCachedHead()).withName(ChatColor.YELLOW + winner.getName()).build());
-            loserHead = new GuiItem(new ItemStackBuilder(XMaterial.PLAYER_HEAD.parseItem()).withName(ChatColor.YELLOW + loser.getName()).setSkullOwner(loser).build());
-        } else {
-            winnerHead = new GuiItem(new ItemStackBuilder(XMaterial.PLAYER_HEAD.parseItem()).withName(ChatColor.YELLOW + winner.getName()).setSkullOwner(winner).build());
-            loserHead = new GuiItem(new ItemStackBuilder(game.getCachedHead()).withName(ChatColor.YELLOW + loser.getName()).build());
-        }
+        GuiItem winnerHead = new GuiItem(new ItemStackBuilder(
+                winner.equals(game.getOfflinePlayer()) ? game.getCachedHead() : XMaterial.PLAYER_HEAD.parseItem()
+        ).withName(ChatColor.YELLOW + winner.getName()).setSkullOwner(winner).build());
 
-        if (winner.isOnline()) gui.open(winner.getPlayer());
-        if (loser.isOnline()) gui.open(loser.getPlayer());
+        GuiItem loserHead = new GuiItem(new ItemStackBuilder(
+                winner.equals(game.getOfflinePlayer()) ? XMaterial.PLAYER_HEAD.parseItem() : game.getCachedHead()
+        ).withName(ChatColor.YELLOW + loser.getName()).setSkullOwner(loser).build());
+
+        if (winner.isOnline()) {
+            gui.open(winner.getPlayer());
+        }
+        if (loser.isOnline()) {
+            gui.open(loser.getPlayer());
+        }
 
         new BukkitRunnable() {
             boolean alternate = false;
@@ -86,101 +84,127 @@ public class CoinflipGUI {
                 count++;
                 gui.getGuiItems().clear();
 
-                Bukkit.getScheduler().runTask(plugin, () -> {
-                    if (!player.isOnline()) gui.close(player);
-                });
-
                 if (count >= 12) {
                     // Completed animation
                     gui.setItem(13, winnerHead);
                     gui.getFiller().fill(new GuiItem(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE.parseItem()));
                     gui.update();
 
-                    if (player.isOnline())
+                    if (player.isOnline()) {
                         player.playSound(player.getLocation(), XSound.ENTITY_PLAYER_LEVELUP.parseSound(), 1L, 0L);
+                    }
 
-                    // Check for tax
                     double taxRate = config.getDouble("settings.tax.rate");
                     long taxed = 0;
+
                     if (config.getBoolean("settings.tax.enabled")) {
                         taxed = (long) ((taxRate * winAmount) / 100.0);
-                        winAmount = winAmount - taxed;
+                        winAmount -= taxed;
                     }
 
                     // Deposit winnings
-                    Bukkit.getScheduler().runTask(plugin, () -> {
-                        Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount));
-                        economyManager.getEconomyProvider(game.getProvider()).deposit(winner, winAmount);
-                    });
+                    Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount));
+                    economyManager.getEconomyProvider(game.getProvider()).deposit(winner, winAmount);
 
                     // Update player stats
                     StorageManager storageManager = plugin.getStorageManager();
-                    Optional<PlayerData> winnerPlayerDataOptional = storageManager.getPlayer(winner.getUniqueId());
-                    if (winnerPlayerDataOptional.isPresent()) {
-                        PlayerData winnerPlayerData = winnerPlayerDataOptional.get();
-                        winnerPlayerData.updateWins();
-                        winnerPlayerData.updateProfit(winAmount);
-                    } else {
-                        storageManager.updateOfflinePlayerWin(winner.getUniqueId(), winAmount);
-                    }
-
-                    Optional<PlayerData> loserPlayerDataOptional = storageManager.getPlayer(loser.getUniqueId());
-                    if (loserPlayerDataOptional.isPresent()) {
-                        PlayerData loserPlayerData = loserPlayerDataOptional.get();
-                        loserPlayerData.updateLosses();
-                    } else {
-                        storageManager.updateOfflinePlayerLoss(winner.getUniqueId());
-                    }
+                    updatePlayerStats(storageManager, winner, winAmount, true);
+                    updatePlayerStats(storageManager, loser, 0, false);
 
                     String winAmountFormatted = TextUtil.numberFormat(winAmount);
                     String taxedFormatted = TextUtil.numberFormat(taxed);
 
                     // Send win/loss messages
-                    if (winner.isOnline()) {
-                        Messages.GAME_SUMMARY_WIN.send(winner.getPlayer(), replacePlaceholders(String.valueOf(taxRate), taxedFormatted, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmountFormatted));
-                    }
-                    if (loser.isOnline()) {
-                        Messages.GAME_SUMMARY_LOSS.send(loser.getPlayer(), replacePlaceholders(String.valueOf(taxRate), taxedFormatted, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmountFormatted));
-                    }
+                    sendGameSummaryMessage(winner, loser, taxRate, taxedFormatted, winAmountFormatted, true, game);
+                    sendGameSummaryMessage(loser, winner, taxRate, taxedFormatted, winAmountFormatted, false, game);
 
                     // Broadcast to the server
-                    if (winAmount >= config.getLong("settings.minimum-broadcast-winnings")) {
-                        for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-                            storageManager.getPlayer(player.getUniqueId()).ifPresent(playerData -> {
-                                if (playerData.isDisplayBroadcastMessages()) {
-                                    Messages.COINFLIP_BROADCAST.send(player, replacePlaceholders(String.valueOf(taxRate), taxedFormatted, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmountFormatted));
-                                }
-                            });
-                        }
-                    }
+                    broadcastWinningMessage(winAmount, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName());
 
-                    // Close anyone that still has the animation GUI open after 100 ticks (5 seconds)
-                    //Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                    //    // We must clone the viewer list to prevent a ConcurrentModificationException
-                    //    for (HumanEntity viewer : new ArrayList<>(gui.getInventory().getViewers()))
-                    //    viewer.closeInventory();
-                    //},100L);
+                    closeAnimationGUI(gui);
 
                     cancel();
-                    return;
                 }
 
                 // Do animation
                 if (alternate) {
                     gui.setItem(13, winnerHead);
                     gui.getFiller().fill(new GuiItem(XMaterial.YELLOW_STAINED_GLASS_PANE.parseItem()));
-                    alternate = false;
                 } else {
                     gui.setItem(13, loserHead);
                     gui.getFiller().fill(new GuiItem(XMaterial.GRAY_STAINED_GLASS_PANE.parseItem()));
-                    alternate = true;
                 }
 
-                if (player.isOnline())
+                alternate = !alternate;
+
+                if (player.isOnline()) {
                     player.playSound(player.getLocation(), XSound.BLOCK_WOODEN_BUTTON_CLICK_ON.parseSound(), 1L, 0L);
+                }
+
                 gui.update();
             }
         }.runTaskTimerAsynchronously(plugin, 0L, 10L);
+    }
+
+    private void updatePlayerStats(StorageManager storageManager, OfflinePlayer player, long winAmount, boolean isWinner) {
+        Optional<PlayerData> playerDataOptional = storageManager.getPlayer(player.getUniqueId());
+        if (playerDataOptional.isPresent()) {
+            PlayerData playerData = playerDataOptional.get();
+            if (isWinner) {
+                playerData.updateWins();
+                playerData.updateProfit(winAmount);
+            } else {
+                playerData.updateLosses();
+            }
+        } else {
+            if (isWinner) {
+                storageManager.updateOfflinePlayerWin(player.getUniqueId(), winAmount);
+            } else {
+                storageManager.updateOfflinePlayerLoss(player.getUniqueId());
+            }
+        }
+    }
+
+    private void sendGameSummaryMessage(OfflinePlayer player, OfflinePlayer opponent, double taxRate, String taxedFormatted, String winAmountFormatted, boolean isWinner, CoinflipGame game) {
+        if (player.isOnline()) {
+            Messages message = isWinner ? Messages.GAME_SUMMARY_WIN : Messages.GAME_SUMMARY_LOSS;
+            message.send(player.getPlayer(), replacePlaceholders(
+                    String.valueOf(taxRate),
+                    taxedFormatted,
+                    player.getName(),
+                    opponent.getName(),
+                    economyManager.getEconomyProvider(game.getProvider()).getDisplayName(),
+                    winAmountFormatted
+            ));
+        }
+    }
+
+
+    private void broadcastWinningMessage(long winAmount, String winner, String loser, String currency) {
+        if (winAmount >= config.getLong("settings.minimum-broadcast-winnings")) {
+            for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+                plugin.getStorageManager().getPlayer(player.getUniqueId()).ifPresent(playerData -> {
+                    if (playerData.isDisplayBroadcastMessages()) {
+                        Messages.COINFLIP_BROADCAST.send(player, replacePlaceholders(
+                                String.valueOf(config.getDouble("settings.tax.rate")),
+                                TextUtil.numberFormat(0),
+                                winner, // Replace with the actual player name
+                                loser, // Replace with the actual opponent name
+                                currency, // Replace with the actual currency name
+                                TextUtil.numberFormat(winAmount)
+                        ));
+                    }
+                });
+            }
+        }
+    }
+
+    private void closeAnimationGUI(Gui gui) {
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            for (HumanEntity viewer : new ArrayList<>(gui.getInventory().getViewers())) {
+                viewer.closeInventory();
+            }
+        }, 100L);
     }
 
     private Object[] replacePlaceholders(String taxRate, String taxDeduction, String winner, String loser, String currency, String winnings) {
@@ -191,5 +215,4 @@ public class CoinflipGUI {
                 "{CURRENCY}", currency,
                 "{WINNINGS}", winnings};
     }
-
 }
