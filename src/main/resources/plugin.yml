@@ -9,11 +9,6 @@ softdepend:
   - Vault
   - TokenEnchant
   - TokenManager
-  - UltraPrisonCore
-  - PlayerPoints
-  - GamePoints
-  - BeastTokens
-  - RevEnchants
 
 permissions:
   coinflip.admin:
