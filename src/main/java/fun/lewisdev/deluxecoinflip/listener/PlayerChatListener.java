@@ -9,7 +9,6 @@ import fun.lewisdev.deluxecoinflip.DeluxeCoinflipPlugin;
 import fun.lewisdev.deluxecoinflip.config.ConfigType;
 import fun.lewisdev.deluxecoinflip.config.Messages;
 import fun.lewisdev.deluxecoinflip.game.CoinflipGame;
-import fun.lewisdev.deluxecoinflip.utility.TextUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -24,7 +23,7 @@ import java.util.UUID;
 
 public class PlayerChatListener implements Listener {
 
-    private DeluxeCoinflipPlugin plugin;
+    private final DeluxeCoinflipPlugin plugin;
 
     public PlayerChatListener(DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
@@ -35,10 +34,10 @@ public class PlayerChatListener implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-        if(plugin.getListenerCache().getIfPresent(uuid) == null) return;
+        if (plugin.getListenerCache().getIfPresent(uuid) == null) return;
 
         CoinflipGame game = plugin.getListenerCache().getIfPresent(uuid);
-        if(event.getMessage().trim().equalsIgnoreCase("cancel")) {
+        if (event.getMessage().trim().equalsIgnoreCase("cancel")) {
             event.setCancelled(true);
             plugin.getListenerCache().invalidate(uuid);
             Messages.CHAT_CANCELLED.send(player);
@@ -48,8 +47,8 @@ public class PlayerChatListener implements Listener {
 
         long amount;
         try {
-            amount = Long.parseLong(event.getMessage().replace(",", "").replaceAll( "[^\\d]", ""));
-        }catch (Exception e) {
+            amount = Long.parseLong(event.getMessage().replace(",", "").replaceAll("[^\\d]", ""));
+        } catch (Exception e) {
             event.setCancelled(true);
             Messages.INVALID_AMOUNT.send(player, "{INPUT}", event.getMessage().replace(",", ""));
             return;
@@ -58,13 +57,13 @@ public class PlayerChatListener implements Listener {
         FileConfiguration config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
         String maximumBetFormatted = NumberFormat.getNumberInstance(Locale.US).format(config.getInt("settings.maximum-bet"));
         String minimumBetFormatted = NumberFormat.getNumberInstance(Locale.US).format(config.getInt("settings.minimum-bet"));
-        if(amount > config.getLong("settings.maximum-bet")) {
+        if (amount > config.getLong("settings.maximum-bet")) {
             event.setCancelled(true);
             Messages.CREATE_MAXIMUM_AMOUNT.send(player, "{MAX_BET}", maximumBetFormatted);
             return;
         }
 
-        if(amount < config.getLong("settings.minimum-bet")) {
+        if (amount < config.getLong("settings.minimum-bet")) {
             event.setCancelled(true);
             Messages.CREATE_MINIMUM_AMOUNT.send(player, "{MIN_BET}", minimumBetFormatted);
             return;
