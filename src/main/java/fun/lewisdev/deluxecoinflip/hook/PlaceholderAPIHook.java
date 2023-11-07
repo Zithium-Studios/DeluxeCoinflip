@@ -53,7 +53,7 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
         if (player == null) return "";
 
         Optional<PlayerData> playerDataOptional = storageManager.getPlayer(player.getUniqueId());
-        if(!playerDataOptional.isPresent()) {
+        if (!playerDataOptional.isPresent()) {
             return "N/A";
         }
 
