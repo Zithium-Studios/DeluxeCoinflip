@@ -5,7 +5,6 @@ import dev.triumphteam.gui.guis.GuiItem;
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.deluxecoinflip.config.ConfigType;
 import net.zithium.deluxecoinflip.config.Messages;
-import net.zithium.deluxecoinflip.api.events.CoinflipCompletedEvent;
 import net.zithium.deluxecoinflip.economy.EconomyManager;
 import net.zithium.deluxecoinflip.game.CoinflipGame;
 import net.zithium.deluxecoinflip.storage.PlayerData;
@@ -22,6 +21,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -35,19 +35,15 @@ public class CoinflipGUI implements Listener {
     private final FileConfiguration config;
     private final Random rand;
 
-    public CoinflipGUI(DeluxeCoinflipPlugin plugin) {
+    public CoinflipGUI(@NotNull DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
         this.economyManager = plugin.getEconomyManager();
         this.config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
         this.rand = new Random();
     }
 
-    public void startGame(Player player, OfflinePlayer otherPlayer, CoinflipGame game) {
+    public void startGame(@NotNull Player player, @NotNull OfflinePlayer otherPlayer, CoinflipGame game) {
         plugin.getLogger().log(Level.INFO, "Running startGame in CoinflipGUI for " + player.getName() + " & " + otherPlayer.getName());
-        if (!player.isOnline() || !otherPlayer.isOnline()) {
-            // One of the players is not online, end the game.
-            return;
-        }
 
         Messages.PLAYER_CHALLENGE.send(otherPlayer.getPlayer(), "{OPPONENT}", player.getName());
 
@@ -55,10 +51,16 @@ public class CoinflipGUI implements Listener {
         OfflinePlayer loser = winner.equals(player) ? otherPlayer : player;
 
         runAnimation(player, winner, loser, game);
+        plugin.getLogger().log(Level.INFO, "End of startgame Method");
     }
 
     private void runAnimation(Player player, OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game) {
         plugin.getLogger().log(Level.INFO, "Running runAnimation in CoinflipGUI for " + player.getName() + " & " + winner.getName());
+
+        // For later use.
+        Player winnerPlayer = winner.getPlayer();
+        Player loserPlayer = loser.getPlayer();
+
         @SuppressWarnings("deprecation") // Suppressing new Gui() deprecation error.
         Gui gui = new Gui(3, TextUtil.color(config.getString("coinflip-gui.title")));
         gui.disableAllInteractions();
@@ -199,9 +201,9 @@ public class CoinflipGUI implements Listener {
                         Messages.COINFLIP_BROADCAST.send(player, replacePlaceholders(
                                 String.valueOf(config.getDouble("settings.tax.rate")),
                                 TextUtil.numberFormat(0),
-                                winner, // Replace with the actual player name
-                                loser, // Replace with the actual opponent name
-                                currency, // Replace with the actual currency name
+                                winner,
+                                loser,
+                                currency,
                                 TextUtil.numberFormat(winAmount)
                         ));
                     }

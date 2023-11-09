@@ -146,13 +146,13 @@ public class GamesGUI {
                 }
 
 
-                /*
+
                 if (config.contains("games-gui.coinflip-game.material") && !config.getString("games-gui.coinflip-game.material").equalsIgnoreCase("PLAYER_HEAD")) {
                     builder = new ItemStackBuilder(XMaterial.matchXMaterial(config.getString("games-gui.coinflip-game.material")).get().parseItem());
                 } else {
                     builder = new ItemStackBuilder(coinflipGame.getCachedHead());
                 }
-                */
+
 
 
                 builder.withName(config.getString("games-gui.coinflip-game.display_name").replace("{PLAYER}", playerFromID.getName()));
@@ -200,7 +200,6 @@ public class GamesGUI {
 
         gui.open(player);
         gui.update();
-        //player.updateInventory();
     }
 
     private void loadFillerItems(PaginatedGui gui) {

@@ -1,1 +1,8 @@
 rootProject.name = 'DeluxeCoinflip'
+
+
+buildCache {
+    local {
+        enabled = true
+    }
+}
