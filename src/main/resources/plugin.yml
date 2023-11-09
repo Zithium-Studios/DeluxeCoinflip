@@ -1,6 +1,6 @@
 name: DeluxeCoinflip
 version: '${version}'
-main: fun.lewisdev.deluxecoinflip.DeluxeCoinflipPlugin
+main: net.zithium.deluxecoinflip.DeluxeCoinflipPlugin
 author: [ ItsLewizzz, ItzSave ]
 api-version: 1.13
 
