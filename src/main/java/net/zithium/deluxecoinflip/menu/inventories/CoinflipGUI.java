@@ -3,6 +3,7 @@ package net.zithium.deluxecoinflip.menu.inventories;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
+import net.zithium.deluxecoinflip.api.events.CoinflipCompletedEvent;
 import net.zithium.deluxecoinflip.config.ConfigType;
 import net.zithium.deluxecoinflip.config.Messages;
 import net.zithium.deluxecoinflip.economy.EconomyManager;
@@ -37,6 +38,7 @@ public class CoinflipGUI implements Listener {
     private final boolean taxEnabled;
     private final double taxRate;
     private final long minimumBroadcastWinnings;
+    private static final int ANIMATION_COUNT_THRESHOLD = 12;
 
     public CoinflipGUI(@NotNull DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
@@ -92,7 +94,7 @@ public class CoinflipGUI implements Listener {
                 count++;
                 gui.getGuiItems().clear();
 
-                if (count >= 12) {
+                if (count >= ANIMATION_COUNT_THRESHOLD) {
                     // Completed animation
                     gui.setItem(13, winnerHead);
                     gui.getFiller().fill(new GuiItem(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE.parseItem()));
@@ -112,7 +114,10 @@ public class CoinflipGUI implements Listener {
                     }
 
                     // Deposit winnings
-                    //Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount)); // MUST BE CALLED SYNCHRONOUSLY
+                    Bukkit.getScheduler().runTask(plugin, () -> {
+                        Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount));
+                    });
+
                     economyManager.getEconomyProvider(game.getProvider()).deposit(winner, winAmount);
 
                     // Update player stats
