@@ -26,7 +26,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
-import java.util.logging.Level;
 
 public class CoinflipGUI implements Listener {
 
@@ -34,16 +33,25 @@ public class CoinflipGUI implements Listener {
     private final EconomyManager economyManager;
     private final FileConfiguration config;
     private final Random rand;
+    private final String coinflipGuiTitle;
+    private final boolean taxEnabled;
+    private final double taxRate;
+    private final long minimumBroadcastWinnings;
 
     public CoinflipGUI(@NotNull DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
         this.economyManager = plugin.getEconomyManager();
         this.config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
         this.rand = new Random();
+
+        // Load config values into variables this helps improve performance.
+        this.coinflipGuiTitle = TextUtil.color(config.getString("coinflip-gui.title"));
+        this.taxEnabled = config.getBoolean("settings.tax.enabled");
+        this.taxRate = config.getDouble("settings.tax.rate");
+        this.minimumBroadcastWinnings = config.getLong("settings.minimum-broadcast-winnings");
     }
 
     public void startGame(@NotNull Player player, @NotNull OfflinePlayer otherPlayer, CoinflipGame game) {
-        plugin.getLogger().log(Level.INFO, "Running startGame in CoinflipGUI for " + player.getName() + " & " + otherPlayer.getName());
 
         Messages.PLAYER_CHALLENGE.send(otherPlayer.getPlayer(), "{OPPONENT}", player.getName());
 
@@ -51,18 +59,12 @@ public class CoinflipGUI implements Listener {
         OfflinePlayer loser = winner.equals(player) ? otherPlayer : player;
 
         runAnimation(player, winner, loser, game);
-        plugin.getLogger().log(Level.INFO, "End of startgame Method");
     }
 
     private void runAnimation(Player player, OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game) {
-        plugin.getLogger().log(Level.INFO, "Running runAnimation in CoinflipGUI for " + player.getName() + " & " + winner.getName());
-
-        // For later use.
-        Player winnerPlayer = winner.getPlayer();
-        Player loserPlayer = loser.getPlayer();
 
         @SuppressWarnings("deprecation") // Suppressing new Gui() deprecation error.
-        Gui gui = new Gui(3, TextUtil.color(config.getString("coinflip-gui.title")));
+        Gui gui = new Gui(3, TextUtil.color(coinflipGuiTitle));
         gui.disableAllInteractions();
 
         GuiItem winnerHead = new GuiItem(new ItemStackBuilder(
@@ -104,7 +106,7 @@ public class CoinflipGUI implements Listener {
                     double taxRate = config.getDouble("settings.tax.rate");
                     long taxed = 0;
 
-                    if (config.getBoolean("settings.tax.enabled")) {
+                    if (taxEnabled) {
                         taxed = (long) ((taxRate * winAmount) / 100.0);
                         winAmount -= taxed;
                     }
@@ -151,11 +153,9 @@ public class CoinflipGUI implements Listener {
                 gui.update();
             }
         }.runTaskTimerAsynchronously(plugin, 0L, 10L);
-        plugin.getLogger().log(Level.INFO, "End of runnable");
     }
 
     private void updatePlayerStats(StorageManager storageManager, OfflinePlayer player, long winAmount, boolean isWinner) {
-        plugin.getLogger().log(Level.INFO, "Running updatePlayerStats in CoinflipGUI");
         Optional<PlayerData> playerDataOptional = storageManager.getPlayer(player.getUniqueId());
         if (playerDataOptional.isPresent()) {
             PlayerData playerData = playerDataOptional.get();
@@ -175,7 +175,6 @@ public class CoinflipGUI implements Listener {
     }
 
     private void sendGameSummaryMessage(OfflinePlayer player, OfflinePlayer opponent, double taxRate, String taxedFormatted, String winAmountFormatted, boolean isWinner, CoinflipGame game) {
-        plugin.getLogger().log(Level.INFO, "Running sendGameSummaryMessage in CoinflipGUI");
         if (player.isOnline()) {
             Messages message = isWinner ? Messages.GAME_SUMMARY_WIN : Messages.GAME_SUMMARY_LOSS;
             message.send(player.getPlayer(), replacePlaceholders(
@@ -191,15 +190,12 @@ public class CoinflipGUI implements Listener {
 
 
     private void broadcastWinningMessage(long winAmount, String winner, String loser, String currency) {
-
-        plugin.getLogger().log(Level.INFO, "Running broadcastWinngMessage in CoinflipGUI");
-
-        if (winAmount >= config.getLong("settings.minimum-broadcast-winnings")) {
+        if (winAmount >= minimumBroadcastWinnings) {
             for (Player player : Bukkit.getServer().getOnlinePlayers()) {
                 plugin.getStorageManager().getPlayer(player.getUniqueId()).ifPresent(playerData -> {
                     if (playerData.isDisplayBroadcastMessages()) {
                         Messages.COINFLIP_BROADCAST.send(player, replacePlaceholders(
-                                String.valueOf(config.getDouble("settings.tax.rate")),
+                                String.valueOf(taxRate),
                                 TextUtil.numberFormat(0),
                                 winner,
                                 loser,
@@ -213,7 +209,6 @@ public class CoinflipGUI implements Listener {
     }
 
     private void closeAnimationGUI(Gui gui) {
-        plugin.getLogger().log(Level.INFO, "Calling closeAnimationGUI in CoinflipGUI");
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             for (HumanEntity viewer : new ArrayList<>(gui.getInventory().getViewers())) {
                 viewer.closeInventory();
