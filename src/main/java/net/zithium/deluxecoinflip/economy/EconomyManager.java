@@ -8,9 +8,7 @@ package net.zithium.deluxecoinflip.economy;
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.deluxecoinflip.config.ConfigType;
 import net.zithium.deluxecoinflip.economy.provider.EconomyProvider;
-import net.zithium.deluxecoinflip.economy.provider.impl.TokenEnchantProvider;
-import net.zithium.deluxecoinflip.economy.provider.impl.TokenManagerProvider;
-import net.zithium.deluxecoinflip.economy.provider.impl.VaultProvider;
+import net.zithium.deluxecoinflip.economy.provider.impl.*;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -45,7 +43,9 @@ public class EconomyManager {
         Stream.of(
                 new VaultProvider(),
                 new TokenEnchantProvider(),
-                new TokenManagerProvider()
+                new TokenManagerProvider(),
+                new ZithiumMobcoinsProvider(),
+                new PlayerPointsProvider()
         ).forEach(provider -> registerEconomyProvider(provider, provider.getIdentifier()));
 
         Bukkit.getScheduler().runTask(plugin, () -> {
