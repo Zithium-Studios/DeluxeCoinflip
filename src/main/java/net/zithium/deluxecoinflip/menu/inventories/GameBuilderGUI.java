@@ -23,6 +23,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import javax.annotation.processing.SupportedOptions;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,15 +36,22 @@ public class GameBuilderGUI {
     private final EconomyManager economyManager;
     private final FileConfiguration config;
 
+    private final String guiTitle;
+
+    private final boolean BROADCAST_CREATION;
+
     public GameBuilderGUI(DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
         this.economyManager = plugin.getEconomyManager();
         config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
+        this.guiTitle = config.getString("gamebuilder-gui.title");
+        this.BROADCAST_CREATION = config.getBoolean("settings.broadcast-coinflip-creation");
     }
 
     public void openGameBuilderGUI(Player player, CoinflipGame game) {
 
-        Gui gui = new Gui(config.getInt("gamebuilder-gui.rows"), TextUtil.color(config.getString("gamebuilder-gui.title")));
+        @SuppressWarnings("deprecation") // Suppressing new Gui() deprecation warning.
+        Gui gui = new Gui(config.getInt("gamebuilder-gui.rows"), TextUtil.color(guiTitle));
         gui.setDefaultClickAction(event -> event.setCancelled(true));
 
         ConfigurationSection fillerItemsSection = config.getConfigurationSection("gamebuilder-gui.filler-items");
@@ -106,7 +114,7 @@ public class GameBuilderGUI {
                 .build(), event -> {
             EconomyProvider provider = economyManager.getEconomyProvider(game.getProvider());
 
-            if(plugin.getGameManager().getCoinflipGames().containsKey(player.getUniqueId())) {
+            if (plugin.getGameManager().getCoinflipGames().containsKey(player.getUniqueId())) {
                 ItemStack previousItem = event.getCurrentItem();
                 player.playSound(player.getLocation(), XSound.BLOCK_NOTE_BLOCK_PLING.parseSound(), 1L, 0L);
                 event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("gamebuilder-gui.error-game-exists")).build());
@@ -114,7 +122,7 @@ public class GameBuilderGUI {
                 return;
             }
 
-            if(game.getAmount() > config.getLong("settings.maximum-bet") || game.getAmount() < config.getLong("settings.minimum-bet")) {
+            if (game.getAmount() > config.getLong("settings.maximum-bet") || game.getAmount() < config.getLong("settings.minimum-bet")) {
                 ItemStack previousItem = event.getCurrentItem();
                 player.playSound(player.getLocation(), XSound.BLOCK_NOTE_BLOCK_PLING.parseSound(), 1L, 0L);
                 event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("gamebuilder-gui.error-limits")).build());
@@ -122,7 +130,7 @@ public class GameBuilderGUI {
                 return;
             }
 
-            if(game.getAmount() > provider.getBalance(player)) {
+            if (game.getAmount() > provider.getBalance(player)) {
                 ItemStack previousItem = event.getCurrentItem();
                 player.playSound(player.getLocation(), XSound.BLOCK_NOTE_BLOCK_PLING.parseSound(), 1L, 0L);
                 event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("gamebuilder-gui.error-no-funds")).build());
@@ -133,14 +141,14 @@ public class GameBuilderGUI {
 
             final CoinflipCreatedEvent createdEvent = new CoinflipCreatedEvent(player, game);
             Bukkit.getPluginManager().callEvent(createdEvent);
-            if(createdEvent.isCancelled()) return;
+            if (createdEvent.isCancelled()) return;
 
             provider.withdraw(player, game.getAmount());
             plugin.getGameManager().addCoinflipGame(player.getUniqueId(), game.clone());
 
             String amountFormatted = NumberFormat.getNumberInstance(Locale.US).format(game.getAmount());
 
-            if(config.getBoolean("settings.broadcast-coinflip-creation")) {
+            if (BROADCAST_CREATION) {
                 Messages.COINFLIP_CREATED_BROADCAST.broadcast("{PLAYER}", player.getName(), "{CURRENCY}", provider.getDisplayName(), "{AMOUNT}", amountFormatted);
             }
 
@@ -153,10 +161,10 @@ public class GameBuilderGUI {
     private List<String> getCurrencyLore(ConfigurationSection section, CoinflipGame game) {
         List<String> lore = section.getStringList("lore-header").stream().map(line -> line.replace("{BET_AMOUNT}", TextUtil.numberFormat(game.getAmount()))).collect(Collectors.toList());
 
-        for(EconomyProvider provider : economyManager.getEconomyProviders().values()) {
-            if(game.getProvider().equals(provider.getIdentifier().toUpperCase())) {
+        for (EconomyProvider provider : economyManager.getEconomyProviders().values()) {
+            if (game.getProvider().equals(provider.getIdentifier().toUpperCase())) {
                 lore.add(section.getString("currency_lore_selected").replace("{CURRENCY}", provider.getDisplayName()));
-            }else{
+            } else {
                 lore.add(section.getString("currency_lore_unselected").replace("{CURRENCY}", provider.getDisplayName()));
             }
         }
@@ -170,7 +178,7 @@ public class GameBuilderGUI {
         try {
             return providers.get(i + 1);
         } catch (IndexOutOfBoundsException e) {
-           return economyManager.getEconomyProviders().keySet().stream().findFirst().get();
+            return economyManager.getEconomyProviders().keySet().stream().findFirst().get();
         }
     }
 
