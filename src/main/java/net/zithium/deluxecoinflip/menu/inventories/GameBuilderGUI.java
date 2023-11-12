@@ -1,6 +1,6 @@
 /*
  * DeluxeCoinflip Plugin
- * Copyright (c) 2021 - 2022 Lewis D (ItsLewizzz). All rights reserved.
+ * Copyright (c) Zithium Studios. All rights reserved.
  */
 
 package net.zithium.deluxecoinflip.menu.inventories;
@@ -23,7 +23,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import javax.annotation.processing.SupportedOptions;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
