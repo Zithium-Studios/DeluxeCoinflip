@@ -100,7 +100,7 @@ public class EconomyManager {
     /**
      * Get all loaded economies
      *
-     * @return Map of String for economy identifer and {@link EconomyProvider} object
+     * @return Map of String for economy identifier and {@link EconomyProvider} object
      */
     public Map<String, EconomyProvider> getEconomyProviders() {
         return Collections.unmodifiableMap(economyProviders);
