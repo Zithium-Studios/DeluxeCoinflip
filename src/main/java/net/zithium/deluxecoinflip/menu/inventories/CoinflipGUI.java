@@ -114,11 +114,12 @@ public class CoinflipGUI implements Listener {
                     }
 
                     // Deposit winnings
+                    economyManager.getEconomyProvider(game.getProvider()).deposit(winner, winAmount);
+
                     Bukkit.getScheduler().runTask(plugin, () -> {
                         Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount));
                     });
 
-                    economyManager.getEconomyProvider(game.getProvider()).deposit(winner, winAmount);
 
                     // Update player stats
                     StorageManager storageManager = plugin.getStorageManager();
@@ -129,9 +130,13 @@ public class CoinflipGUI implements Listener {
                     String taxedFormatted = TextUtil.numberFormat(taxed);
 
                     // Send win/loss messages
-                    sendGameSummaryMessage(winner, loser, taxRate, taxedFormatted, winAmountFormatted, true, game);
-                    sendGameSummaryMessage(loser, winner, taxRate, taxedFormatted, winAmountFormatted, false, game);
-
+                    // Send win/loss messages
+                    if (winner.isOnline()) {
+                        Messages.GAME_SUMMARY_WIN.send(winner.getPlayer(), replacePlaceholders(String.valueOf(taxRate), taxedFormatted, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmountFormatted));
+                    }
+                    if (loser.isOnline()) {
+                        Messages.GAME_SUMMARY_LOSS.send(loser.getPlayer(), replacePlaceholders(String.valueOf(taxRate), taxedFormatted, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmountFormatted));
+                    }
                     // Broadcast to the server
                     broadcastWinningMessage(winAmount, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName());
 
@@ -178,21 +183,6 @@ public class CoinflipGUI implements Listener {
             }
         }
     }
-
-    private void sendGameSummaryMessage(OfflinePlayer player, OfflinePlayer opponent, double taxRate, String taxedFormatted, String winAmountFormatted, boolean isWinner, CoinflipGame game) {
-        if (player.isOnline()) {
-            Messages message = isWinner ? Messages.GAME_SUMMARY_WIN : Messages.GAME_SUMMARY_LOSS;
-            message.send(player.getPlayer(), replacePlaceholders(
-                    String.valueOf(taxRate),
-                    taxedFormatted,
-                    player.getName(),
-                    opponent.getName(),
-                    economyManager.getEconomyProvider(game.getProvider()).getDisplayName(),
-                    winAmountFormatted
-            ));
-        }
-    }
-
 
     private void broadcastWinningMessage(long winAmount, String winner, String loser, String currency) {
         if (winAmount >= minimumBroadcastWinnings) {
