@@ -1,9 +1,9 @@
 # DeluxeCoinflip
-# Author: Lewis D (ItsLewizzz)
-# Copyright Lewis D 2020-2022. All rights reserved.
+# Author: Zithium Studios
+# Copyright Zithium Studios D 2023. All rights reserved.
 #
 # Developer API
-#   https://github.com/ItsLewizzz/DeluxeCoinflipAPI
+#   https://github.com/itzsave/DeluxeCoinflipAPI
 
 # Select your storage type
 storage:
@@ -58,29 +58,6 @@ settings:
       enabled: true
       display_currency_name: "TokenManager"
 
-    # UltraPrisonCore Tokens Economy (requires UltraPrisonCore plugin)
-    # https://www.spigotmc.org/resources/86845/
-    ULTRAPRISONCORE:
-      enabled: true
-      display_currency_name: "UltraPrisonCore"
-
-    # GamePoints Economy (requires GamePoints plugin)
-    # https://www.spigotmc.org/resources/84121/
-    GAMEPOINTS:
-      enabled: true
-      display_currency_name: "Points"
-
-    # PlayerPoints Economy (requires PlayerPoints plugin)
-    # https://www.spigotmc.org/resources/80745/
-    PLAYERPOINTS:
-      enabled: true
-      display_currency_name: "Points"
-
-    # BeastTokens Economy (requires BeastTokens plugin)
-    # https://www.spigotmc.org/resources/20806/
-    BEASTTOKENS:
-      enabled: true
-      display_currency_name: "Tokens"
 
 coinflip-gui:
   title: "&lFLIPPING COIN.."
@@ -94,7 +71,7 @@ games-gui:
     border:
       material: GRAY_STAINED_GLASS_PANE
       display_name: "&r"
-      slots: [27, 28, 29, 33, 34]
+      slots: [ 27, 28, 29, 33, 34 ]
     stats:
       slot: 31
       material: BOOK
@@ -113,7 +90,7 @@ games-gui:
 
   # Items below here are fixed and ID should not be removed/changed.
   create-new-game:
-    # Set this to false to disable the game builder gui
+    # Set false to disable the game builder gui
     enabled: true
     slot: 35
     material: NETHER_STAR
@@ -167,7 +144,7 @@ gamebuilder-gui:
     border:
       material: GRAY_STAINED_GLASS_PANE
       display_name: "&r"
-      slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 13, 17, 19, 20, 21, 22, 23, 24, 25]
+      slots: [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 13, 17, 19, 20, 21, 22, 23, 24, 25 ]
 
   amount-items:
     plus_100:

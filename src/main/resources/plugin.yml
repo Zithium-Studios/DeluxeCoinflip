@@ -1,7 +1,7 @@
 name: DeluxeCoinflip
 version: '${version}'
-main: fun.lewisdev.deluxecoinflip.DeluxeCoinflipPlugin
-author: ItsLewizzz
+main: net.zithium.deluxecoinflip.DeluxeCoinflipPlugin
+author: [ ItsLewizzz, ItzSave ]
 api-version: 1.13
 
 softdepend:
@@ -9,11 +9,6 @@ softdepend:
   - Vault
   - TokenEnchant
   - TokenManager
-  - UltraPrisonCore
-  - PlayerPoints
-  - GamePoints
-  - BeastTokens
-  - RevEnchants
 
 permissions:
   coinflip.admin:
