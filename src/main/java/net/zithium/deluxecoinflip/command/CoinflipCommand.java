@@ -1,6 +1,6 @@
 /*
  * DeluxeCoinflip Plugin
- * Copyright (c) 2021 - 2022 Lewis D (ItsLewizzz). All rights reserved.
+ * Copyright (c) Zithium Studios. All rights reserved.
  */
 
 package net.zithium.deluxecoinflip.command;
