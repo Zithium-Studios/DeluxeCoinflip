@@ -2,7 +2,7 @@ name: DeluxeCoinflip
 version: '${version}'
 main: net.zithium.deluxecoinflip.DeluxeCoinflipPlugin
 author: [ ItsLewizzz, ItzSave ]
-api-version: 1.13
+api-version: 1.19
 
 softdepend:
   - PlaceholderAPI

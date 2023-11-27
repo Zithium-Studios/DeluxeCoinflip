@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'net.zithium'
-version = '2.6.8'
+version = '2.7.0'
 description = 'DeluxeCoinflip'
 
 repositories {
@@ -22,14 +22,13 @@ repositories {
 dependencies {
     implementation 'me.mattstudios.utils:matt-framework:1.4.6'
     implementation 'dev.triumphteam:triumph-gui:3.1.7'
-    implementation 'com.github.ItzSave:ZithiumLibrary:1.0.10'
 
     compileOnly 'org.spigotmc:spigot-api:1.20.1-R0.1-SNAPSHOT'
 
-    compileOnly 'me.clip:placeholderapi:2.10.6'
+    compileOnly 'me.clip:placeholderapi:2.11.5'
     compileOnly 'com.mojang:authlib:1.5.21'
 
-    compileOnly ('com.github.Realizedd:TokenManager:3.2.4') {
+    compileOnly('com.github.Realizedd:TokenManager:3.2.4') {
         exclude group: 'be.maximvdw'
         exclude group: 'org.bstats'
     }
@@ -56,6 +55,6 @@ processResources {
 shadowJar {
     minimize()
     archiveFileName = "DeluxeCoinflip-${project.version}.jar"
-    relocate 'dev.triumphteam.gui', 'fun.lewisdev.deluxecoinflip.libs.gui'
-    relocate 'me.mattstudios.mf', 'fun.lewisdev.deluxecoinflip.libs.command'
+    relocate 'dev.triumphteam.gui', 'net.zithium.deluxecoinflip.libs.gui'
+    relocate 'me.mattstudios.mf', 'net.zithium.deluxecoinflip.libs.command'
 }
