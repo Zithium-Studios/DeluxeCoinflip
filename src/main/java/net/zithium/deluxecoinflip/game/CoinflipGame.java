@@ -8,7 +8,6 @@ package net.zithium.deluxecoinflip.game;
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.deluxecoinflip.utility.universal.XMaterial;
-import net.zithium.library.items.Base64Util;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
@@ -32,8 +31,6 @@ public class CoinflipGame {
         Bukkit.getScheduler().runTaskAsynchronously(JavaPlugin.getProvidingPlugin(DeluxeCoinflipPlugin.class), () -> {
             this.player = Bukkit.getOfflinePlayer(uuid);
             if (Bukkit.getOnlineMode()) {
-                this.cachedHead = Base64Util.getSkull(player.getUniqueId());
-            } else {
                 this.cachedHead = new ItemStackBuilder(XMaterial.PLAYER_HEAD.parseItem()).setSkullOwner(player).build();
             }
         });
