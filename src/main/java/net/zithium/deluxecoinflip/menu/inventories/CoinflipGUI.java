@@ -39,6 +39,7 @@ public class CoinflipGUI implements Listener {
     private final double taxRate;
     private final long minimumBroadcastWinnings;
     private static final int ANIMATION_COUNT_THRESHOLD = 12;
+    private final double TAX_RATE;
 
     public CoinflipGUI(@NotNull DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
@@ -51,6 +52,7 @@ public class CoinflipGUI implements Listener {
         this.taxEnabled = config.getBoolean("settings.tax.enabled");
         this.taxRate = config.getDouble("settings.tax.rate");
         this.minimumBroadcastWinnings = config.getLong("settings.minimum-broadcast-winnings");
+        this.TAX_RATE = config.getDouble("settings.tax.rate");
     }
 
     public void startGame(@NotNull Player player, @NotNull OfflinePlayer otherPlayer, CoinflipGame game) {
@@ -105,20 +107,18 @@ public class CoinflipGUI implements Listener {
                         player.playSound(player.getLocation(), XSound.ENTITY_PLAYER_LEVELUP.parseSound(), 1L, 0L);
                     }
 
-                    double taxRate = config.getDouble("settings.tax.rate");
                     long taxed = 0;
 
                     if (taxEnabled) {
-                        taxed = (long) ((taxRate * winAmount) / 100.0);
+                        taxed = (long) ((TAX_RATE * winAmount) / 100.0);
                         winAmount -= taxed;
                     }
 
                     // Deposit winnings
                     economyManager.getEconomyProvider(game.getProvider()).deposit(winner, winAmount);
 
-                    Bukkit.getScheduler().runTask(plugin, () -> {
-                        Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount));
-                    });
+                    // Run event.
+                    Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount)));
 
 
                     // Update player stats
@@ -130,7 +130,6 @@ public class CoinflipGUI implements Listener {
                     String taxedFormatted = TextUtil.numberFormat(taxed);
 
                     // Send win/loss messages
-                    // Send win/loss messages
                     if (winner.isOnline()) {
                         Messages.GAME_SUMMARY_WIN.send(winner.getPlayer(), replacePlaceholders(String.valueOf(taxRate), taxedFormatted, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmountFormatted));
                     }
@@ -140,7 +139,7 @@ public class CoinflipGUI implements Listener {
                     // Broadcast to the server
                     broadcastWinningMessage(winAmount, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName());
 
-                    closeAnimationGUI(gui);
+                    //closeAnimationGUI(gui);
 
                     cancel();
                 }

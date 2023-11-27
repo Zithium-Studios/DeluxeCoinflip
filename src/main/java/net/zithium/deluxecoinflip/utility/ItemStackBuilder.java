@@ -6,7 +6,6 @@
 package net.zithium.deluxecoinflip.utility;
 
 import net.zithium.deluxecoinflip.utility.universal.XMaterial;
-import net.zithium.library.items.Base64Util;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
