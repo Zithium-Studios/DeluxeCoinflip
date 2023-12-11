@@ -110,18 +110,8 @@ public class StorageManager {
 
     public void loadPlayerData(UUID uuid) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            File dataFile = new File(plugin.getDataFolder() + File.separator + "data", uuid.toString() + ".yml");
-            // Check for old storage files
-            if (dataFile.exists()) {
-                FileConfiguration playerDataConfig = YamlConfiguration.loadConfiguration(dataFile);
-                final int wins = playerDataConfig.getInt("stats.wins");
-                final int losses = playerDataConfig.getInt("stats.losses");
-                final long profit = playerDataConfig.getLong("stats.profit");
-                playerDataMap.put(uuid, new PlayerData(uuid, wins, losses, profit));
-                dataFile.delete();
-            } else {
-                playerDataMap.put(uuid, storageHandler.getPlayer(uuid));
-            }
+            playerDataMap.put(uuid, storageHandler.getPlayer(uuid));
+
         });
     }
 
