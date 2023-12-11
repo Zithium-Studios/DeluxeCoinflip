@@ -123,6 +123,11 @@ public class StorageManager {
         });
     }
 
+    public void setHasActiveGame(UUID uuid, boolean value) {
+        PlayerData playerData = storageHandler.getPlayer(uuid);
+        playerData.setHasActiveGame(value);
+    }
+
     public StorageHandler getStorageHandler() {
         return storageHandler;
     }

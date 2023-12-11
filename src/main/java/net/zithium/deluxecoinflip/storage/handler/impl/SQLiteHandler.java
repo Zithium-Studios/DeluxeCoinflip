@@ -41,7 +41,7 @@ public class SQLiteHandler implements StorageHandler {
     @Override
     public void onDisable() {
         try {
-            if(!connection.isClosed()) connection.close();
+            if (!connection.isClosed()) connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -49,7 +49,7 @@ public class SQLiteHandler implements StorageHandler {
 
     public Connection getConnection() {
         try {
-            if(connection != null && !connection.isClosed()) return connection;
+            if (connection != null && !connection.isClosed()) return connection;
             else {
                 Class.forName("org.sqlite.JDBC");
                 connection = DriverManager.getConnection("jdbc:sqlite:" + file);
@@ -69,7 +69,8 @@ public class SQLiteHandler implements StorageHandler {
                     "wins INTEGER, " +
                     "losses INTEGER, " +
                     "profit BIGINT," +
-                    "broadcasts BOOLEAN);";
+                    "broadcasts BOOLEAN," +
+                    "active_game BOOLEAN" + ");";
             Statement statement = connection.createStatement();
             statement.execute(sql);
 
@@ -90,12 +91,13 @@ public class SQLiteHandler implements StorageHandler {
             Connection connection = getConnection();
             String sql = "SELECT * FROM players WHERE uuid ='" + uuid + "';";
             ResultSet resultSet = connection.createStatement().executeQuery(sql);
-            if(resultSet.next()) {
+            if (resultSet.next()) {
                 PlayerData playerData = new PlayerData(uuid);
                 playerData.setWins(resultSet.getInt("wins"));
                 playerData.setLosses(resultSet.getInt("losses"));
                 playerData.setProfit(resultSet.getLong("profit"));
                 playerData.setDisplayBroadcastMessages(resultSet.getBoolean("broadcasts"));
+                playerData.setHasActiveGame(resultSet.getBoolean("active_game"));
 
                 return playerData;
             }
@@ -110,13 +112,14 @@ public class SQLiteHandler implements StorageHandler {
     public void savePlayer(final PlayerData player) {
         try {
             Connection connection = getConnection();
-            String sql = "REPLACE INTO 'players' (uuid, wins, losses, profit, broadcasts) VALUES (?, ?, ?, ?, ?)";
+            String sql = "REPLACE INTO 'players' (uuid, wins, losses, profit, broadcasts, active_game) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement pstmt = connection.prepareStatement(sql);
             pstmt.setString(1, player.getUUID().toString());
             pstmt.setInt(2, player.getWins());
             pstmt.setInt(3, player.getLosses());
             pstmt.setLong(4, player.getProfit());
             pstmt.setBoolean(5, player.isDisplayBroadcastMessages());
+            pstmt.setBoolean(6, player.hasActiveGame());
             pstmt.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -157,7 +160,7 @@ public class SQLiteHandler implements StorageHandler {
             Connection connection = getConnection();
             String sql = "SELECT * FROM games;";
             ResultSet resultSet = connection.createStatement().executeQuery(sql);
-            if(resultSet.next()) {
+            if (resultSet.next()) {
                 UUID uuid = UUID.fromString(resultSet.getString("uuid"));
                 String provider = resultSet.getString("provider");
                 long amount = resultSet.getLong("amount");
