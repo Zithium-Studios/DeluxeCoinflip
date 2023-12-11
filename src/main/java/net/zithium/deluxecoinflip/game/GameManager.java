@@ -6,10 +6,8 @@
 package net.zithium.deluxecoinflip.game;
 
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
-import net.zithium.deluxecoinflip.config.ConfigHandler;
 import net.zithium.deluxecoinflip.storage.StorageManager;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,25 +29,6 @@ public class GameManager {
      * Load existing games from storage
      */
     public void onEnable() {
-        // Load any legacy games (from games.yml) into cache
-        // and then delete file to use new SQL based storage.
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            ConfigHandler dataHandler = new ConfigHandler(plugin, "games");
-            if(dataHandler.getFile().exists()) {
-                dataHandler.saveDefaultConfig();
-                FileConfiguration dataConfig = dataHandler.getConfig();
-
-                if (dataConfig.isSet("games")) {
-                    plugin.getLogger().info("Found coinflip games from legacy games.yml storage, converting...");
-                    for (String uuid : dataConfig.getConfigurationSection("games").getKeys(false)) {
-                        String provider = dataConfig.getString("games." + uuid + ".provider");
-                        addCoinflipGame(UUID.fromString(uuid), new CoinflipGame(UUID.fromString(uuid), provider, dataConfig.getLong("games." + uuid + ".amount")));
-                    }
-                }
-                dataHandler.getFile().delete();
-            }
-        });
-
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> coinflipGames.putAll(storageManager.getStorageHandler().getGames()));
 
     }
@@ -62,9 +41,9 @@ public class GameManager {
      */
     public void addCoinflipGame(UUID uuid, CoinflipGame game) {
         coinflipGames.put(uuid, game);
-        if(Bukkit.isPrimaryThread()) {
+        if (Bukkit.isPrimaryThread()) {
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> storageManager.getStorageHandler().saveCoinflip(game));
-        }else{
+        } else {
             storageManager.getStorageHandler().saveCoinflip(game);
         }
     }
@@ -76,9 +55,9 @@ public class GameManager {
      */
     public void removeCoinflipGame(UUID uuid) {
         coinflipGames.remove(uuid);
-        if(Bukkit.isPrimaryThread()) {
+        if (Bukkit.isPrimaryThread()) {
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> storageManager.getStorageHandler().deleteCoinfip(uuid));
-        }else{
+        } else {
             storageManager.getStorageHandler().deleteCoinfip(uuid);
         }
     }
