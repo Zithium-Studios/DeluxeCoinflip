@@ -22,6 +22,8 @@ public class SQLiteHandler implements StorageHandler {
     private File file;
     private Connection connection;
 
+    // TODO: Update logging methods to be more descriptive.
+
     @Override
     public boolean onEnable(final DeluxeCoinflipPlugin plugin) {
         file = new File(plugin.getDataFolder(), "database.db");
