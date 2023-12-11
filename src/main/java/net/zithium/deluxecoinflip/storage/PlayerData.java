@@ -16,21 +16,23 @@ public class PlayerData {
     private int wins, losses;
     private long profit;
     private boolean displayBroadcastMessages;
+    private boolean hasActiveGame;
 
-    public PlayerData(UUID uuid, int wins, int losses, long profit, boolean displayBroadcastMessages) {
+    public PlayerData(UUID uuid, int wins, int losses, long profit, boolean displayBroadcastMessages, boolean hasActiveGame) {
         this.uuid = uuid;
         this.losses = losses;
         this.wins = wins;
         this.profit = profit;
         this.displayBroadcastMessages = displayBroadcastMessages;
+        this.hasActiveGame = hasActiveGame;
     }
 
     public PlayerData(UUID uuid, int wins, int losses, long profit) {
-        this(uuid, wins, losses, profit, true);
+        this(uuid, wins, losses, profit, true, false);
     }
 
     public PlayerData(UUID uuid) {
-        this(uuid, 0, 0, 0, true);
+        this(uuid, 0, 0, 0, true, false);
     }
 
     public UUID getUUID() {
@@ -92,5 +94,13 @@ public class PlayerData {
 
     public void setDisplayBroadcastMessages(boolean value) {
         this.displayBroadcastMessages = value;
+    }
+
+    public boolean hasActiveGame(){
+        return hasActiveGame;
+    }
+
+    public void setHasActiveGame(boolean value) {
+        this.hasActiveGame = value;
     }
 }

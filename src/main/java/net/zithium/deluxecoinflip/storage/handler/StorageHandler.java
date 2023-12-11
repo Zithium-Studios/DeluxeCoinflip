@@ -18,7 +18,7 @@ public interface StorageHandler {
      * Called when a storage handler is enabling
      *
      * @param plugin The plugin
-     * @return true if the enable was successful, otherwise false
+     * @return true if loaded successfully. false if load has failed.
      */
     boolean onEnable(final DeluxeCoinflipPlugin plugin);
 
