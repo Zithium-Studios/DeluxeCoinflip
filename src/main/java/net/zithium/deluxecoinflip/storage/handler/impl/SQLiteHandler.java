@@ -1,6 +1,6 @@
 /*
  * DeluxeCoinflip Plugin
- * Copyright (c) 2021 - 2022 Lewis D (ItsLewizzz). All rights reserved.
+ * Copyright (c) 2023 Zithium Studios. All rights reserved.
  */
 
 package net.zithium.deluxecoinflip.storage.handler.impl;
@@ -21,8 +21,6 @@ public class SQLiteHandler implements StorageHandler {
 
     private File file;
     private Connection connection;
-
-    // TODO: Update logging methods to be more descriptive.
 
     @Override
     public boolean onEnable(final DeluxeCoinflipPlugin plugin) {
@@ -71,8 +69,7 @@ public class SQLiteHandler implements StorageHandler {
                     "wins INTEGER, " +
                     "losses INTEGER, " +
                     "profit BIGINT," +
-                    "broadcasts BOOLEAN," +
-                    "active_game BOOLEAN" + ");";
+                    "broadcasts BOOLEAN);";
             Statement statement = connection.createStatement();
             statement.execute(sql);
 
@@ -99,7 +96,6 @@ public class SQLiteHandler implements StorageHandler {
                 playerData.setLosses(resultSet.getInt("losses"));
                 playerData.setProfit(resultSet.getLong("profit"));
                 playerData.setDisplayBroadcastMessages(resultSet.getBoolean("broadcasts"));
-                playerData.setHasActiveGame(resultSet.getBoolean("active_game"));
 
                 return playerData;
             }
@@ -114,14 +110,13 @@ public class SQLiteHandler implements StorageHandler {
     public void savePlayer(final PlayerData player) {
         try {
             Connection connection = getConnection();
-            String sql = "REPLACE INTO 'players' (uuid, wins, losses, profit, broadcasts, active_game) VALUES (?, ?, ?, ?, ?, ?)";
+            String sql = "REPLACE INTO 'players' (uuid, wins, losses, profit, broadcasts) VALUES (?, ?, ?, ?, ?)";
             PreparedStatement pstmt = connection.prepareStatement(sql);
             pstmt.setString(1, player.getUUID().toString());
             pstmt.setInt(2, player.getWins());
             pstmt.setInt(3, player.getLosses());
             pstmt.setLong(4, player.getProfit());
             pstmt.setBoolean(5, player.isDisplayBroadcastMessages());
-            pstmt.setBoolean(6, player.hasActiveGame());
             pstmt.execute();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -9,7 +9,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.zithium.deluxecoinflip.api.DeluxeCoinflipAPI;
 import net.zithium.deluxecoinflip.command.CoinflipCommand;
-import net.zithium.deluxecoinflip.command.DebugCommand;
 import net.zithium.deluxecoinflip.config.ConfigHandler;
 import net.zithium.deluxecoinflip.config.ConfigType;
 import net.zithium.deluxecoinflip.config.Messages;
@@ -81,7 +80,6 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         commandManager.getMessageHandler().register("cmd.no.permission", Messages.NO_PERMISSION::send);
         // Register commands
         commandManager.register(new CoinflipCommand(this, getConfigHandler(ConfigType.CONFIG).getConfig().getStringList("settings.command_aliases")));
-        commandManager.register(new DebugCommand(this));
 
         // Register listeners
         new PlayerChatListener(this);
