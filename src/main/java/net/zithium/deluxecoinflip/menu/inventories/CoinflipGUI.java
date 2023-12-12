@@ -28,6 +28,11 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
 
+/**
+ * Implementation is set to be replaced with an InventoryHolder system.
+ * @deprecated
+ * @since 3.7.0
+ */
 public class CoinflipGUI implements Listener {
 
     private final DeluxeCoinflipPlugin plugin;
