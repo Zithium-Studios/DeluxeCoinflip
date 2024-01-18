@@ -18,6 +18,7 @@ import net.zithium.deluxecoinflip.game.CoinflipGame;
 import net.zithium.deluxecoinflip.game.GameManager;
 import net.zithium.deluxecoinflip.hook.PlaceholderAPIHook;
 import net.zithium.deluxecoinflip.listener.PlayerChatListener;
+import net.zithium.deluxecoinflip.listener.PlayerListener;
 import net.zithium.deluxecoinflip.menu.InventoryManager;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.StorageManager;
@@ -89,6 +90,8 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
             new PlaceholderAPIHook(this).register();
             getLogger().log(Level.INFO, "Hooked into PlaceholderAPI successfully");
         }
+
+        Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
 
         getLogger().log(Level.INFO, "");
         getLogger().log(Level.INFO, "Successfully loaded in " + (System.currentTimeMillis() - start) + "ms");
