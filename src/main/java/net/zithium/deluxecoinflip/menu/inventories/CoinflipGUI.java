@@ -18,13 +18,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
 
@@ -200,14 +198,6 @@ public class CoinflipGUI implements Listener {
                 });
             }
         }
-    }
-
-    private void closeAnimationGUI(Gui gui) {
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            for (HumanEntity viewer : new ArrayList<>(gui.getInventory().getViewers())) {
-                viewer.closeInventory();
-            }
-        }, 100L);
     }
 
     private Object[] replacePlaceholders(String taxRate, String taxDeduction, String winner, String loser, String currency, String winnings) {

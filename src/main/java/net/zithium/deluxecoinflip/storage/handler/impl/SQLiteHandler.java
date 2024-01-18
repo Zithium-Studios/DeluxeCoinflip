@@ -1,6 +1,6 @@
 /*
  * DeluxeCoinflip Plugin
- * Copyright (c) 2021 - 2022 Lewis D (ItsLewizzz). All rights reserved.
+ * Copyright (c) 2023 Zithium Studios. All rights reserved.
  */
 
 package net.zithium.deluxecoinflip.storage.handler.impl;
@@ -41,7 +41,7 @@ public class SQLiteHandler implements StorageHandler {
     @Override
     public void onDisable() {
         try {
-            if(!connection.isClosed()) connection.close();
+            if (!connection.isClosed()) connection.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -49,7 +49,7 @@ public class SQLiteHandler implements StorageHandler {
 
     public Connection getConnection() {
         try {
-            if(connection != null && !connection.isClosed()) return connection;
+            if (connection != null && !connection.isClosed()) return connection;
             else {
                 Class.forName("org.sqlite.JDBC");
                 connection = DriverManager.getConnection("jdbc:sqlite:" + file);
@@ -90,7 +90,7 @@ public class SQLiteHandler implements StorageHandler {
             Connection connection = getConnection();
             String sql = "SELECT * FROM players WHERE uuid ='" + uuid + "';";
             ResultSet resultSet = connection.createStatement().executeQuery(sql);
-            if(resultSet.next()) {
+            if (resultSet.next()) {
                 PlayerData playerData = new PlayerData(uuid);
                 playerData.setWins(resultSet.getInt("wins"));
                 playerData.setLosses(resultSet.getInt("losses"));
@@ -157,7 +157,7 @@ public class SQLiteHandler implements StorageHandler {
             Connection connection = getConnection();
             String sql = "SELECT * FROM games;";
             ResultSet resultSet = connection.createStatement().executeQuery(sql);
-            if(resultSet.next()) {
+            if (resultSet.next()) {
                 UUID uuid = UUID.fromString(resultSet.getString("uuid"));
                 String provider = resultSet.getString("provider");
                 long amount = resultSet.getLong("amount");

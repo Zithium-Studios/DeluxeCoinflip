@@ -193,6 +193,7 @@ public class GamesGUI {
                     event.getWhoClicked().closeInventory();
                     plugin.getInventoryManager().getCoinflipGUI().startGame(player, playerFromID, game);
 
+
                 });
                 gui.addItem(guiItem);
             }

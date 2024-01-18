@@ -93,4 +93,5 @@ public class PlayerData {
     public void setDisplayBroadcastMessages(boolean value) {
         this.displayBroadcastMessages = value;
     }
+
 }
