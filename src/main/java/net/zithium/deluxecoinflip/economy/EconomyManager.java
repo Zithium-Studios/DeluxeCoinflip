@@ -45,7 +45,8 @@ public class EconomyManager {
                 new TokenEnchantProvider(),
                 new TokenManagerProvider(),
                 new ZithiumMobcoinsProvider(),
-                new PlayerPointsProvider()
+                new PlayerPointsProvider(),
+                new BeastTokensProvider()
         ).forEach(provider -> registerEconomyProvider(provider, provider.getIdentifier()));
 
         Bukkit.getScheduler().runTask(plugin, () -> {
