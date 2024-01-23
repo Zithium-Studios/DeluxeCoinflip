@@ -58,6 +58,18 @@ settings:
       enabled: true
       display_currency_name: "TokenManager"
 
+    # ZithiumMobcoins integration (requires ZithiumMobcoins plugin)
+    # https://www.spigotmc.org/resources/113153/
+    ZITHIUMMOBCOINS:
+      enabled: true
+      display_currency_name: "Mobcoins"
+
+    # BeastTokens Economy (requires BeastTokens plugin)
+    # https://www.spigotmc.org/resources/20806/
+    BEASTTOKENS:
+      enabled: true
+      display_currency_name: "Tokens"
+
 
 coinflip-gui:
   title: "&lFLIPPING COIN.."
