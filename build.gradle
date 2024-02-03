@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'net.zithium'
-version = '2.7.3'
+version = '2.7.4'
 description = 'DeluxeCoinflip'
 
 repositories {
@@ -22,6 +22,7 @@ repositories {
 dependencies {
     implementation 'me.mattstudios.utils:matt-framework:1.4.6'
     implementation 'dev.triumphteam:triumph-gui:3.1.7'
+    implementation 'org.bstats:bstats-bukkit:3.0.2'
 
     compileOnly 'org.spigotmc:spigot-api:1.20.1-R0.1-SNAPSHOT'
 
@@ -57,4 +58,5 @@ shadowJar {
     archiveFileName = "DeluxeCoinflip-${project.version}.jar"
     relocate 'dev.triumphteam.gui', 'net.zithium.deluxecoinflip.libs.gui'
     relocate 'me.mattstudios.mf', 'net.zithium.deluxecoinflip.libs.command'
+    relocate 'org.bstats', 'net.zithium.deluxecoinflip.libs.metrics' // bStats
 }

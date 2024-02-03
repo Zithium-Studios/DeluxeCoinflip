@@ -23,6 +23,7 @@ import net.zithium.deluxecoinflip.menu.InventoryManager;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.StorageManager;
 import me.mattstudios.mf.base.CommandManager;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -50,6 +51,8 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         getLogger().log(Level.INFO, "/  |_     Author(s): " + getDescription().getAuthors().get(0));
         getLogger().log(Level.INFO, "\\_ |      (c) Zithium Studios 2020-2023. All rights reserved.");
         getLogger().log(Level.INFO, "");
+
+        enableMetrics();
 
         listenerCache = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).maximumSize(500).build();
 
@@ -98,8 +101,22 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         getLogger().log(Level.INFO, "");
     }
 
+
+    private void enableMetrics() {
+        if (getConfig().getBoolean("metrics", true)) {
+            getLogger().log(Level.INFO, "Loading bStats metrics");
+            int pluginId = 20887;
+            Metrics metrics = new Metrics(this, pluginId);
+        } else {
+            getLogger().log(Level.INFO, "Metrics are disabled");
+        }
+
+    }
+
     public void onDisable() {
         if (storageManager != null) storageManager.onDisable(true);
+
+        clearGames();
     }
 
     // Plugin reload handling
@@ -116,6 +133,20 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         ConfigHandler handler = new ConfigHandler(this, type.toString().toLowerCase());
         handler.saveDefaultConfig();
         configMap.put(type, handler);
+    }
+
+    public void clearGames() {
+        for (UUID uuid : gameManager.getCoinflipGames().keySet()) {
+            CoinflipGame coinflipGame = gameManager.getCoinflipGames().get(uuid);
+            Player creator = Bukkit.getPlayer(uuid);
+            if (creator != null) {
+                economyManager.getEconomyProvider(coinflipGame.getProvider()).deposit(creator, coinflipGame.getAmount());
+            }
+
+            gameManager.removeCoinflipGame(uuid);
+
+            storageManager.getStorageHandler().deleteCoinfip(uuid);
+        }
     }
 
     public StorageManager getStorageManager() {
