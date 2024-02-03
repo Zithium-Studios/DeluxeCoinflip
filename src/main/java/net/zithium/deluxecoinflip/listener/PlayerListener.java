@@ -22,7 +22,6 @@ public class PlayerListener implements Listener {
         this.plugin = plugin;
         this.economyManager = plugin.getEconomyManager();
         this.gameManager = plugin.getGameManager();
-        this.storageManager = plugin.getStorageManager();
     }
 
 
