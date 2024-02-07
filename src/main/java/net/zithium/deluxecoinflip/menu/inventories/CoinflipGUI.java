@@ -2,6 +2,7 @@ package net.zithium.deluxecoinflip.menu.inventories;
 
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
+import net.kyori.adventure.text.Component;
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.deluxecoinflip.api.events.CoinflipCompletedEvent;
 import net.zithium.deluxecoinflip.config.ConfigType;
@@ -65,8 +66,7 @@ public class CoinflipGUI implements Listener {
 
     private void runAnimation(Player player, OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game) {
 
-        @SuppressWarnings("deprecation") // Suppressing new Gui() deprecation error.
-        Gui gui = new Gui(3, TextUtil.color(coinflipGuiTitle));
+        Gui gui = Gui.gui().rows(3).title(Component.text(coinflipGuiTitle)).create();
         gui.disableAllInteractions();
 
         GuiItem winnerHead = new GuiItem(new ItemStackBuilder(
