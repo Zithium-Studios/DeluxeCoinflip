@@ -15,12 +15,15 @@ import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.deluxecoinflip.utility.TextUtil;
 import net.zithium.deluxecoinflip.utility.universal.XMaterial;
 import net.zithium.deluxecoinflip.utility.universal.XSound;
+import net.zithium.mobcoins.util.GuiUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
@@ -144,12 +147,30 @@ public class CoinflipGUI implements Listener {
 
                 // Do animation
                 if (alternate) {
-                    gui.setItem(13, winnerHead);
-                    gui.getFiller().fill(new GuiItem(XMaterial.YELLOW_STAINED_GLASS_PANE.parseItem()));
+                    ConfigurationSection animationSection = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.1.");
+                    if (animationSection != null) {
+                        ItemStack firstAnimationItem = ItemStackBuilder.getItemStack(animationSection).build();
+                        gui.setItem(13, winnerHead);
+                        gui.getFiller().fill(new GuiItem(firstAnimationItem));
+                    } else {
+                        gui.setItem(13, winnerHead);
+                        gui.getFiller().fill(new GuiItem(XMaterial.YELLOW_STAINED_GLASS_PANE.parseItem()));
+                        plugin.getLogger().warning("Missing configuration section for first animation frame.");
+                    }
                 } else {
-                    gui.setItem(13, loserHead);
-                    gui.getFiller().fill(new GuiItem(XMaterial.GRAY_STAINED_GLASS_PANE.parseItem()));
+                    ConfigurationSection animationSection = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.2");
+                    if (animationSection != null) {
+                        ItemStack secondAnimationItem = ItemStackBuilder.getItemStack(animationSection).build();
+                        gui.setItem(13, loserHead);
+                        gui.getFiller().fill(new GuiItem(secondAnimationItem));
+                    } else {
+                        gui.setItem(13, loserHead);
+                        gui.getFiller().fill(new GuiItem(XMaterial.GRAY_STAINED_GLASS_PANE.parseItem()));
+                        plugin.getLogger().warning("Missing configuration section for second animation frame.");
+                    }
                 }
+
+
 
                 alternate = !alternate;
 
