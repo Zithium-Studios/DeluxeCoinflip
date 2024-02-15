@@ -5,7 +5,9 @@
 
 package net.zithium.deluxecoinflip.menu.inventories;
 
+import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.PaginatedGui;
+import net.kyori.adventure.text.Component;
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.deluxecoinflip.config.ConfigType;
 import net.zithium.deluxecoinflip.config.Messages;
@@ -38,11 +40,16 @@ public class GamesGUI {
     private final FileConfiguration config;
 
     private final ItemStackBuilder materialBuilder;
+    private final String GUI_TITLE;
+    private final int GUI_ROWS;
 
     public GamesGUI(DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
         this.economyManager = plugin.getEconomyManager();
         this.config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
+
+        GUI_TITLE = TextUtil.color(config.getString("games-gui.title"));
+        GUI_ROWS = config.getInt("games-gui.rows");
 
         if (config.contains("games-gui.coinflip-game.material") && !config.getString("games-gui.coinflip-game.material").equalsIgnoreCase("PLAYER_HEAD")) {
             materialBuilder = new ItemStackBuilder(XMaterial.matchXMaterial(config.getString("games-gui.coinflip-game.material")).get().parseItem());
@@ -55,7 +62,7 @@ public class GamesGUI {
     public void openInventory(Player player) {
         // Fetch player data
         Optional<PlayerData> optionalPlayerData = plugin.getStorageManager().getPlayer(player.getUniqueId());
-        if (!optionalPlayerData.isPresent()) {
+        if (optionalPlayerData.isEmpty()) {
             player.sendMessage(TextUtil.color("&cYour player data was not found, please relog or contact an administrator if the issue persists."));
             return;
         }
@@ -63,7 +70,7 @@ public class GamesGUI {
         PlayerData playerData = optionalPlayerData.get();
 
         // Create the inventory
-        PaginatedGui gui = new PaginatedGui(config.getInt("games-gui.rows"), TextUtil.color(config.getString("games-gui.title")));
+        PaginatedGui gui = Gui.paginated().rows(GUI_ROWS).title(Component.text(GUI_TITLE)).create();
         gui.setDefaultClickAction(event -> event.setCancelled(true));
 
         loadFillerItems(gui);
@@ -146,13 +153,11 @@ public class GamesGUI {
                 }
 
 
-
                 if (config.contains("games-gui.coinflip-game.material") && !config.getString("games-gui.coinflip-game.material").equalsIgnoreCase("PLAYER_HEAD")) {
                     builder = new ItemStackBuilder(XMaterial.matchXMaterial(config.getString("games-gui.coinflip-game.material")).get().parseItem());
                 } else {
                     builder = new ItemStackBuilder(coinflipGame.getCachedHead());
                 }
-
 
 
                 builder.withName(config.getString("games-gui.coinflip-game.display_name").replace("{PLAYER}", playerFromID.getName()));

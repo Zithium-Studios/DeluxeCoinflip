@@ -30,9 +30,9 @@ public class ItemStackBuilder {
         final Optional<XMaterial> xMaterial = XMaterial.matchXMaterial(section.getString("material", "null").toUpperCase());
 
         ItemStack item;
-        if(xMaterial.isPresent()) {
+        if (xMaterial.isPresent()) {
             item = xMaterial.get().parseItem();
-        }else{
+        } else {
             return new ItemStackBuilder(XMaterial.BARRIER.parseItem()).withName("&cInvalid material");
         }
 
@@ -103,6 +103,7 @@ public class ItemStackBuilder {
         return this;
     }
 
+    @SuppressWarnings("deprecation") // Suppressing im.setOwner(owner.getName();
     public ItemStackBuilder setSkullOwner(OfflinePlayer owner) {
 
         SkullMeta im = (SkullMeta) ITEM_STACK.getItemMeta();

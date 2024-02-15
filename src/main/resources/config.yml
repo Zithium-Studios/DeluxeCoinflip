@@ -6,6 +6,11 @@
 #   https://github.com/itzsave/DeluxeCoinflipAPI
 
 # Select your storage type
+
+# Should the plugin report stats to https://bstats.org/
+# All usage statistics are anonymous and has zero impact on performance.
+metrics: true
+
 storage:
   # Types available:
   # - SQLITE
@@ -73,6 +78,14 @@ settings:
 
 coinflip-gui:
   title: "&lFLIPPING COIN.."
+  # There can only be two items here. Both must be present!
+  animation:
+    1:
+      material: YELLOW_STAINED_GLASS_PANE
+      display_name: '&r'
+    2:
+      material: GRAY_STAINED_GLASS_PANE
+      display_name: '&r'
 
 games-gui:
   title: "&lCOINFLIP GAMES"

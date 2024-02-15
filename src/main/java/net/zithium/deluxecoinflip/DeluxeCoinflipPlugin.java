@@ -23,6 +23,7 @@ import net.zithium.deluxecoinflip.menu.InventoryManager;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.StorageManager;
 import me.mattstudios.mf.base.CommandManager;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -50,6 +51,8 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         getLogger().log(Level.INFO, "/  |_     Author(s): " + getDescription().getAuthors().get(0));
         getLogger().log(Level.INFO, "\\_ |      (c) Zithium Studios 2020-2023. All rights reserved.");
         getLogger().log(Level.INFO, "");
+
+        enableMetrics();
 
         listenerCache = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).maximumSize(500).build();
 
@@ -93,6 +96,8 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
 
         Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
 
+        clearGames(false);
+
         getLogger().log(Level.INFO, "");
         getLogger().log(Level.INFO, "Successfully loaded in " + (System.currentTimeMillis() - start) + "ms");
         getLogger().log(Level.INFO, "");
@@ -100,9 +105,22 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         gameManager.canStartGame(true);
     }
 
+
+    private void enableMetrics() {
+        if (getConfig().getBoolean("metrics", true)) {
+            getLogger().log(Level.INFO, "Loading bStats metrics");
+            int pluginId = 20887;
+            Metrics metrics = new Metrics(this, pluginId);
+        } else {
+            getLogger().log(Level.INFO, "Metrics are disabled");
+        }
+
+    }
+
     public void onDisable() {
-        gameManager.canStartGame(false);
+        clearGames(true);
         if (storageManager != null) storageManager.onDisable(true);
+
     }
 
     // Plugin reload handling
@@ -119,6 +137,29 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         ConfigHandler handler = new ConfigHandler(this, type.toString().toLowerCase());
         handler.saveDefaultConfig();
         configMap.put(type, handler);
+    }
+
+    /**
+     * Clears all current coinflip games.
+     *
+     * @param returnMoney Should the money be returned to the game owner?
+     */
+    public void clearGames(boolean returnMoney) {
+        getLogger().info("Clearing all active coinflip games.");
+        for (UUID uuid : gameManager.getCoinflipGames().keySet()) {
+            CoinflipGame coinflipGame = gameManager.getCoinflipGames().get(uuid);
+            Player creator = Bukkit.getPlayer(uuid);
+            if (returnMoney) {
+                if (creator != null) {
+                    economyManager.getEconomyProvider(coinflipGame.getProvider()).deposit(creator, coinflipGame.getAmount());
+                }
+            }
+
+            gameManager.removeCoinflipGame(uuid);
+
+            storageManager.getStorageHandler().deleteCoinfip(uuid);
+            getLogger().info("All coinflip games have been cleared.");
+        }
     }
 
     public StorageManager getStorageManager() {
