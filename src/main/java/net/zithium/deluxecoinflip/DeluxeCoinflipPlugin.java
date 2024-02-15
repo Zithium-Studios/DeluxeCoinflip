@@ -101,6 +101,8 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         getLogger().log(Level.INFO, "");
         getLogger().log(Level.INFO, "Successfully loaded in " + (System.currentTimeMillis() - start) + "ms");
         getLogger().log(Level.INFO, "");
+
+        gameManager.canStartGame(true);
     }
 
 
@@ -117,7 +119,6 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
 
     public void onDisable() {
         clearGames(true);
-
         if (storageManager != null) storageManager.onDisable(true);
 
     }
