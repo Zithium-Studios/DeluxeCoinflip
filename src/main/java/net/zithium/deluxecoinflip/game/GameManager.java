@@ -19,6 +19,8 @@ public class GameManager {
     private final Map<UUID, CoinflipGame> coinflipGames;
     private final StorageManager storageManager;
 
+    private boolean canStartGame = false;
+
     public GameManager(DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
         this.coinflipGames = new HashMap<>();
@@ -69,5 +71,13 @@ public class GameManager {
      */
     public Map<UUID, CoinflipGame> getCoinflipGames() {
         return coinflipGames;
+    }
+
+    public boolean canStartGame() {
+        return canStartGame;
+    }
+
+    public void canStartGame(boolean canStartGame) {
+        this.canStartGame = canStartGame;
     }
 }

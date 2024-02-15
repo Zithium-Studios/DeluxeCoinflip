@@ -131,6 +131,10 @@ public class CoinflipCommand extends CommandBase {
     @Alias("new")
     @WrongUsage("&c/coinflip create <amount> [economy]")
     public void createSubCommand(final Player player, String input, @Optional String providerInput) {
+        if (!gameManager.canStartGame()) { // Refuse to start game if the state is set to false.
+            player.sendMessage("");
+            return;
+        }
         final long amount;
         try {
             amount = Long.parseLong(input.replace(",", ""));
