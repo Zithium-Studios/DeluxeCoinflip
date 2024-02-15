@@ -9,6 +9,7 @@ softdepend:
   - Vault
   - TokenEnchant
   - TokenManager
+  - EssentialsX
 
 permissions:
   coinflip.admin:

@@ -44,7 +44,7 @@ public class PlayerListener implements Listener {
     public void onPluginDisable(PluginDisableEvent event) {
         if (event.getPlugin().equals(plugin)) {
             plugin.getLogger().log(Level.INFO, "Starting cleanup event.");
-            plugin.clearGames();
+            plugin.clearGames(true);
             plugin.getLogger().log(Level.INFO, "Cleanup completed.");
         }
 

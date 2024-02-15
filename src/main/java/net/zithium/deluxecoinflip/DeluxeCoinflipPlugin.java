@@ -96,6 +96,8 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
 
         Bukkit.getPluginManager().registerEvents(new PlayerListener(this), this);
 
+        clearGames(false);
+
         getLogger().log(Level.INFO, "");
         getLogger().log(Level.INFO, "Successfully loaded in " + (System.currentTimeMillis() - start) + "ms");
         getLogger().log(Level.INFO, "");
@@ -114,9 +116,10 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
     }
 
     public void onDisable() {
+        clearGames(true);
+
         if (storageManager != null) storageManager.onDisable(true);
 
-        clearGames();
     }
 
     // Plugin reload handling
@@ -135,17 +138,26 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         configMap.put(type, handler);
     }
 
-    public void clearGames() {
+    /**
+     * Clears all current coinflip games.
+     *
+     * @param returnMoney Should the money be returned to the game owner?
+     */
+    public void clearGames(boolean returnMoney) {
+        getLogger().info("Clearing all active coinflip games.");
         for (UUID uuid : gameManager.getCoinflipGames().keySet()) {
             CoinflipGame coinflipGame = gameManager.getCoinflipGames().get(uuid);
             Player creator = Bukkit.getPlayer(uuid);
-            if (creator != null) {
-                economyManager.getEconomyProvider(coinflipGame.getProvider()).deposit(creator, coinflipGame.getAmount());
+            if (returnMoney) {
+                if (creator != null) {
+                    economyManager.getEconomyProvider(coinflipGame.getProvider()).deposit(creator, coinflipGame.getAmount());
+                }
             }
 
             gameManager.removeCoinflipGame(uuid);
 
             storageManager.getStorageHandler().deleteCoinfip(uuid);
+            getLogger().info("All coinflip games have been cleared.");
         }
     }
 
