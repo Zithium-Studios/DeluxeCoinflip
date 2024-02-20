@@ -15,7 +15,6 @@ import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.deluxecoinflip.utility.TextUtil;
 import net.zithium.deluxecoinflip.utility.universal.XMaterial;
 import net.zithium.deluxecoinflip.utility.universal.XSound;
-import net.zithium.mobcoins.util.GuiUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
