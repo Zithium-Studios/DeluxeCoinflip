@@ -146,20 +146,23 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
      */
     public void clearGames(boolean returnMoney) {
         getLogger().info("Clearing all active coinflip games.");
-        for (UUID uuid : gameManager.getCoinflipGames().keySet()) {
-            CoinflipGame coinflipGame = gameManager.getCoinflipGames().get(uuid);
-            Player creator = Bukkit.getPlayer(uuid);
-            if (returnMoney) {
-                if (creator != null) {
+        if (!gameManager.getCoinflipGames().isEmpty()){
+            final Map<UUID, CoinflipGame> games = gameManager.getCoinflipGames();
+            final List<UUID> gamesToRemove = new ArrayList<>();
+            for (UUID uuid : games.keySet()) {
+                CoinflipGame coinflipGame = gameManager.getCoinflipGames().get(uuid);
+                Player creator = Bukkit.getPlayer(uuid);
+                if (returnMoney && creator != null) {
                     economyManager.getEconomyProvider(coinflipGame.getProvider()).deposit(creator, coinflipGame.getAmount());
                 }
+                gamesToRemove.add(uuid);
+                storageManager.getStorageHandler().deleteCoinfip(uuid);
             }
-
-            gameManager.removeCoinflipGame(uuid);
-
-            storageManager.getStorageHandler().deleteCoinfip(uuid);
-            getLogger().info("All coinflip games have been cleared.");
+            for (UUID uuid : gamesToRemove){
+                gameManager.removeCoinflipGame(uuid);
+            }
         }
+        getLogger().info("All coinflip games have been cleared.");
     }
 
     public StorageManager getStorageManager() {
