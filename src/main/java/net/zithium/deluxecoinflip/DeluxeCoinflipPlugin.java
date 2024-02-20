@@ -150,14 +150,10 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
             for (UUID uuid : gameManager.getCoinflipGames().keySet()) {
                 CoinflipGame coinflipGame = gameManager.getCoinflipGames().get(uuid);
                 Player creator = Bukkit.getPlayer(uuid);
-                if (returnMoney) {
-                    if (creator != null) {
-                        economyManager.getEconomyProvider(coinflipGame.getProvider()).deposit(creator, coinflipGame.getAmount());
-                    }
+                if (returnMoney && creator != null) {
+                    economyManager.getEconomyProvider(coinflipGame.getProvider()).deposit(creator, coinflipGame.getAmount());
                 }
-
                 gameManager.removeCoinflipGame(uuid);
-
                 storageManager.getStorageHandler().deleteCoinfip(uuid);
             }
         }
