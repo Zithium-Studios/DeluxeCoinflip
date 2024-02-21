@@ -24,10 +24,8 @@ public class PlayerListener implements Listener {
         this.gameManager = plugin.getGameManager();
     }
 
-
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        if (event.getPlayer() == null) return;
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
 
@@ -38,7 +36,6 @@ public class PlayerListener implements Listener {
         }
 
     }
-
 
     @EventHandler
     public void onPluginDisable(PluginDisableEvent event) {

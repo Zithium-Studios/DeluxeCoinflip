@@ -34,9 +34,12 @@ public class PlayerChatListener implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
-        if (plugin.getListenerCache().getIfPresent(uuid) == null) return;
 
         CoinflipGame game = plugin.getListenerCache().getIfPresent(uuid);
+        if (game == null) {
+            return;
+        }
+
         if (event.getMessage().trim().equalsIgnoreCase("cancel")) {
             event.setCancelled(true);
             plugin.getListenerCache().invalidate(uuid);
@@ -47,7 +50,7 @@ public class PlayerChatListener implements Listener {
 
         long amount;
         try {
-            amount = Long.parseLong(event.getMessage().replace(",", "").replaceAll("[^\\d]", ""));
+            amount = Long.parseLong(event.getMessage().replace(",", "").replaceAll("\\D", ""));
         } catch (Exception e) {
             event.setCancelled(true);
             Messages.INVALID_AMOUNT.send(player, "{INPUT}", event.getMessage().replace(",", ""));

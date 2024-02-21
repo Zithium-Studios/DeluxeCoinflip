@@ -105,7 +105,6 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         gameManager.canStartGame(true);
     }
 
-
     private void enableMetrics() {
         if (getConfig().getBoolean("metrics", true)) {
             getLogger().log(Level.INFO, "Loading bStats metrics");
@@ -114,13 +113,11 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         } else {
             getLogger().log(Level.INFO, "Metrics are disabled");
         }
-
     }
 
     public void onDisable() {
         clearGames(true);
         if (storageManager != null) storageManager.onDisable(true);
-
     }
 
     // Plugin reload handling
@@ -146,7 +143,7 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
      */
     public void clearGames(boolean returnMoney) {
         getLogger().info("Clearing all active coinflip games.");
-        if (!gameManager.getCoinflipGames().isEmpty()){
+        if (!gameManager.getCoinflipGames().isEmpty()) {
             final Map<UUID, CoinflipGame> games = gameManager.getCoinflipGames();
             final List<UUID> gamesToRemove = new ArrayList<>();
             for (UUID uuid : games.keySet()) {
@@ -158,7 +155,7 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
                 gamesToRemove.add(uuid);
                 storageManager.getStorageHandler().deleteCoinfip(uuid);
             }
-            for (UUID uuid : gamesToRemove){
+            for (UUID uuid : gamesToRemove) {
                 gameManager.removeCoinflipGame(uuid);
             }
         }

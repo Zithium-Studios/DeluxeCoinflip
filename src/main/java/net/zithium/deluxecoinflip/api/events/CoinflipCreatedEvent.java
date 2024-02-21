@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class CoinflipCreatedEvent extends Event implements Cancellable {
 
@@ -32,6 +33,7 @@ public class CoinflipCreatedEvent extends Event implements Cancellable {
         return coinflipGame;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLERS_LIST;

@@ -56,7 +56,6 @@ public class GamesGUI {
         } else {
             materialBuilder = null; // Set it to null if not configured
         }
-
     }
 
     public void openInventory(Player player) {
@@ -108,7 +107,6 @@ public class GamesGUI {
             ItemStack newItem = newItemBuilder.build();
             guiItem.setItemStack(newItem);
             gui.getInventory().setItem(slot, guiItem.getItemStack());
-
         }
 
         // Open Game Builder GUI
@@ -143,7 +141,6 @@ public class GamesGUI {
                 OfflinePlayer playerFromID = coinflipGame.getOfflinePlayer();
                 if (playerFromID == null) continue;
 
-
                 ItemStackBuilder builder;
                 if (materialBuilder != null) {
                     // Create a new instance with the same properties as materialBuilder
@@ -152,13 +149,11 @@ public class GamesGUI {
                     builder = new ItemStackBuilder(coinflipGame.getCachedHead());
                 }
 
-
                 if (config.contains("games-gui.coinflip-game.material") && !config.getString("games-gui.coinflip-game.material").equalsIgnoreCase("PLAYER_HEAD")) {
                     builder = new ItemStackBuilder(XMaterial.matchXMaterial(config.getString("games-gui.coinflip-game.material")).get().parseItem());
                 } else {
                     builder = new ItemStackBuilder(coinflipGame.getCachedHead());
                 }
-
 
                 builder.withName(config.getString("games-gui.coinflip-game.display_name").replace("{PLAYER}", playerFromID.getName()));
                 builder.withLore(config.getStringList("games-gui.coinflip-game.lore").stream().map(line -> line
@@ -197,8 +192,6 @@ public class GamesGUI {
 
                     event.getWhoClicked().closeInventory();
                     plugin.getInventoryManager().getCoinflipGUI().startGame(player, playerFromID, game);
-
-
                 });
                 gui.addItem(guiItem);
             }

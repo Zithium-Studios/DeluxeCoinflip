@@ -119,7 +119,7 @@ public class ItemStackBuilder {
 
     public ItemStackBuilder withLore(List<String> lore) {
         final ItemMeta meta = ITEM_STACK.getItemMeta();
-        List<String> coloredLore = new ArrayList<String>();
+        List<String> coloredLore = new ArrayList<>();
         for (String s : lore) {
             coloredLore.add(TextUtil.color(s));
         }

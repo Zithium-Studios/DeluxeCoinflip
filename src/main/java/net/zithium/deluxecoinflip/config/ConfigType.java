@@ -6,7 +6,5 @@
 package net.zithium.deluxecoinflip.config;
 
 public enum ConfigType {
-
     CONFIG, MESSAGES
-
 }

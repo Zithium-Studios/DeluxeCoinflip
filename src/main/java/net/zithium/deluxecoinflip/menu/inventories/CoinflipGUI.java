@@ -169,8 +169,6 @@ public class CoinflipGUI implements Listener {
                     }
                 }
 
-
-
                 alternate = !alternate;
 
                 if (player.isOnline()) {

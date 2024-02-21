@@ -77,13 +77,13 @@ public class PlayerData {
         losses++;
     }
 
-    public void updateProfit(double profit) {
+    public void updateProfit(long profit) {
         this.profit += profit;
     }
 
     public double getWinPercentage() {
         if (wins + losses == 0 || wins == 0) return 0.0;
-        return Double.parseDouble(new DecimalFormat("##.##").format((wins * 100) / (wins + losses)));
+        return Double.parseDouble(new DecimalFormat("##.##").format((wins * 100L) / (wins + losses)));
     }
 
     public boolean isDisplayBroadcastMessages() {

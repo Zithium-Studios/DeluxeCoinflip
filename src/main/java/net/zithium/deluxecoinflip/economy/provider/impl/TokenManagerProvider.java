@@ -28,7 +28,7 @@ public class TokenManagerProvider extends EconomyProvider {
     @Override
     public double getBalance(OfflinePlayer player) {
         OptionalLong tokens = tokenManager.getTokens(player.getPlayer());
-        if(!tokens.isPresent()) return 0.0;
+        if (tokens.isEmpty()) return 0.0;
         return (double) tokens.getAsLong();
     }
 
