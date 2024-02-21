@@ -29,10 +29,11 @@ public class ItemStackBuilder {
     public static ItemStackBuilder getItemStack(ConfigurationSection section) {
         final Optional<XMaterial> xMaterial = XMaterial.matchXMaterial(section.getString("material", "null").toUpperCase());
 
-        ItemStack item;
+        ItemStack item = null;
         if (xMaterial.isPresent()) {
             item = xMaterial.get().parseItem();
-        } else {
+        }
+        if (item == null) {
             return new ItemStackBuilder(XMaterial.BARRIER.parseItem()).withName("&cInvalid material");
         }
 
@@ -103,17 +104,11 @@ public class ItemStackBuilder {
         return this;
     }
 
-    @SuppressWarnings("deprecation") // Suppressing im.setOwner(owner.getName();
     public ItemStackBuilder setSkullOwner(OfflinePlayer owner) {
-
-        SkullMeta im = (SkullMeta) ITEM_STACK.getItemMeta();
-        try {
-            im.setOwningPlayer(owner);
-        } catch (ClassCastException | NoSuchMethodError ex) {
-            im.setOwner(owner.getName());
+        if (ITEM_STACK.getItemMeta() instanceof SkullMeta skullMeta) {
+            skullMeta.setOwningPlayer(owner);
+            ITEM_STACK.setItemMeta(skullMeta);
         }
-
-        ITEM_STACK.setItemMeta(im);
         return this;
     }
 
