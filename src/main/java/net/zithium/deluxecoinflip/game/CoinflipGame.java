@@ -28,12 +28,13 @@ public class CoinflipGame {
         this.provider = provider;
         this.amount = amount;
         this.cachedHead = XMaterial.PLAYER_HEAD.parseItem();
-        Bukkit.getScheduler().runTaskAsynchronously(JavaPlugin.getProvidingPlugin(DeluxeCoinflipPlugin.class), () -> {
-            this.player = Bukkit.getOfflinePlayer(uuid);
-            if (Bukkit.getOnlineMode()) {
+
+        if (Bukkit.getOnlineMode()) {
+            Bukkit.getScheduler().runTaskAsynchronously(JavaPlugin.getProvidingPlugin(DeluxeCoinflipPlugin.class), () -> {
+                this.player = Bukkit.getOfflinePlayer(uuid);
                 this.cachedHead = new ItemStackBuilder(XMaterial.PLAYER_HEAD.parseItem()).setSkullOwner(player).build();
-            }
-        });
+            });
+        }
     }
 
     public CoinflipGame(UUID uuid, String provider, long amount, OfflinePlayer player, ItemStack cachedHead) {
@@ -76,5 +77,4 @@ public class CoinflipGame {
     public CoinflipGame clone() {
         return new CoinflipGame(uuid, provider, amount, player, cachedHead);
     }
-
 }
