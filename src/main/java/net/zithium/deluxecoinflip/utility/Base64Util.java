@@ -1,6 +1,5 @@
 package net.zithium.deluxecoinflip.utility;
 
-
 import net.zithium.deluxecoinflip.utility.universal.XMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
@@ -22,6 +21,7 @@ public class Base64Util {
     private static final UUID RANDOM_UUID = UUID.fromString("92864445-51c5-4c3b-9039-517c9927d1b4");
 
     public static ItemStack getBaseHead(String data) {
+        if (cache.containsKey(data)) return cache.get(data);
         ItemStack head = XMaterial.PLAYER_HEAD.parseItem();
         final SkullMeta meta = (SkullMeta) head.getItemMeta();
         setBase64ToSkullMeta(data, meta);
@@ -29,7 +29,6 @@ public class Base64Util {
         cache.put(data, head);
         return head;
     }
-
 
     private static PlayerProfile getProfileBase64(String base64) {
         PlayerProfile profile = Bukkit.createPlayerProfile(RANDOM_UUID); // Get a new player profile
