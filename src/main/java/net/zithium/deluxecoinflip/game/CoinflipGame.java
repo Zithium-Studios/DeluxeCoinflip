@@ -28,11 +28,10 @@ public class CoinflipGame {
         this.provider = provider;
         this.amount = amount;
         this.cachedHead = XMaterial.PLAYER_HEAD.parseItem();
+
         Bukkit.getScheduler().runTaskAsynchronously(JavaPlugin.getProvidingPlugin(DeluxeCoinflipPlugin.class), () -> {
             this.player = Bukkit.getOfflinePlayer(uuid);
-            if (Bukkit.getOnlineMode()) {
-                this.cachedHead = new ItemStackBuilder(XMaterial.PLAYER_HEAD.parseItem()).setSkullOwner(player).build();
-            }
+            this.cachedHead = new ItemStackBuilder(XMaterial.PLAYER_HEAD.parseItem()).setSkullOwner(player).build();
         });
     }
 
