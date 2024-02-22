@@ -86,6 +86,10 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
             return String.valueOf(playerData.getProfitFormatted());
         }
 
+        if (identifier.equals("display_broadcast_messages")) {
+            return String.valueOf(playerData.isDisplayBroadcastMessages());
+        }
+
         return null;
     }
 }
