@@ -14,10 +14,10 @@ import net.zithium.deluxecoinflip.storage.StorageManager;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.deluxecoinflip.utility.TextUtil;
 import net.zithium.deluxecoinflip.utility.universal.XMaterial;
-import net.zithium.deluxecoinflip.utility.universal.XSound;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -104,7 +104,7 @@ public class CoinflipGUI implements Listener {
                     gui.update();
 
                     if (player.isOnline()) {
-                        player.playSound(player.getLocation(), XSound.ENTITY_PLAYER_LEVELUP.parseSound(), 1L, 0L);
+                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1L, 0L);
                     }
 
                     long taxed = 0;
@@ -172,7 +172,7 @@ public class CoinflipGUI implements Listener {
                 alternate = !alternate;
 
                 if (player.isOnline()) {
-                    player.playSound(player.getLocation(), XSound.BLOCK_WOODEN_BUTTON_CLICK_ON.parseSound(), 1L, 0L);
+                    player.playSound(player.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1L, 0L);
                 }
 
                 gui.update();

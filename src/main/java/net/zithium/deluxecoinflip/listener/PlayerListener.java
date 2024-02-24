@@ -34,7 +34,6 @@ public class PlayerListener implements Listener {
             economyManager.getEconomyProvider(coinflipGame.getProvider()).deposit(player, coinflipGame.getAmount());
             gameManager.removeCoinflipGame(uuid);
         }
-
     }
 
     @EventHandler
@@ -44,6 +43,5 @@ public class PlayerListener implements Listener {
             plugin.clearGames(true);
             plugin.getLogger().log(Level.INFO, "Cleanup completed.");
         }
-
     }
 }

@@ -18,10 +18,10 @@ import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.deluxecoinflip.utility.TextUtil;
 import net.zithium.deluxecoinflip.utility.universal.XMaterial;
-import net.zithium.deluxecoinflip.utility.universal.XSound;
 import dev.triumphteam.gui.guis.GuiItem;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -180,7 +180,7 @@ public class GamesGUI {
                     CoinflipGame game = gameManager.getCoinflipGames().get(playerFromID.getUniqueId());
                     if (economyManager.getEconomyProvider(game.getProvider()).getBalance(player) < game.getAmount()) {
                         ItemStack previousItem = event.getCurrentItem();
-                        player.playSound(player.getLocation(), XSound.BLOCK_NOTE_BLOCK_PLING.parseSound(), 1L, 0L);
+                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1L, 0L);
                         event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("games-gui.error-no-funds")).build());
                         Bukkit.getScheduler().runTaskLater(plugin, () -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
                         Messages.INSUFFICIENT_FUNDS.send(player);
