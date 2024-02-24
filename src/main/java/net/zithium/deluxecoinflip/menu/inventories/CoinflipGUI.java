@@ -13,11 +13,7 @@ import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.StorageManager;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.deluxecoinflip.utility.TextUtil;
-import net.zithium.deluxecoinflip.utility.universal.XMaterial;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -72,11 +68,11 @@ public class CoinflipGUI implements Listener {
         gui.disableAllInteractions();
 
         GuiItem winnerHead = new GuiItem(new ItemStackBuilder(
-                winner.equals(game.getOfflinePlayer()) ? game.getCachedHead() : XMaterial.PLAYER_HEAD.parseItem()
+                winner.equals(game.getOfflinePlayer()) ? game.getCachedHead() : new ItemStack(Material.PLAYER_HEAD)
         ).withName(ChatColor.YELLOW + winner.getName()).setSkullOwner(winner).build());
 
         GuiItem loserHead = new GuiItem(new ItemStackBuilder(
-                winner.equals(game.getOfflinePlayer()) ? XMaterial.PLAYER_HEAD.parseItem() : game.getCachedHead()
+                winner.equals(game.getOfflinePlayer()) ? new ItemStack(Material.PLAYER_HEAD) : game.getCachedHead()
         ).withName(ChatColor.YELLOW + loser.getName()).setSkullOwner(loser).build());
 
         if (winner.isOnline()) {
@@ -99,7 +95,7 @@ public class CoinflipGUI implements Listener {
                 if (count >= ANIMATION_COUNT_THRESHOLD) {
                     // Completed animation
                     gui.setItem(13, winnerHead);
-                    gui.getFiller().fill(new GuiItem(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE.parseItem()));
+                    gui.getFiller().fill(new GuiItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE));
                     gui.disableAllInteractions();
                     gui.update();
 
@@ -153,7 +149,7 @@ public class CoinflipGUI implements Listener {
                         gui.getFiller().fill(new GuiItem(firstAnimationItem));
                     } else {
                         gui.setItem(13, winnerHead);
-                        gui.getFiller().fill(new GuiItem(XMaterial.YELLOW_STAINED_GLASS_PANE.parseItem()));
+                        gui.getFiller().fill(new GuiItem(Material.YELLOW_STAINED_GLASS_PANE));
                         plugin.getLogger().warning("Missing configuration section for first animation frame.");
                     }
                 } else {
@@ -164,7 +160,7 @@ public class CoinflipGUI implements Listener {
                         gui.getFiller().fill(new GuiItem(secondAnimationItem));
                     } else {
                         gui.setItem(13, loserHead);
-                        gui.getFiller().fill(new GuiItem(XMaterial.GRAY_STAINED_GLASS_PANE.parseItem()));
+                        gui.getFiller().fill(new GuiItem(Material.GRAY_STAINED_GLASS_PANE));
                         plugin.getLogger().warning("Missing configuration section for second animation frame.");
                     }
                 }

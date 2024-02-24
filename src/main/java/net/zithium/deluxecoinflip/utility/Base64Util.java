@@ -1,7 +1,7 @@
 package net.zithium.deluxecoinflip.utility;
 
-import net.zithium.deluxecoinflip.utility.universal.XMaterial;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
@@ -22,7 +22,7 @@ public class Base64Util {
 
     public static ItemStack getBaseHead(String data) {
         if (cache.containsKey(data)) return cache.get(data);
-        ItemStack head = XMaterial.PLAYER_HEAD.parseItem();
+        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         final SkullMeta meta = (SkullMeta) head.getItemMeta();
         setBase64ToSkullMeta(data, meta);
         head.setItemMeta(meta);

@@ -7,8 +7,8 @@ package net.zithium.deluxecoinflip.game;
 
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
-import net.zithium.deluxecoinflip.utility.universal.XMaterial;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,11 +27,11 @@ public class CoinflipGame {
         this.uuid = uuid;
         this.provider = provider;
         this.amount = amount;
-        this.cachedHead = XMaterial.PLAYER_HEAD.parseItem();
+        this.cachedHead = new ItemStack(Material.PLAYER_HEAD);
 
         Bukkit.getScheduler().runTaskAsynchronously(JavaPlugin.getProvidingPlugin(DeluxeCoinflipPlugin.class), () -> {
             this.player = Bukkit.getOfflinePlayer(uuid);
-            this.cachedHead = new ItemStackBuilder(XMaterial.PLAYER_HEAD.parseItem()).setSkullOwner(player).build();
+            this.cachedHead = new ItemStackBuilder(Material.PLAYER_HEAD).setSkullOwner(player).build();
         });
     }
 

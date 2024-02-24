@@ -17,9 +17,9 @@ import net.zithium.deluxecoinflip.game.GameManager;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.deluxecoinflip.utility.TextUtil;
-import net.zithium.deluxecoinflip.utility.universal.XMaterial;
 import dev.triumphteam.gui.guis.GuiItem;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
@@ -52,7 +52,7 @@ public class GamesGUI {
         GUI_ROWS = config.getInt("games-gui.rows");
 
         if (config.contains("games-gui.coinflip-game.material") && !config.getString("games-gui.coinflip-game.material").equalsIgnoreCase("PLAYER_HEAD")) {
-            materialBuilder = new ItemStackBuilder(XMaterial.matchXMaterial(config.getString("games-gui.coinflip-game.material")).get().parseItem());
+            materialBuilder = new ItemStackBuilder(Material.matchMaterial(config.getString("games-gui.coinflip-game.material")));
         } else {
             materialBuilder = null; // Set it to null if not configured
         }
@@ -150,7 +150,7 @@ public class GamesGUI {
                 }
 
                 if (config.contains("games-gui.coinflip-game.material") && !config.getString("games-gui.coinflip-game.material").equalsIgnoreCase("PLAYER_HEAD")) {
-                    builder = new ItemStackBuilder(XMaterial.matchXMaterial(config.getString("games-gui.coinflip-game.material")).get().parseItem());
+                    builder = new ItemStackBuilder(Material.matchMaterial(config.getString("games-gui.coinflip-game.material")));
                 } else {
                     builder = new ItemStackBuilder(coinflipGame.getCachedHead());
                 }

@@ -5,7 +5,7 @@
 
 package net.zithium.deluxecoinflip.utility;
 
-import net.zithium.deluxecoinflip.utility.universal.XMaterial;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -16,7 +16,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class ItemStackBuilder {
 
@@ -26,18 +25,22 @@ public class ItemStackBuilder {
         this.ITEM_STACK = item;
     }
 
+    public ItemStackBuilder(Material material) {
+        this.ITEM_STACK = new ItemStack(material);
+    }
+
     public static ItemStackBuilder getItemStack(ConfigurationSection section) {
-        final Optional<XMaterial> xMaterial = XMaterial.matchXMaterial(section.getString("material", "null").toUpperCase());
+        final Material material = Material.matchMaterial(section.getString("material", "null").toUpperCase());
 
         ItemStack item = null;
-        if (xMaterial.isPresent()) {
-            item = xMaterial.get().parseItem();
+        if (material != null) {
+            item = new ItemStack(material);
         }
         if (item == null) {
-            return new ItemStackBuilder(XMaterial.BARRIER.parseItem()).withName("&cInvalid material");
+            return new ItemStackBuilder(Material.BARRIER).withName("&cInvalid material");
         }
 
-        if (item.getType() == XMaterial.PLAYER_HEAD.parseMaterial() && section.contains("base64")) {
+        if (item.getType() == Material.PLAYER_HEAD && section.contains("base64")) {
             item = Base64Util.getBaseHead(section.getString("base64")).clone();
         }
 
