@@ -49,7 +49,6 @@ public class ConfigHandler {
             this.plugin.getLogger().severe("============= CONFIGURATION ERROR =============");
             this.plugin.getServer().getPluginManager().disablePlugin(this.plugin);
         }
-
     }
 
     public void save() {
@@ -59,7 +58,6 @@ public class ConfigHandler {
             } catch (IOException var2) {
                 var2.printStackTrace();
             }
-
         }
     }
 

@@ -14,10 +14,10 @@ import net.zithium.deluxecoinflip.economy.provider.EconomyProvider;
 import net.zithium.deluxecoinflip.game.CoinflipGame;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.deluxecoinflip.utility.TextUtil;
-import net.zithium.deluxecoinflip.utility.universal.XSound;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -78,7 +78,7 @@ public class GameBuilderGUI {
             game.setProvider(nextProvider);
             currencySelectItem.setItemStack(new ItemStackBuilder(currencySelectItem.getItemStack()).withLore(getCurrencyLore(config.getConfigurationSection("gamebuilder-gui.currency-select"), game)).build());
             gui.update();
-            player.playSound(player.getLocation(), XSound.ENTITY_CHICKEN_EGG.parseSound(), 1L, 0L);
+            player.playSound(player.getLocation(), Sound.ENTITY_CHICKEN_EGG, 1L, 0L);
         });
 
         ConfigurationSection amountItemsSection = config.getConfigurationSection("gamebuilder-gui.amount-items");
@@ -90,10 +90,10 @@ public class GameBuilderGUI {
                 guiItem.setAction(event -> {
                     if (setAmount.startsWith("+")) {
                         game.setAmount(game.getAmount() + Long.parseLong(setAmount.replace("+", "")));
-                        player.playSound(player.getLocation(), XSound.BLOCK_TRIPWIRE_CLICK_ON.parseSound(), 5L, 0L);
+                        player.playSound(player.getLocation(), Sound.BLOCK_TRIPWIRE_CLICK_ON, 5L, 0L);
                     } else if (setAmount.startsWith("-")) {
                         game.setAmount(game.getAmount() - Long.parseLong(setAmount.replace("-", "")));
-                        player.playSound(player.getLocation(), XSound.BLOCK_TRIPWIRE_CLICK_ON.parseSound(), 1L, 0L);
+                        player.playSound(player.getLocation(), Sound.BLOCK_TRIPWIRE_CLICK_ON, 1L, 0L);
                     }
                     currencySelectItem.setItemStack(new ItemStackBuilder(currencySelectItem.getItemStack()).withLore(getCurrencyLore(config.getConfigurationSection("gamebuilder-gui.currency-select"), game)).build());
                     gui.update();
@@ -115,7 +115,7 @@ public class GameBuilderGUI {
 
             if (plugin.getGameManager().getCoinflipGames().containsKey(player.getUniqueId())) {
                 ItemStack previousItem = event.getCurrentItem();
-                player.playSound(player.getLocation(), XSound.BLOCK_NOTE_BLOCK_PLING.parseSound(), 1L, 0L);
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1L, 0L);
                 event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("gamebuilder-gui.error-game-exists")).build());
                 Bukkit.getScheduler().runTaskLater(plugin, () -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
                 return;
@@ -123,7 +123,7 @@ public class GameBuilderGUI {
 
             if (game.getAmount() > config.getLong("settings.maximum-bet") || game.getAmount() < config.getLong("settings.minimum-bet")) {
                 ItemStack previousItem = event.getCurrentItem();
-                player.playSound(player.getLocation(), XSound.BLOCK_NOTE_BLOCK_PLING.parseSound(), 1L, 0L);
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1L, 0L);
                 event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("gamebuilder-gui.error-limits")).build());
                 Bukkit.getScheduler().runTaskLater(plugin, () -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
                 return;
@@ -131,7 +131,7 @@ public class GameBuilderGUI {
 
             if (game.getAmount() > provider.getBalance(player)) {
                 ItemStack previousItem = event.getCurrentItem();
-                player.playSound(player.getLocation(), XSound.BLOCK_NOTE_BLOCK_PLING.parseSound(), 1L, 0L);
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1L, 0L);
                 event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("gamebuilder-gui.error-no-funds")).build());
                 Bukkit.getScheduler().runTaskLater(plugin, () -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
                 return;

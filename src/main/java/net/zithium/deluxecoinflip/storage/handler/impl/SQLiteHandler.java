@@ -108,7 +108,7 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public void savePlayer(final PlayerData player) {
-        String sql = "REPLACE INTO 'players' (uuid, wins, losses, profit, broadcasts) VALUES (?, ?, ?, ?, ?)";
+        String sql = "REPLACE INTO players (uuid, wins, losses, profit, broadcasts) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, player.getUUID().toString());
@@ -124,7 +124,7 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public void saveCoinflip(CoinflipGame game) {
-        String sql = "REPLACE INTO 'games' (uuid, provider, amount) VALUES (?, ?, ?)";
+        String sql = "REPLACE INTO games (uuid, provider, amount) VALUES (?, ?, ?)";
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setString(1, game.getPlayerUUID().toString());
@@ -138,9 +138,10 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public void deleteCoinfip(UUID uuid) {
-        String sql = "DELETE FROM 'games' WHERE uuid=?;";
+        String sql = "DELETE FROM games WHERE uuid=?;";
         try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, uuid.toString());
             preparedStatement.execute();
         } catch (SQLException e) {
             e.printStackTrace();

@@ -20,27 +20,27 @@ public class BeastTokensProvider extends EconomyProvider {
 
     @Override
     public double getBalance(OfflinePlayer player) {
-        if(player.isOnline()) {
+        if (player.isOnline()) {
             return tokensManager.getTokens(player.getPlayer());
-        }else{
+        } else {
             return tokensManager.getTokens(player);
         }
     }
 
     @Override
     public void withdraw(OfflinePlayer player, double amount) {
-        if(player.isOnline()) {
+        if (player.isOnline()) {
             tokensManager.removeTokens(player.getPlayer(), amount);
-        }else{
+        } else {
             tokensManager.removeTokens(player, amount);
         }
     }
 
     @Override
     public void deposit(OfflinePlayer player, double amount) {
-        if(player.isOnline()) {
+        if (player.isOnline()) {
             tokensManager.addTokens(player.getPlayer(), amount);
-        }else{
+        } else {
             tokensManager.addTokens(player, amount);
         }
     }

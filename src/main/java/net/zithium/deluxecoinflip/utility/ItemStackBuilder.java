@@ -5,7 +5,7 @@
 
 package net.zithium.deluxecoinflip.utility;
 
-import net.zithium.deluxecoinflip.utility.universal.XMaterial;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -16,7 +16,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class ItemStackBuilder {
 
@@ -26,17 +25,22 @@ public class ItemStackBuilder {
         this.ITEM_STACK = item;
     }
 
-    public static ItemStackBuilder getItemStack(ConfigurationSection section) {
-        final Optional<XMaterial> xMaterial = XMaterial.matchXMaterial(section.getString("material", "null").toUpperCase());
+    public ItemStackBuilder(Material material) {
+        this.ITEM_STACK = new ItemStack(material);
+    }
 
-        ItemStack item;
-        if (xMaterial.isPresent()) {
-            item = xMaterial.get().parseItem();
-        } else {
-            return new ItemStackBuilder(XMaterial.BARRIER.parseItem()).withName("&cInvalid material");
+    public static ItemStackBuilder getItemStack(ConfigurationSection section) {
+        final Material material = Material.matchMaterial(section.getString("material", "null").toUpperCase());
+
+        ItemStack item = null;
+        if (material != null) {
+            item = new ItemStack(material);
+        }
+        if (item == null) {
+            return new ItemStackBuilder(Material.BARRIER).withName("&cInvalid material");
         }
 
-        if (item.getType() == XMaterial.PLAYER_HEAD.parseMaterial() && section.contains("base64")) {
+        if (item.getType() == Material.PLAYER_HEAD && section.contains("base64")) {
             item = Base64Util.getBaseHead(section.getString("base64")).clone();
         }
 
@@ -103,23 +107,17 @@ public class ItemStackBuilder {
         return this;
     }
 
-    @SuppressWarnings("deprecation") // Suppressing im.setOwner(owner.getName();
     public ItemStackBuilder setSkullOwner(OfflinePlayer owner) {
-
-        SkullMeta im = (SkullMeta) ITEM_STACK.getItemMeta();
-        try {
-            im.setOwningPlayer(owner);
-        } catch (ClassCastException | NoSuchMethodError ex) {
-            im.setOwner(owner.getName());
+        if (ITEM_STACK.getItemMeta() instanceof SkullMeta skullMeta) {
+            skullMeta.setOwningPlayer(owner);
+            ITEM_STACK.setItemMeta(skullMeta);
         }
-
-        ITEM_STACK.setItemMeta(im);
         return this;
     }
 
     public ItemStackBuilder withLore(List<String> lore) {
         final ItemMeta meta = ITEM_STACK.getItemMeta();
-        List<String> coloredLore = new ArrayList<String>();
+        List<String> coloredLore = new ArrayList<>();
         for (String s : lore) {
             coloredLore.add(TextUtil.color(s));
         }

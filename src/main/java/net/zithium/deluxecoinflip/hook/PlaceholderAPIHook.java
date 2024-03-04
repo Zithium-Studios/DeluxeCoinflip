@@ -10,6 +10,7 @@ import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.StorageManager;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
@@ -33,27 +34,30 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
         return true;
     }
 
+    @NotNull
     @Override
     public String getAuthor() {
         return plugin.getDescription().getAuthors().toString();
     }
 
+    @NotNull
     @Override
     public String getIdentifier() {
         return "deluxecoinflip";
     }
 
+    @NotNull
     @Override
     public String getVersion() {
         return plugin.getDescription().getVersion();
     }
 
     @Override
-    public String onPlaceholderRequest(Player player, String identifier) {
+    public String onPlaceholderRequest(Player player, @NotNull String identifier) {
         if (player == null) return "";
 
         Optional<PlayerData> playerDataOptional = storageManager.getPlayer(player.getUniqueId());
-        if (!playerDataOptional.isPresent()) {
+        if (playerDataOptional.isEmpty()) {
             return "N/A";
         }
 
@@ -80,6 +84,10 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
 
         if (identifier.equals("profit_formatted")) {
             return String.valueOf(playerData.getProfitFormatted());
+        }
+
+        if (identifier.equals("display_broadcast_messages")) {
+            return String.valueOf(playerData.isDisplayBroadcastMessages());
         }
 
         return null;
