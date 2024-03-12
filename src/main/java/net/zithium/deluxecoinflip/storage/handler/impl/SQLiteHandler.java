@@ -149,6 +149,18 @@ public class SQLiteHandler implements StorageHandler {
     }
 
     @Override
+    public void dropGamesTable() {
+        String sql = "DROP TABLE IF EXISTS games;";
+        try (Connection connection = getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Override
     public Map<UUID, CoinflipGame> getGames() {
         Map<UUID, CoinflipGame> games = new HashMap<>();
         String sql = "SELECT uuid, provider, amount FROM games;";

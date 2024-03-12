@@ -158,6 +158,8 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
             for (UUID uuid : gamesToRemove) {
                 gameManager.removeCoinflipGame(uuid);
             }
+
+            storageManager.dropGames();
         }
         getLogger().info("All coinflip games have been cleared.");
     }
