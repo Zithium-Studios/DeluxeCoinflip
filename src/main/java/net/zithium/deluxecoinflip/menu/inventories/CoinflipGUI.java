@@ -110,8 +110,8 @@ public class CoinflipGUI implements Listener {
                         winAmount -= taxed;
                     }
 
-                    // Deposit winnings
-                    economyManager.getEconomyProvider(game.getProvider()).deposit(winner, winAmount);
+                    // Deposit winnings synchronously
+                    Bukkit.getScheduler().runTask(plugin, () -> economyManager.getEconomyProvider(game.getProvider()).deposit(winner, winAmount));
 
                     // Run event.
                     Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount)));
