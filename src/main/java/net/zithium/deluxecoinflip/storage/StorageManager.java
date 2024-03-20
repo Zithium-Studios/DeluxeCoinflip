@@ -129,4 +129,8 @@ public class StorageManager {
             return false;
         }
     }
+
+    public void dropGames() {
+        storageHandler.dropGamesTable();
+    }
 }
