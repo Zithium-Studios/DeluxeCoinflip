@@ -32,7 +32,7 @@ public class SQLiteHandler implements StorageHandler {
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                plugin.getLogger().log(Level.SEVERE, "Error occurred while creating the database file.", e);
                 return false;
             }
         }
@@ -45,7 +45,7 @@ public class SQLiteHandler implements StorageHandler {
         try {
             if (connection != null && !connection.isClosed()) connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while closing the database connection.", e);
         }
     }
 
@@ -57,14 +57,14 @@ public class SQLiteHandler implements StorageHandler {
             }
             return connection;
         } catch (SQLException | ClassNotFoundException ex) {
-            plugin.getLogger().log(Level.SEVERE, "Something went wrong trying to setup the database connection.", ex);
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to setup the database connection.", ex);
         }
         return connection;
     }
 
     private void createTable() {
-        try (Connection connection = getConnection();
-             Statement statement = connection.createStatement()) {
+        try (Connection tableConnection = getConnection();
+             Statement statement = tableConnection.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS players (" +
                     "uuid VARCHAR(255) NOT NULL PRIMARY KEY, " +
                     "wins INTEGER, " +
@@ -79,15 +79,15 @@ public class SQLiteHandler implements StorageHandler {
                     "amount BIGINT);";
             statement.execute(sql);
         } catch (SQLException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while creating database tables.", e);
         }
     }
 
     @Override
     public PlayerData getPlayer(final UUID uuid) {
         String sql = "SELECT wins, losses, profit, broadcasts FROM players WHERE uuid=?;";
-        try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection playerConnection = getConnection();
+             PreparedStatement preparedStatement = playerConnection.prepareStatement(sql)) {
             preparedStatement.setString(1, uuid.toString());
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -100,7 +100,7 @@ public class SQLiteHandler implements StorageHandler {
                 return playerData;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to get a player's data.", e);
             return null;
         }
         return new PlayerData(uuid);
@@ -109,8 +109,8 @@ public class SQLiteHandler implements StorageHandler {
     @Override
     public void savePlayer(final PlayerData player) {
         String sql = "REPLACE INTO players (uuid, wins, losses, profit, broadcasts) VALUES (?, ?, ?, ?, ?)";
-        try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection playerConnection = getConnection();
+             PreparedStatement preparedStatement = playerConnection.prepareStatement(sql)) {
             preparedStatement.setString(1, player.getUUID().toString());
             preparedStatement.setInt(2, player.getWins());
             preparedStatement.setInt(3, player.getLosses());
@@ -118,33 +118,33 @@ public class SQLiteHandler implements StorageHandler {
             preparedStatement.setBoolean(5, player.isDisplayBroadcastMessages());
             preparedStatement.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to save a player's data.", e);
         }
     }
 
     @Override
     public void saveCoinflip(CoinflipGame game) {
         String sql = "REPLACE INTO games (uuid, provider, amount) VALUES (?, ?, ?)";
-        try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection coinflipConnection = getConnection();
+             PreparedStatement preparedStatement = coinflipConnection.prepareStatement(sql)) {
             preparedStatement.setString(1, game.getPlayerUUID().toString());
             preparedStatement.setString(2, game.getProvider());
             preparedStatement.setLong(3, game.getAmount());
             preparedStatement.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to save a coinflip game.", e);
         }
     }
 
     @Override
     public void deleteCoinfip(UUID uuid) {
         String sql = "DELETE FROM games WHERE uuid=?;";
-        try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection coinflipConnection = getConnection();
+             PreparedStatement preparedStatement = coinflipConnection.prepareStatement(sql)) {
             preparedStatement.setString(1, uuid.toString());
             preparedStatement.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to delete a coinflip game.", e);
         }
     }
 
@@ -152,8 +152,8 @@ public class SQLiteHandler implements StorageHandler {
     public Map<UUID, CoinflipGame> getGames() {
         Map<UUID, CoinflipGame> games = new HashMap<>();
         String sql = "SELECT uuid, provider, amount FROM games;";
-        try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (Connection gamesConnection = getConnection();
+             PreparedStatement preparedStatement = gamesConnection.prepareStatement(sql);
              ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
                 UUID uuid = UUID.fromString(resultSet.getString("uuid"));
@@ -162,7 +162,7 @@ public class SQLiteHandler implements StorageHandler {
                 games.put(uuid, new CoinflipGame(uuid, provider, amount));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to get all coinflip games.", e);
         }
         return games;
     }
