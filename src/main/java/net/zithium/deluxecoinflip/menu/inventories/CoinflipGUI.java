@@ -36,7 +36,6 @@ public class CoinflipGUI implements Listener {
     private final double taxRate;
     private final long minimumBroadcastWinnings;
     private static final int ANIMATION_COUNT_THRESHOLD = 12;
-    private final double TAX_RATE;
 
     public CoinflipGUI(@NotNull DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
@@ -49,7 +48,6 @@ public class CoinflipGUI implements Listener {
         this.taxEnabled = config.getBoolean("settings.tax.enabled");
         this.taxRate = config.getDouble("settings.tax.rate");
         this.minimumBroadcastWinnings = config.getLong("settings.minimum-broadcast-winnings");
-        this.TAX_RATE = config.getDouble("settings.tax.rate");
     }
 
     public void startGame(@NotNull Player player, @NotNull OfflinePlayer otherPlayer, CoinflipGame game) {
@@ -106,7 +104,7 @@ public class CoinflipGUI implements Listener {
                     long taxed = 0;
 
                     if (taxEnabled) {
-                        taxed = (long) ((TAX_RATE * winAmount) / 100.0);
+                        taxed = (long) ((taxRate * winAmount) / 100.0);
                         winAmount -= taxed;
                     }
 
@@ -133,7 +131,7 @@ public class CoinflipGUI implements Listener {
                         Messages.GAME_SUMMARY_LOSS.send(loser.getPlayer(), replacePlaceholders(String.valueOf(taxRate), taxedFormatted, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmountFormatted));
                     }
                     // Broadcast to the server
-                    broadcastWinningMessage(winAmount, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName());
+                    broadcastWinningMessage(winAmount, taxed, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName());
 
                     //closeAnimationGUI(gui);
 
@@ -195,14 +193,14 @@ public class CoinflipGUI implements Listener {
         }
     }
 
-    private void broadcastWinningMessage(long winAmount, String winner, String loser, String currency) {
+    private void broadcastWinningMessage(long winAmount, long tax, String winner, String loser, String currency) {
         if (winAmount >= minimumBroadcastWinnings) {
             for (Player player : Bukkit.getServer().getOnlinePlayers()) {
                 plugin.getStorageManager().getPlayer(player.getUniqueId()).ifPresent(playerData -> {
                     if (playerData.isDisplayBroadcastMessages()) {
                         Messages.COINFLIP_BROADCAST.send(player, replacePlaceholders(
                                 String.valueOf(taxRate),
-                                TextUtil.numberFormat(0),
+                                TextUtil.numberFormat(tax),
                                 winner,
                                 loser,
                                 currency,
