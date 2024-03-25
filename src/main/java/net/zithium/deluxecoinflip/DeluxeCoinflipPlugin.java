@@ -31,7 +31,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAPI {
 
@@ -43,6 +42,7 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
 
     private Cache<UUID, CoinflipGame> listenerCache;
 
+    @Override
     public void onEnable() {
         long start = System.currentTimeMillis();
 
@@ -57,7 +57,7 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         listenerCache = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).maximumSize(500).build();
 
         // Register configurations
-        configMap = new HashMap<>();
+        configMap = new EnumMap<>(ConfigType.class);
         registerConfig(ConfigType.CONFIG);
         registerConfig(ConfigType.MESSAGES);
         Messages.setConfiguration(configMap.get(ConfigType.MESSAGES).getConfig());
@@ -72,15 +72,16 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
             return;
         }
 
-        (economyManager = new EconomyManager(this)).onEnable();
-        (gameManager = new GameManager(this)).onEnable();
+        economyManager = new EconomyManager(this);
+        economyManager.onEnable();
+        gameManager = new GameManager(this);
 
         inventoryManager = new InventoryManager();
         inventoryManager.load(this);
 
         // Load command manager
         CommandManager commandManager = new CommandManager(this, true);
-        commandManager.getCompletionHandler().register("#providers", input -> economyManager.getEconomyProviders().values().stream().map(EconomyProvider::getDisplayName).collect(Collectors.toList()));
+        commandManager.getCompletionHandler().register("#providers", input -> economyManager.getEconomyProviders().values().stream().map(EconomyProvider::getDisplayName).toList());
         commandManager.getMessageHandler().register("cmd.no.permission", Messages.NO_PERMISSION::send);
         // Register commands
         commandManager.register(new CoinflipCommand(this, getConfigHandler(ConfigType.CONFIG).getConfig().getStringList("settings.command_aliases")));
@@ -108,15 +109,14 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
     private void enableMetrics() {
         if (getConfig().getBoolean("metrics", true)) {
             getLogger().log(Level.INFO, "Loading bStats metrics");
-            int pluginId = 20887;
-            Metrics metrics = new Metrics(this, pluginId);
+            new Metrics(this, 20887);
         } else {
             getLogger().log(Level.INFO, "Metrics are disabled");
         }
     }
 
+    @Override
     public void onDisable() {
-        clearGames(true);
         if (storageManager != null) storageManager.onDisable(true);
     }
 
