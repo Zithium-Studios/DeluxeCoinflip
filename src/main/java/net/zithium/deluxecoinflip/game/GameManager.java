@@ -26,15 +26,6 @@ public class GameManager {
         this.coinflipGames = new HashMap<>();
         this.storageManager = plugin.getStorageManager();
     }
-
-    /**
-     * Load existing games from storage
-     */
-    public void onEnable() {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> coinflipGames.putAll(storageManager.getStorageHandler().getGames()));
-
-    }
-
     /**
      * Add a coinflip game
      *

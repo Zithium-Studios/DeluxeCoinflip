@@ -151,11 +151,11 @@ public class SQLiteHandler implements StorageHandler {
     @Override
     public void dropGamesTable() {
         String sql = "DROP TABLE IF EXISTS games;";
-        try (Connection connection = getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection tableConnection = getConnection();
+             PreparedStatement preparedStatement = tableConnection.prepareStatement(sql)) {
             preparedStatement.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to delete all coinflip games.", e);
         }
     }
 

@@ -15,13 +15,13 @@ import java.util.Locale;
 
 public class TextUtil {
 
-    private final static String N0NCE_ID = "%%__NONCE__%%";
-    private final static String US3R_ID = "%%__USER__%%";
-    private final static String US3R_ID2 = "%%__USER__%%321";
-    private final static String[] SUFFIX = new String[]{"","k", "M", "B", "T"};
-    private final static int MAX_LENGTH = 5;
-    private final static DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
-    private final static NumberFormat NUMBER_FORMAT = NumberFormat.getNumberInstance(Locale.US);
+    private static final String N0NCE_ID = "%%__NONCE__%%";
+    private static final String US3R_ID = "%%__USER__%%";
+    private static final String US3R_ID2 = "%%__USER__%%321";
+    private static final String[] SUFFIX = new String[]{"","k", "M", "B", "T"};
+    private static final int MAX_LENGTH = 5;
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
+    private static final NumberFormat NUMBER_FORMAT = NumberFormat.getNumberInstance(Locale.US);
 
     public static boolean isMCMarket() {
         String hash = "%__FILEHASH__%";
@@ -35,8 +35,8 @@ public class TextUtil {
 
     public static String format(double number) {
         String r = new DecimalFormat("##0E0").format(number);
-        r = r.replaceAll("E[0-9]", SUFFIX[Character.getNumericValue(r.charAt(r.length() - 1)) / 3]);
-        while(r.length() > MAX_LENGTH || r.matches("[0-9]+\\.[a-z]")){
+        r = r.replaceAll("E\\d", SUFFIX[Character.getNumericValue(r.charAt(r.length() - 1)) / 3]);
+        while(r.length() > MAX_LENGTH || r.matches("\\d+\\.[a-z]")){
             r = r.substring(0, r.length()-2) + r.substring(r.length() - 1);
         }
         return r;

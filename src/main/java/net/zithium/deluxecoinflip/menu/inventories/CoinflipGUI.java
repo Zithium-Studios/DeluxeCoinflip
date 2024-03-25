@@ -30,7 +30,6 @@ public class CoinflipGUI implements Listener {
     private final DeluxeCoinflipPlugin plugin;
     private final EconomyManager economyManager;
     private final FileConfiguration config;
-    private final Random rand;
     private final String coinflipGuiTitle;
     private final boolean taxEnabled;
     private final double taxRate;
@@ -41,7 +40,6 @@ public class CoinflipGUI implements Listener {
         this.plugin = plugin;
         this.economyManager = plugin.getEconomyManager();
         this.config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
-        this.rand = new Random();
 
         // Load config values into variables this helps improve performance.
         this.coinflipGuiTitle = TextUtil.color(config.getString("coinflip-gui.title"));
@@ -54,6 +52,7 @@ public class CoinflipGUI implements Listener {
 
         Messages.PLAYER_CHALLENGE.send(otherPlayer.getPlayer(), "{OPPONENT}", player.getName());
 
+        Random rand = new Random(System.currentTimeMillis());
         OfflinePlayer winner = rand.nextBoolean() ? player : otherPlayer;
         OfflinePlayer loser = winner.equals(player) ? otherPlayer : player;
 
