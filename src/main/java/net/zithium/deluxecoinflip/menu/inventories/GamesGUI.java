@@ -31,7 +31,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 public class GamesGUI {
 
@@ -101,7 +100,7 @@ public class GamesGUI {
                                 .replace("{PROFIT}", String.valueOf(playerData.getProfitFormatted()))
                                 .replace("{WIN_PERCENTAGE}", String.valueOf(playerData.getWinPercentage()))
                                 .replace("{PLAYER}", player.getName()))
-                        .collect(Collectors.toList()));
+                        .toList());
             }
 
             ItemStack newItem = newItemBuilder.build();
@@ -161,7 +160,7 @@ public class GamesGUI {
                                 .replace("{TAX_DEDUCTION}", taxedFormatted)
                                 .replace("{AMOUNT}", valueFormatted)
                                 .replace("{CURRENCY}", economyManager.getEconomyProvider(coinflipGame.getProvider()).getDisplayName()))
-                        .collect(Collectors.toList()));
+                        .toList());
 
                 GuiItem guiItem = new GuiItem(builder.build());
                 guiItem.setAction(event -> {
