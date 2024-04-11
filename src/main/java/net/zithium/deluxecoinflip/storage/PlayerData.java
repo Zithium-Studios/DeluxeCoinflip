@@ -91,6 +91,10 @@ public class PlayerData {
         return totalGambled;
     }
 
+    public String getTotalGambledFormatted() {
+        return NumberFormat.getNumberInstance(Locale.US).format(totalGambled);
+    }
+
     public void updateWins() {
         wins++;
     }
