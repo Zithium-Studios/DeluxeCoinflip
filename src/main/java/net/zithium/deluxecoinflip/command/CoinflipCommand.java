@@ -5,39 +5,40 @@
 
 package net.zithium.deluxecoinflip.command;
 
+import co.aikar.commands.BaseCommand;
+import co.aikar.commands.annotation.*;
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
+import net.zithium.deluxecoinflip.api.events.CoinflipCreatedEvent;
 import net.zithium.deluxecoinflip.config.ConfigType;
 import net.zithium.deluxecoinflip.config.Messages;
-import net.zithium.deluxecoinflip.api.events.CoinflipCreatedEvent;
 import net.zithium.deluxecoinflip.economy.EconomyManager;
 import net.zithium.deluxecoinflip.economy.provider.EconomyProvider;
 import net.zithium.deluxecoinflip.game.CoinflipGame;
 import net.zithium.deluxecoinflip.game.GameManager;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.utility.TextUtil;
-import me.mattstudios.mf.annotations.*;
-import me.mattstudios.mf.annotations.Optional;
-import me.mattstudios.mf.base.CommandBase;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Command("coinflip")
-public class CoinflipCommand extends CommandBase {
+@CommandAlias("coinflip|cf")
+@Description("Main command for using DeluxeCoinflip")
+public class CoinflipCommand extends BaseCommand {
 
     private final DeluxeCoinflipPlugin plugin;
     private final EconomyManager economyManager;
     private final GameManager gameManager;
 
-    public CoinflipCommand(final DeluxeCoinflipPlugin plugin, final List<String> aliases) {
+    public CoinflipCommand(final DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
         this.economyManager = plugin.getEconomyManager();
         this.gameManager = plugin.getGameManager();
-        super.setAliases(aliases);
     }
 
     @Default
@@ -50,20 +51,20 @@ public class CoinflipCommand extends CommandBase {
         plugin.getInventoryManager().getGamesGUI().openInventory((Player) sender);
     }
 
-    @SubCommand("reload")
-    @Permission("coinflip.reload")
+    @Subcommand("reload")
+    @CommandPermission("coinflip.reload")
     public void reloadSubCommand(final CommandSender sender) {
         plugin.reload();
         Messages.RELOAD.send(sender);
     }
 
-    @SubCommand("help")
+    @Subcommand("help")
     public void helpSubCommand(final CommandSender sender) {
         Messages.HELP_DEFAULT.send(sender, "{PROVIDERS}", economyManager.getEconomyProviders().values().stream().map(p -> p.getDisplayName().toLowerCase()).collect(Collectors.joining(", ")));
         if (sender.hasPermission("coinflip.admin")) Messages.HELP_ADMIN.send(sender);
     }
 
-    @SubCommand("about")
+    @Subcommand("about")
     public void aboutSubCommand(final CommandSender sender) {
         sender.sendMessage("");
         sender.sendMessage(TextUtil.color("&e&lDeluxeCoinflip"));
@@ -80,7 +81,7 @@ public class CoinflipCommand extends CommandBase {
         sender.sendMessage("");
     }
 
-    @SubCommand("toggle")
+    @Subcommand("toggle")
     public void toggleSubCommand(final CommandSender sender) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Only players can toggle broadcast messages");
@@ -105,8 +106,7 @@ public class CoinflipCommand extends CommandBase {
         }
     }
 
-    @SubCommand("delete")
-    @Alias("remove")
+    @Subcommand("delete|remove")
     public void deleteSubCommand(final CommandSender sender) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Only players can remove a coinflip game");
@@ -127,15 +127,15 @@ public class CoinflipCommand extends CommandBase {
         }
     }
 
-    @SubCommand("create")
-    @Alias("new")
-    @WrongUsage("&c/coinflip create <amount> [economy]")
-    public void createSubCommand(final Player player, String input, @Optional String providerInput) {
+    @Subcommand("create|new")
+    //@WrongUsage("&c/coinflip create <amount> [economy]")
+    @CommandCompletion("* @providers")
+    public void createSubCommand(final Player player, String amountInput, @Optional String currencyProvider) {
         final long amount;
         try {
-            amount = Long.parseLong(input.replace(",", ""));
+            amount = Long.parseLong(amountInput.replace(",", ""));
         } catch (Exception ex) {
-            Messages.INVALID_AMOUNT.send(player, "{INPUT}", input);
+            Messages.INVALID_AMOUNT.send(player, "{INPUT}", amountInput);
             return;
         }
 
@@ -163,7 +163,7 @@ public class CoinflipCommand extends CommandBase {
         }
 
         EconomyProvider provider = null;
-        if (providerInput == null) {
+        if (currencyProvider == null) {
             if (providers.size() == 1) {
                 provider = providers.get(0);
             } else {
@@ -173,7 +173,7 @@ public class CoinflipCommand extends CommandBase {
                 }
             }
         } else {
-            provider = getProviderByName(providerInput);
+            provider = getProviderByName(currencyProvider);
         }
 
         if (provider == null) {

@@ -5,6 +5,7 @@
 
 package net.zithium.deluxecoinflip;
 
+import co.aikar.commands.PaperCommandManager;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.zithium.deluxecoinflip.api.DeluxeCoinflipAPI;
@@ -22,7 +23,6 @@ import net.zithium.deluxecoinflip.listener.PlayerListener;
 import net.zithium.deluxecoinflip.menu.InventoryManager;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.StorageManager;
-import me.mattstudios.mf.base.CommandManager;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -78,12 +78,13 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         inventoryManager = new InventoryManager();
         inventoryManager.load(this);
 
-        // Load command manager
-        CommandManager commandManager = new CommandManager(this, true);
-        commandManager.getCompletionHandler().register("#providers", input -> economyManager.getEconomyProviders().values().stream().map(EconomyProvider::getDisplayName).collect(Collectors.toList()));
-        commandManager.getMessageHandler().register("cmd.no.permission", Messages.NO_PERMISSION::send);
-        // Register commands
-        commandManager.register(new CoinflipCommand(this, getConfigHandler(ConfigType.CONFIG).getConfig().getStringList("settings.command_aliases")));
+        //commandManager.getMessageHandler().register("cmd.no.permission", Messages.NO_PERMISSION::send);
+        List<String> aliases = getConfigHandler(ConfigType.CONFIG).getConfig().getStringList("settings.command_aliases");
+
+        PaperCommandManager paperCommandManager = new PaperCommandManager(this);
+        paperCommandManager.getCommandCompletions().registerAsyncCompletion("providers", c -> economyManager.getEconomyProviders().values().stream().map(EconomyProvider::getDisplayName).collect(Collectors.toList()));
+        paperCommandManager.getCommandReplacements().addReplacement("main", "coinflip|" + String.join("|", aliases));
+        paperCommandManager.registerCommand(new CoinflipCommand(this));
 
         // Register listeners
         new PlayerChatListener(this);

@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'net.zithium'
-version = '2.7.8'
+version = '2.7.10'
 description = 'DeluxeCoinflip'
 
 repositories {
@@ -16,12 +16,13 @@ repositories {
     maven { url = uri('https://repo.codemc.org/repository/maven-public/') }
     maven { url = uri('https://repo.extendedclip.com/content/repositories/placeholderapi/') }
     maven { url = uri('https://libraries.minecraft.net/') }
+    maven { url = "https://repo.aikar.co/content/groups/aikar/" }
     maven { url = 'https://repo.rosewooddev.io/repository/public/' }
 }
 
 dependencies {
-    implementation 'me.mattstudios.utils:matt-framework:1.4.6'
     implementation 'dev.triumphteam:triumph-gui:3.1.7'
+    implementation "co.aikar:acf-paper:0.5.1-SNAPSHOT"
     implementation 'org.bstats:bstats-bukkit:3.0.2'
 
     compileOnly 'org.spigotmc:spigot-api:1.20.1-R0.1-SNAPSHOT'
@@ -41,6 +42,10 @@ dependencies {
 
 compileJava {
     options.encoding = "UTF-8"
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 }
 
 processResources {
