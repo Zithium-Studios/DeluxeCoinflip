@@ -24,10 +24,8 @@ public class PlayerListener implements Listener {
         this.gameManager = plugin.getGameManager();
     }
 
-
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        if (event.getPlayer() == null) return;
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
 
@@ -36,9 +34,7 @@ public class PlayerListener implements Listener {
             economyManager.getEconomyProvider(coinflipGame.getProvider()).deposit(player, coinflipGame.getAmount());
             gameManager.removeCoinflipGame(uuid);
         }
-
     }
-
 
     @EventHandler
     public void onPluginDisable(PluginDisableEvent event) {
@@ -47,6 +43,5 @@ public class PlayerListener implements Listener {
             plugin.clearGames(true);
             plugin.getLogger().log(Level.INFO, "Cleanup completed.");
         }
-
     }
 }

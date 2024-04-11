@@ -16,24 +16,26 @@ import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class SQLiteHandler implements StorageHandler {
 
+    private DeluxeCoinflipPlugin plugin;
     private File file;
     private Connection connection;
 
     @Override
     public boolean onEnable(final DeluxeCoinflipPlugin plugin) {
+        this.plugin = plugin;
         file = new File(plugin.getDataFolder(), "database.db");
         if (!file.exists()) {
             try {
                 file.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                plugin.getLogger().log(Level.SEVERE, "Error occurred while creating the database file.", e);
                 return false;
             }
         }
-        getConnection();
         createTable();
         return true;
     }
@@ -41,55 +43,53 @@ public class SQLiteHandler implements StorageHandler {
     @Override
     public void onDisable() {
         try {
-            if (!connection.isClosed()) connection.close();
+            if (connection != null && !connection.isClosed()) connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while closing the database connection.", e);
         }
     }
 
     public Connection getConnection() {
         try {
-            if (connection != null && !connection.isClosed()) return connection;
-            else {
+            if (connection == null || connection.isClosed()) {
                 Class.forName("org.sqlite.JDBC");
                 connection = DriverManager.getConnection("jdbc:sqlite:" + file);
-                return connection;
             }
+            return connection;
         } catch (SQLException | ClassNotFoundException ex) {
-            ex.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to setup the database connection.", ex);
         }
         return connection;
     }
 
     private void createTable() {
-        try {
-            Connection connection = getConnection();
+        try (Connection tableConnection = getConnection();
+             Statement statement = tableConnection.createStatement()) {
             String sql = "CREATE TABLE IF NOT EXISTS players (" +
                     "uuid VARCHAR(255) NOT NULL PRIMARY KEY, " +
                     "wins INTEGER, " +
                     "losses INTEGER, " +
                     "profit BIGINT," +
                     "broadcasts BOOLEAN);";
-            Statement statement = connection.createStatement();
             statement.execute(sql);
 
             sql = "CREATE TABLE IF NOT EXISTS games (" +
                     "uuid VARCHAR(255) NOT NULL PRIMARY KEY, " +
                     "provider VARCHAR(255)," +
                     "amount BIGINT);";
-            statement = connection.createStatement();
             statement.execute(sql);
         } catch (SQLException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while creating database tables.", e);
         }
     }
 
     @Override
     public PlayerData getPlayer(final UUID uuid) {
-        try {
-            Connection connection = getConnection();
-            String sql = "SELECT * FROM players WHERE uuid ='" + uuid + "';";
-            ResultSet resultSet = connection.createStatement().executeQuery(sql);
+        String sql = "SELECT wins, losses, profit, broadcasts FROM players WHERE uuid=?;";
+        try (Connection playerConnection = getConnection();
+             PreparedStatement preparedStatement = playerConnection.prepareStatement(sql)) {
+            preparedStatement.setString(1, uuid.toString());
+            ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 PlayerData playerData = new PlayerData(uuid);
                 playerData.setWins(resultSet.getInt("wins"));
@@ -100,7 +100,7 @@ public class SQLiteHandler implements StorageHandler {
                 return playerData;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to get a player's data.", e);
             return null;
         }
         return new PlayerData(uuid);
@@ -108,63 +108,73 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public void savePlayer(final PlayerData player) {
-        try {
-            Connection connection = getConnection();
-            String sql = "REPLACE INTO 'players' (uuid, wins, losses, profit, broadcasts) VALUES (?, ?, ?, ?, ?)";
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-            pstmt.setString(1, player.getUUID().toString());
-            pstmt.setInt(2, player.getWins());
-            pstmt.setInt(3, player.getLosses());
-            pstmt.setLong(4, player.getProfit());
-            pstmt.setBoolean(5, player.isDisplayBroadcastMessages());
-            pstmt.execute();
+        String sql = "REPLACE INTO players (uuid, wins, losses, profit, broadcasts) VALUES (?, ?, ?, ?, ?)";
+        try (Connection playerConnection = getConnection();
+             PreparedStatement preparedStatement = playerConnection.prepareStatement(sql)) {
+            preparedStatement.setString(1, player.getUUID().toString());
+            preparedStatement.setInt(2, player.getWins());
+            preparedStatement.setInt(3, player.getLosses());
+            preparedStatement.setLong(4, player.getProfit());
+            preparedStatement.setBoolean(5, player.isDisplayBroadcastMessages());
+            preparedStatement.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to save a player's data.", e);
         }
     }
 
     @Override
     public void saveCoinflip(CoinflipGame game) {
-        try {
-            Connection connection = getConnection();
-            String sql = "REPLACE INTO 'games' (uuid, provider, amount) VALUES (?, ?, ?)";
-            PreparedStatement pstmt = connection.prepareStatement(sql);
-            pstmt.setString(1, game.getPlayerUUID().toString());
-            pstmt.setString(2, game.getProvider());
-            pstmt.setLong(3, game.getAmount());
-            pstmt.execute();
+        String sql = "REPLACE INTO games (uuid, provider, amount) VALUES (?, ?, ?)";
+        try (Connection coinflipConnection = getConnection();
+             PreparedStatement preparedStatement = coinflipConnection.prepareStatement(sql)) {
+            preparedStatement.setString(1, game.getPlayerUUID().toString());
+            preparedStatement.setString(2, game.getProvider());
+            preparedStatement.setLong(3, game.getAmount());
+            preparedStatement.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to save a coinflip game.", e);
         }
     }
 
     @Override
     public void deleteCoinfip(UUID uuid) {
-        try {
-            Connection connection = getConnection();
-            String sql = "DELETE FROM 'games' WHERE uuid='" + uuid.toString() + "';";
-            Statement statement = connection.createStatement();
-            statement.execute(sql);
+        String sql = "DELETE FROM games WHERE uuid=?;";
+        try (Connection coinflipConnection = getConnection();
+             PreparedStatement preparedStatement = coinflipConnection.prepareStatement(sql)) {
+            preparedStatement.setString(1, uuid.toString());
+            preparedStatement.execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to delete a coinflip game.", e);
         }
     }
 
     @Override
+    public void dropGamesTable() {
+        String sql = "DROP TABLE IF EXISTS games;";
+        try (Connection tableConnection = getConnection();
+             PreparedStatement preparedStatement = tableConnection.prepareStatement(sql)) {
+            preparedStatement.execute();
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to delete all coinflip games.", e);
+        }
+    }
+
+
+    @Override
     public Map<UUID, CoinflipGame> getGames() {
         Map<UUID, CoinflipGame> games = new HashMap<>();
-        try {
-            Connection connection = getConnection();
-            String sql = "SELECT * FROM games;";
-            ResultSet resultSet = connection.createStatement().executeQuery(sql);
-            if (resultSet.next()) {
+        String sql = "SELECT uuid, provider, amount FROM games;";
+        try (Connection gamesConnection = getConnection();
+             PreparedStatement preparedStatement = gamesConnection.prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
                 UUID uuid = UUID.fromString(resultSet.getString("uuid"));
                 String provider = resultSet.getString("provider");
                 long amount = resultSet.getLong("amount");
                 games.put(uuid, new CoinflipGame(uuid, provider, amount));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to get all coinflip games.", e);
         }
         return games;
     }

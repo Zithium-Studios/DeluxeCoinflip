@@ -26,11 +26,9 @@ public class InventoryManager {
         return gamesGUI;
     }
 
-
     public CoinflipGUI getCoinflipGUI() {
         return coinflipGUI;
     }
-
 
     public GameBuilderGUI getGameBuilderGUI() {
         return gameBuilderGUI;

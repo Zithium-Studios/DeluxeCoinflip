@@ -8,6 +8,7 @@ package net.zithium.deluxecoinflip.api.events;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.jetbrains.annotations.NotNull;
 
 public class CoinflipCompletedEvent extends Event {
 
@@ -35,6 +36,7 @@ public class CoinflipCompletedEvent extends Event {
         return winnings;
     }
 
+    @NotNull
     @Override
     public HandlerList getHandlers() {
         return HANDLERS_LIST;

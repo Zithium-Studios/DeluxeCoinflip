@@ -13,12 +13,7 @@ import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.StorageManager;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.deluxecoinflip.utility.TextUtil;
-import net.zithium.deluxecoinflip.utility.universal.XMaterial;
-import net.zithium.deluxecoinflip.utility.universal.XSound;
-import net.zithium.mobcoins.util.GuiUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -35,32 +30,29 @@ public class CoinflipGUI implements Listener {
     private final DeluxeCoinflipPlugin plugin;
     private final EconomyManager economyManager;
     private final FileConfiguration config;
-    private final Random rand;
     private final String coinflipGuiTitle;
     private final boolean taxEnabled;
     private final double taxRate;
     private final long minimumBroadcastWinnings;
     private static final int ANIMATION_COUNT_THRESHOLD = 12;
-    private final double TAX_RATE;
 
     public CoinflipGUI(@NotNull DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
         this.economyManager = plugin.getEconomyManager();
         this.config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
-        this.rand = new Random();
 
         // Load config values into variables this helps improve performance.
         this.coinflipGuiTitle = TextUtil.color(config.getString("coinflip-gui.title"));
         this.taxEnabled = config.getBoolean("settings.tax.enabled");
         this.taxRate = config.getDouble("settings.tax.rate");
         this.minimumBroadcastWinnings = config.getLong("settings.minimum-broadcast-winnings");
-        this.TAX_RATE = config.getDouble("settings.tax.rate");
     }
 
     public void startGame(@NotNull Player player, @NotNull OfflinePlayer otherPlayer, CoinflipGame game) {
 
         Messages.PLAYER_CHALLENGE.send(otherPlayer.getPlayer(), "{OPPONENT}", player.getName());
 
+        Random rand = new Random(System.currentTimeMillis());
         OfflinePlayer winner = rand.nextBoolean() ? player : otherPlayer;
         OfflinePlayer loser = winner.equals(player) ? otherPlayer : player;
 
@@ -73,11 +65,11 @@ public class CoinflipGUI implements Listener {
         gui.disableAllInteractions();
 
         GuiItem winnerHead = new GuiItem(new ItemStackBuilder(
-                winner.equals(game.getOfflinePlayer()) ? game.getCachedHead() : XMaterial.PLAYER_HEAD.parseItem()
+                winner.equals(game.getOfflinePlayer()) ? game.getCachedHead() : new ItemStack(Material.PLAYER_HEAD)
         ).withName(ChatColor.YELLOW + winner.getName()).setSkullOwner(winner).build());
 
         GuiItem loserHead = new GuiItem(new ItemStackBuilder(
-                winner.equals(game.getOfflinePlayer()) ? XMaterial.PLAYER_HEAD.parseItem() : game.getCachedHead()
+                winner.equals(game.getOfflinePlayer()) ? new ItemStack(Material.PLAYER_HEAD) : game.getCachedHead()
         ).withName(ChatColor.YELLOW + loser.getName()).setSkullOwner(loser).build());
 
         if (winner.isOnline()) {
@@ -100,23 +92,23 @@ public class CoinflipGUI implements Listener {
                 if (count >= ANIMATION_COUNT_THRESHOLD) {
                     // Completed animation
                     gui.setItem(13, winnerHead);
-                    gui.getFiller().fill(new GuiItem(XMaterial.LIGHT_BLUE_STAINED_GLASS_PANE.parseItem()));
+                    gui.getFiller().fill(new GuiItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE));
                     gui.disableAllInteractions();
                     gui.update();
 
                     if (player.isOnline()) {
-                        player.playSound(player.getLocation(), XSound.ENTITY_PLAYER_LEVELUP.parseSound(), 1L, 0L);
+                        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1L, 0L);
                     }
 
                     long taxed = 0;
 
                     if (taxEnabled) {
-                        taxed = (long) ((TAX_RATE * winAmount) / 100.0);
+                        taxed = (long) ((taxRate * winAmount) / 100.0);
                         winAmount -= taxed;
                     }
 
-                    // Deposit winnings
-                    economyManager.getEconomyProvider(game.getProvider()).deposit(winner, winAmount);
+                    // Deposit winnings synchronously
+                    Bukkit.getScheduler().runTask(plugin, () -> economyManager.getEconomyProvider(game.getProvider()).deposit(winner, winAmount));
 
                     // Run event.
                     Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount)));
@@ -138,7 +130,7 @@ public class CoinflipGUI implements Listener {
                         Messages.GAME_SUMMARY_LOSS.send(loser.getPlayer(), replacePlaceholders(String.valueOf(taxRate), taxedFormatted, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmountFormatted));
                     }
                     // Broadcast to the server
-                    broadcastWinningMessage(winAmount, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName());
+                    broadcastWinningMessage(winAmount, taxed, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName());
 
                     //closeAnimationGUI(gui);
 
@@ -154,7 +146,7 @@ public class CoinflipGUI implements Listener {
                         gui.getFiller().fill(new GuiItem(firstAnimationItem));
                     } else {
                         gui.setItem(13, winnerHead);
-                        gui.getFiller().fill(new GuiItem(XMaterial.YELLOW_STAINED_GLASS_PANE.parseItem()));
+                        gui.getFiller().fill(new GuiItem(Material.YELLOW_STAINED_GLASS_PANE));
                         plugin.getLogger().warning("Missing configuration section for first animation frame.");
                     }
                 } else {
@@ -165,17 +157,15 @@ public class CoinflipGUI implements Listener {
                         gui.getFiller().fill(new GuiItem(secondAnimationItem));
                     } else {
                         gui.setItem(13, loserHead);
-                        gui.getFiller().fill(new GuiItem(XMaterial.GRAY_STAINED_GLASS_PANE.parseItem()));
+                        gui.getFiller().fill(new GuiItem(Material.GRAY_STAINED_GLASS_PANE));
                         plugin.getLogger().warning("Missing configuration section for second animation frame.");
                     }
                 }
 
-
-
                 alternate = !alternate;
 
                 if (player.isOnline()) {
-                    player.playSound(player.getLocation(), XSound.BLOCK_WOODEN_BUTTON_CLICK_ON.parseSound(), 1L, 0L);
+                    player.playSound(player.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1L, 0L);
                 }
 
                 gui.update();
@@ -202,14 +192,14 @@ public class CoinflipGUI implements Listener {
         }
     }
 
-    private void broadcastWinningMessage(long winAmount, String winner, String loser, String currency) {
+    private void broadcastWinningMessage(long winAmount, long tax, String winner, String loser, String currency) {
         if (winAmount >= minimumBroadcastWinnings) {
             for (Player player : Bukkit.getServer().getOnlinePlayers()) {
                 plugin.getStorageManager().getPlayer(player.getUniqueId()).ifPresent(playerData -> {
                     if (playerData.isDisplayBroadcastMessages()) {
                         Messages.COINFLIP_BROADCAST.send(player, replacePlaceholders(
                                 String.valueOf(taxRate),
-                                TextUtil.numberFormat(0),
+                                TextUtil.numberFormat(tax),
                                 winner,
                                 loser,
                                 currency,

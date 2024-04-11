@@ -17,11 +17,11 @@ import net.zithium.deluxecoinflip.game.GameManager;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.deluxecoinflip.utility.TextUtil;
-import net.zithium.deluxecoinflip.utility.universal.XMaterial;
-import net.zithium.deluxecoinflip.utility.universal.XSound;
 import dev.triumphteam.gui.guis.GuiItem;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -31,7 +31,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 public class GamesGUI {
 
@@ -52,11 +51,10 @@ public class GamesGUI {
         GUI_ROWS = config.getInt("games-gui.rows");
 
         if (config.contains("games-gui.coinflip-game.material") && !config.getString("games-gui.coinflip-game.material").equalsIgnoreCase("PLAYER_HEAD")) {
-            materialBuilder = new ItemStackBuilder(XMaterial.matchXMaterial(config.getString("games-gui.coinflip-game.material")).get().parseItem());
+            materialBuilder = new ItemStackBuilder(Material.matchMaterial(config.getString("games-gui.coinflip-game.material")));
         } else {
             materialBuilder = null; // Set it to null if not configured
         }
-
     }
 
     public void openInventory(Player player) {
@@ -102,13 +100,12 @@ public class GamesGUI {
                                 .replace("{PROFIT}", String.valueOf(playerData.getProfitFormatted()))
                                 .replace("{WIN_PERCENTAGE}", String.valueOf(playerData.getWinPercentage()))
                                 .replace("{PLAYER}", player.getName()))
-                        .collect(Collectors.toList()));
+                        .toList());
             }
 
             ItemStack newItem = newItemBuilder.build();
             guiItem.setItemStack(newItem);
             gui.getInventory().setItem(slot, guiItem.getItemStack());
-
         }
 
         // Open Game Builder GUI
@@ -143,7 +140,6 @@ public class GamesGUI {
                 OfflinePlayer playerFromID = coinflipGame.getOfflinePlayer();
                 if (playerFromID == null) continue;
 
-
                 ItemStackBuilder builder;
                 if (materialBuilder != null) {
                     // Create a new instance with the same properties as materialBuilder
@@ -152,13 +148,11 @@ public class GamesGUI {
                     builder = new ItemStackBuilder(coinflipGame.getCachedHead());
                 }
 
-
                 if (config.contains("games-gui.coinflip-game.material") && !config.getString("games-gui.coinflip-game.material").equalsIgnoreCase("PLAYER_HEAD")) {
-                    builder = new ItemStackBuilder(XMaterial.matchXMaterial(config.getString("games-gui.coinflip-game.material")).get().parseItem());
+                    builder = new ItemStackBuilder(Material.matchMaterial(config.getString("games-gui.coinflip-game.material")));
                 } else {
                     builder = new ItemStackBuilder(coinflipGame.getCachedHead());
                 }
-
 
                 builder.withName(config.getString("games-gui.coinflip-game.display_name").replace("{PLAYER}", playerFromID.getName()));
                 builder.withLore(config.getStringList("games-gui.coinflip-game.lore").stream().map(line -> line
@@ -166,7 +160,7 @@ public class GamesGUI {
                                 .replace("{TAX_DEDUCTION}", taxedFormatted)
                                 .replace("{AMOUNT}", valueFormatted)
                                 .replace("{CURRENCY}", economyManager.getEconomyProvider(coinflipGame.getProvider()).getDisplayName()))
-                        .collect(Collectors.toList()));
+                        .toList());
 
                 GuiItem guiItem = new GuiItem(builder.build());
                 guiItem.setAction(event -> {
@@ -185,7 +179,7 @@ public class GamesGUI {
                     CoinflipGame game = gameManager.getCoinflipGames().get(playerFromID.getUniqueId());
                     if (economyManager.getEconomyProvider(game.getProvider()).getBalance(player) < game.getAmount()) {
                         ItemStack previousItem = event.getCurrentItem();
-                        player.playSound(player.getLocation(), XSound.BLOCK_NOTE_BLOCK_PLING.parseSound(), 1L, 0L);
+                        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1L, 0L);
                         event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("games-gui.error-no-funds")).build());
                         Bukkit.getScheduler().runTaskLater(plugin, () -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
                         Messages.INSUFFICIENT_FUNDS.send(player);
@@ -197,8 +191,6 @@ public class GamesGUI {
 
                     event.getWhoClicked().closeInventory();
                     plugin.getInventoryManager().getCoinflipGUI().startGame(player, playerFromID, game);
-
-
                 });
                 gui.addItem(guiItem);
             }

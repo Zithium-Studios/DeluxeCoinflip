@@ -12,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
 
 public class ConfigHandler {
 
@@ -39,27 +40,26 @@ public class ConfigHandler {
 
         try {
             this.configuration.load(this.file);
-        } catch (IOException | InvalidConfigurationException var2) {
-            var2.printStackTrace();
-            this.plugin.getLogger().severe("============= CONFIGURATION ERROR =============");
-            this.plugin.getLogger().severe("There was an error loading " + this.name);
-            this.plugin.getLogger().severe("Please check for any obvious configuration mistakes");
-            this.plugin.getLogger().severe("such as using tabs for spaces or forgetting to end quotes");
-            this.plugin.getLogger().severe("before reporting to the developer. The plugin will now disable..");
-            this.plugin.getLogger().severe("============= CONFIGURATION ERROR =============");
+        } catch (IOException | InvalidConfigurationException e) {
+            this.plugin.getLogger().log(Level.SEVERE, String.format("""
+                    ============= CONFIGURATION ERROR =============
+                    There was an error loading %s
+                    Please check for any obvious configuration mistakes
+                    such as using tabs for spaces or forgetting to end quotes
+                    before reporting to the developer. The plugin will now disable..
+                    ============= CONFIGURATION ERROR =============
+                    """, this.name), e);
             this.plugin.getServer().getPluginManager().disablePlugin(this.plugin);
         }
-
     }
 
     public void save() {
         if (this.configuration != null && this.file != null) {
             try {
                 this.getConfig().save(this.file);
-            } catch (IOException var2) {
-                var2.printStackTrace();
+            } catch (IOException e) {
+                this.plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to save the config.", e);
             }
-
         }
     }
 
