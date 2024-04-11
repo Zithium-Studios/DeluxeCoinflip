@@ -111,6 +111,8 @@ games-gui:
         - " &eWins: &f{WINS}"
         - " &eLosses: &f{LOSSES}"
         - " &eProfit: &f${PROFIT}"
+        - " &eTotal Lost: &f${TOTAL_LOSSES}"
+        - " &eTotal Gambled: &f${TOTAL_GAMBLED}"
         - " &eWin Percentage: &f{WIN_PERCENTAGE}%"
 
   # Items below here are fixed and ID should not be removed/changed.
