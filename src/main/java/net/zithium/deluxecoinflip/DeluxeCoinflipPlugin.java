@@ -5,6 +5,7 @@
 
 package net.zithium.deluxecoinflip;
 
+import co.aikar.commands.PaperCommandManager;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.zithium.deluxecoinflip.api.DeluxeCoinflipAPI;
@@ -22,7 +23,6 @@ import net.zithium.deluxecoinflip.listener.PlayerListener;
 import net.zithium.deluxecoinflip.menu.InventoryManager;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.StorageManager;
-import me.mattstudios.mf.base.CommandManager;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -31,6 +31,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAPI {
 
@@ -42,7 +43,6 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
 
     private Cache<UUID, CoinflipGame> listenerCache;
 
-    @Override
     public void onEnable() {
         long start = System.currentTimeMillis();
 
@@ -57,7 +57,7 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         listenerCache = CacheBuilder.newBuilder().expireAfterWrite(30, TimeUnit.SECONDS).maximumSize(500).build();
 
         // Register configurations
-        configMap = new EnumMap<>(ConfigType.class);
+        configMap = new HashMap<>();
         registerConfig(ConfigType.CONFIG);
         registerConfig(ConfigType.MESSAGES);
         Messages.setConfiguration(configMap.get(ConfigType.MESSAGES).getConfig());
@@ -72,19 +72,21 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
             return;
         }
 
-        economyManager = new EconomyManager(this);
-        economyManager.onEnable();
-        gameManager = new GameManager(this);
+        (economyManager = new EconomyManager(this)).onEnable();
+        (gameManager = new GameManager(this)).onEnable();
 
         inventoryManager = new InventoryManager();
         inventoryManager.load(this);
 
-        // Load command manager
-        CommandManager commandManager = new CommandManager(this, true);
-        commandManager.getCompletionHandler().register("#providers", input -> economyManager.getEconomyProviders().values().stream().map(EconomyProvider::getDisplayName).toList());
-        commandManager.getMessageHandler().register("cmd.no.permission", Messages.NO_PERMISSION::send);
-        // Register commands
-        commandManager.register(new CoinflipCommand(this, getConfigHandler(ConfigType.CONFIG).getConfig().getStringList("settings.command_aliases")));
+        List<String> aliases = getConfigHandler(ConfigType.CONFIG).getConfig().getStringList("settings.command_aliases");
+
+        PaperCommandManager paperCommandManager = new PaperCommandManager(this);
+        paperCommandManager.getCommandCompletions().registerAsyncCompletion("providers", c -> economyManager.getEconomyProviders().values().stream().map(EconomyProvider::getDisplayName).collect(Collectors.toList()));
+        paperCommandManager.getCommandReplacements().addReplacement("main", "coinflip|" + String.join("|", aliases));
+        paperCommandManager.registerCommand(new CoinflipCommand(this).setExceptionHandler((command, registeredCommand, sender, args, t) -> {
+            Messages.NO_PERMISSION.send(sender.getIssuer());
+            return true;
+        }));
 
         // Register listeners
         new PlayerChatListener(this);
@@ -102,22 +104,25 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         getLogger().log(Level.INFO, "");
         getLogger().log(Level.INFO, "Successfully loaded in " + (System.currentTimeMillis() - start) + "ms");
         getLogger().log(Level.INFO, "");
-
-        gameManager.canStartGame(true);
     }
+
 
     private void enableMetrics() {
         if (getConfig().getBoolean("metrics", true)) {
             getLogger().log(Level.INFO, "Loading bStats metrics");
-            new Metrics(this, 20887);
+            int pluginId = 20887;
+            Metrics metrics = new Metrics(this, pluginId);
         } else {
             getLogger().log(Level.INFO, "Metrics are disabled");
         }
+
     }
 
-    @Override
     public void onDisable() {
+        clearGames(true);
+
         if (storageManager != null) storageManager.onDisable(true);
+
     }
 
     // Plugin reload handling
@@ -143,25 +148,20 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
      */
     public void clearGames(boolean returnMoney) {
         getLogger().info("Clearing all active coinflip games.");
-        if (!gameManager.getCoinflipGames().isEmpty()) {
-            final Map<UUID, CoinflipGame> games = gameManager.getCoinflipGames();
-            final List<UUID> gamesToRemove = new ArrayList<>();
-            for (UUID uuid : games.keySet()) {
-                CoinflipGame coinflipGame = gameManager.getCoinflipGames().get(uuid);
-                Player creator = Bukkit.getPlayer(uuid);
-                if (returnMoney && creator != null) {
+        for (UUID uuid : gameManager.getCoinflipGames().keySet()) {
+            CoinflipGame coinflipGame = gameManager.getCoinflipGames().get(uuid);
+            Player creator = Bukkit.getPlayer(uuid);
+            if (returnMoney) {
+                if (creator != null) {
                     economyManager.getEconomyProvider(coinflipGame.getProvider()).deposit(creator, coinflipGame.getAmount());
                 }
-                gamesToRemove.add(uuid);
-                storageManager.getStorageHandler().deleteCoinfip(uuid);
-            }
-            for (UUID uuid : gamesToRemove) {
-                gameManager.removeCoinflipGame(uuid);
             }
 
-            storageManager.dropGames();
+            gameManager.removeCoinflipGame(uuid);
+
+            storageManager.getStorageHandler().deleteCoinfip(uuid);
+            getLogger().info("All coinflip games have been cleared.");
         }
-        getLogger().info("All coinflip games have been cleared.");
     }
 
     public StorageManager getStorageManager() {
