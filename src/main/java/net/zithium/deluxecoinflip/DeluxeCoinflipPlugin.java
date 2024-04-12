@@ -78,15 +78,13 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         inventoryManager = new InventoryManager();
         inventoryManager.load(this);
 
+        //commandManager.getMessageHandler().register("cmd.no.permission", Messages.NO_PERMISSION::send);
         List<String> aliases = getConfigHandler(ConfigType.CONFIG).getConfig().getStringList("settings.command_aliases");
 
         PaperCommandManager paperCommandManager = new PaperCommandManager(this);
         paperCommandManager.getCommandCompletions().registerAsyncCompletion("providers", c -> economyManager.getEconomyProviders().values().stream().map(EconomyProvider::getDisplayName).collect(Collectors.toList()));
         paperCommandManager.getCommandReplacements().addReplacement("main", "coinflip|" + String.join("|", aliases));
-        paperCommandManager.registerCommand(new CoinflipCommand(this).setExceptionHandler((command, registeredCommand, sender, args, t) -> {
-            Messages.NO_PERMISSION.send(sender.getIssuer());
-            return true;
-        }));
+        paperCommandManager.registerCommand(new CoinflipCommand(this));
 
         // Register listeners
         new PlayerChatListener(this);
