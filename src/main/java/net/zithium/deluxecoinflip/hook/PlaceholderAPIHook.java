@@ -86,6 +86,22 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
             return String.valueOf(playerData.getProfitFormatted());
         }
 
+        if (identifier.equals("total_losses")) {
+            return String.valueOf(playerData.getTotalLosses());
+        }
+
+        if (identifier.equals("total_losses_formatted")) {
+            return String.valueOf(playerData.getTotalLossesFormatted());
+        }
+
+        if (identifier.equals("total_gambled")) {
+            return String.valueOf(playerData.getTotalGambled());
+        }
+
+        if (identifier.equals("total_gambled_formatted")) {
+            return String.valueOf(playerData.getTotalGambledFormatted());
+        }
+
         if (identifier.equals("display_broadcast_messages")) {
             return String.valueOf(playerData.isDisplayBroadcastMessages());
         }

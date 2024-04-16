@@ -99,6 +99,8 @@ public class GamesGUI {
                                 .replace("{LOSSES}", String.valueOf(playerData.getLosses()))
                                 .replace("{PROFIT}", String.valueOf(playerData.getProfitFormatted()))
                                 .replace("{WIN_PERCENTAGE}", String.valueOf(playerData.getWinPercentage()))
+                                .replace("{TOTAL_LOSSES}", String.valueOf(playerData.getTotalLossesFormatted()))
+                                .replace("{TOTAL_GAMBLED}", String.valueOf(playerData.getTotalGambledFormatted()))
                                 .replace("{PLAYER}", player.getName()))
                         .toList());
             }

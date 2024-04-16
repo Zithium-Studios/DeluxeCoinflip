@@ -14,23 +14,25 @@ public class PlayerData {
 
     private final UUID uuid;
     private int wins, losses;
-    private long profit;
+    private long profit, totalLosses, totalGambled;
     private boolean displayBroadcastMessages;
 
-    public PlayerData(UUID uuid, int wins, int losses, long profit, boolean displayBroadcastMessages) {
+    public PlayerData(UUID uuid, int wins, int losses, long profit, long totalLosses, long totalGambled, boolean displayBroadcastMessages) {
         this.uuid = uuid;
         this.losses = losses;
         this.wins = wins;
         this.profit = profit;
+        this.totalLosses = totalLosses;
+        this.totalGambled = totalGambled;
         this.displayBroadcastMessages = displayBroadcastMessages;
     }
 
-    public PlayerData(UUID uuid, int wins, int losses, long profit) {
-        this(uuid, wins, losses, profit, true);
+    public PlayerData(UUID uuid, int wins, int losses, long profit, long totalLosses, long totalGambled) {
+        this(uuid, wins, losses, profit, totalLosses, totalGambled, true);
     }
 
     public PlayerData(UUID uuid) {
-        this(uuid, 0, 0, 0, true);
+        this(uuid, 0, 0, 0, 0, 0, true);
     }
 
     public UUID getUUID() {
@@ -65,8 +67,32 @@ public class PlayerData {
         return profit;
     }
 
+    public void setTotalLosses(long totalLosses) {
+        this.totalLosses = totalLosses;
+    }
+
+    public void setTotalGambled(long totalGambled) {
+        this.totalGambled = totalGambled;
+    }
+
     public String getProfitFormatted() {
         return NumberFormat.getNumberInstance(Locale.US).format(profit);
+    }
+
+    public long getTotalLosses() {
+        return totalLosses;
+    }
+
+    public String getTotalLossesFormatted() {
+        return NumberFormat.getNumberInstance(Locale.US).format(totalLosses);
+    }
+
+    public long getTotalGambled() {
+        return totalGambled;
+    }
+
+    public String getTotalGambledFormatted() {
+        return NumberFormat.getNumberInstance(Locale.US).format(totalGambled);
     }
 
     public void updateWins() {
@@ -79,6 +105,14 @@ public class PlayerData {
 
     public void updateProfit(long profit) {
         this.profit += profit;
+    }
+
+    public void updateLosses(long losses) {
+        this.totalLosses += losses;
+    }
+
+    public void updateGambled(long gambled) {
+        this.totalGambled += gambled;
     }
 
     public double getWinPercentage() {

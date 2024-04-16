@@ -93,16 +93,19 @@ public class StorageManager {
         return Optional.ofNullable(playerDataMap.get(uuid));
     }
 
-    public void updateOfflinePlayerWin(UUID uuid, long profit) {
+    public void updateOfflinePlayerWin(UUID uuid, long profit, long beforeTax) {
         PlayerData playerData = storageHandler.getPlayer(uuid);
         playerData.updateWins();
         playerData.updateProfit(profit);
+        playerData.updateGambled(beforeTax);
         savePlayerData(playerData, false);
     }
 
-    public void updateOfflinePlayerLoss(UUID uuid) {
+    public void updateOfflinePlayerLoss(UUID uuid, long beforeTax) {
         PlayerData playerData = storageHandler.getPlayer(uuid);
         playerData.updateLosses();
+        playerData.updateLosses(beforeTax);
+        playerData.updateGambled(beforeTax);
         savePlayerData(playerData, false);
     }
 

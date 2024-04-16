@@ -83,6 +83,7 @@ public class CoinflipGUI implements Listener {
             boolean alternate = false;
             int count = 0;
             long winAmount = game.getAmount() * 2;
+            long beforeTax = winAmount / 2;
 
             @Override
             public void run() {
@@ -116,8 +117,8 @@ public class CoinflipGUI implements Listener {
 
                     // Update player stats
                     StorageManager storageManager = plugin.getStorageManager();
-                    updatePlayerStats(storageManager, winner, winAmount, true);
-                    updatePlayerStats(storageManager, loser, 0, false);
+                    updatePlayerStats(storageManager, winner, winAmount, beforeTax, true);
+                    updatePlayerStats(storageManager, loser, 0, beforeTax, false);
 
                     String winAmountFormatted = TextUtil.numberFormat(winAmount);
                     String taxedFormatted = TextUtil.numberFormat(taxed);
@@ -173,21 +174,24 @@ public class CoinflipGUI implements Listener {
         }.runTaskTimerAsynchronously(plugin, 0L, 10L);
     }
 
-    private void updatePlayerStats(StorageManager storageManager, OfflinePlayer player, long winAmount, boolean isWinner) {
+    private void updatePlayerStats(StorageManager storageManager, OfflinePlayer player, long winAmount, long beforeTax, boolean isWinner) {
         Optional<PlayerData> playerDataOptional = storageManager.getPlayer(player.getUniqueId());
         if (playerDataOptional.isPresent()) {
             PlayerData playerData = playerDataOptional.get();
             if (isWinner) {
                 playerData.updateWins();
                 playerData.updateProfit(winAmount);
+                playerData.updateGambled(beforeTax);
             } else {
                 playerData.updateLosses();
+                playerData.updateLosses(beforeTax);
+                playerData.updateGambled(beforeTax);
             }
         } else {
             if (isWinner) {
-                storageManager.updateOfflinePlayerWin(player.getUniqueId(), winAmount);
+                storageManager.updateOfflinePlayerWin(player.getUniqueId(), winAmount, beforeTax);
             } else {
-                storageManager.updateOfflinePlayerLoss(player.getUniqueId());
+                storageManager.updateOfflinePlayerLoss(player.getUniqueId(), beforeTax);
             }
         }
     }

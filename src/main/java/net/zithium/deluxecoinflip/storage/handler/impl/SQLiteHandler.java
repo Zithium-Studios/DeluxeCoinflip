@@ -24,6 +24,8 @@ public class SQLiteHandler implements StorageHandler {
     private File file;
     private Connection connection;
 
+    private final String TABLE_NAME = "players";
+
     @Override
     public boolean onEnable(final DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
@@ -63,13 +65,16 @@ public class SQLiteHandler implements StorageHandler {
     }
 
     private void createTable() {
+        checkPre2_7_10();
         try (Connection tableConnection = getConnection();
              Statement statement = tableConnection.createStatement()) {
-            String sql = "CREATE TABLE IF NOT EXISTS players (" +
+            String sql = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
                     "uuid VARCHAR(255) NOT NULL PRIMARY KEY, " +
                     "wins INTEGER, " +
                     "losses INTEGER, " +
                     "profit BIGINT," +
+                    "total_loss BIGINT," +
+                    "total_gambled BIGINT," +
                     "broadcasts BOOLEAN);";
             statement.execute(sql);
 
@@ -83,9 +88,33 @@ public class SQLiteHandler implements StorageHandler {
         }
     }
 
+    private void checkPre2_7_10() {
+        try {
+            Connection tableConnection = getConnection();
+            DatabaseMetaData metaData = tableConnection.getMetaData();
+
+            ResultSet rsTotalLoss = metaData.getColumns(null, null, TABLE_NAME, "total_loss");
+
+            if (rsTotalLoss.next()) return;
+
+            plugin.getLogger().log(Level.INFO, "Pre-2.7.11 table found, updating database...");
+
+            String query1 = "ALTER TABLE " + TABLE_NAME + " ADD total_loss BIGINT";
+            String query2 = "ALTER TABLE " + TABLE_NAME + " ADD total_gambled BIGINT";
+
+            Statement statement = tableConnection.createStatement();
+
+            statement.execute(query1);
+            statement.execute(query2);
+
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while creating database tables.", e);
+        }
+    }
+
     @Override
     public PlayerData getPlayer(final UUID uuid) {
-        String sql = "SELECT wins, losses, profit, broadcasts FROM players WHERE uuid=?;";
+        String sql = "SELECT wins, losses, profit, total_loss, total_gambled, broadcasts FROM players WHERE uuid=?;";
         try (Connection playerConnection = getConnection();
              PreparedStatement preparedStatement = playerConnection.prepareStatement(sql)) {
             preparedStatement.setString(1, uuid.toString());
@@ -95,6 +124,8 @@ public class SQLiteHandler implements StorageHandler {
                 playerData.setWins(resultSet.getInt("wins"));
                 playerData.setLosses(resultSet.getInt("losses"));
                 playerData.setProfit(resultSet.getLong("profit"));
+                playerData.setTotalLosses(resultSet.getLong("total_loss"));
+                playerData.setTotalGambled(resultSet.getLong("total_gambled"));
                 playerData.setDisplayBroadcastMessages(resultSet.getBoolean("broadcasts"));
 
                 return playerData;
@@ -108,14 +139,16 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public void savePlayer(final PlayerData player) {
-        String sql = "REPLACE INTO players (uuid, wins, losses, profit, broadcasts) VALUES (?, ?, ?, ?, ?)";
+        String sql = "REPLACE INTO players (uuid, wins, losses, profit, total_loss, total_gambled, broadcasts) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection playerConnection = getConnection();
              PreparedStatement preparedStatement = playerConnection.prepareStatement(sql)) {
             preparedStatement.setString(1, player.getUUID().toString());
             preparedStatement.setInt(2, player.getWins());
             preparedStatement.setInt(3, player.getLosses());
             preparedStatement.setLong(4, player.getProfit());
-            preparedStatement.setBoolean(5, player.isDisplayBroadcastMessages());
+            preparedStatement.setLong(5, player.getTotalLosses());
+            preparedStatement.setLong(6, player.getTotalGambled());
+            preparedStatement.setBoolean(7, player.isDisplayBroadcastMessages());
             preparedStatement.execute();
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to save a player's data.", e);
