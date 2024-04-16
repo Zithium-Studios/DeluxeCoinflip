@@ -11,4 +11,4 @@ To build this plugin you need to add the missing APIs to the /libs/ folder then 
 # Used Libraries
 Here is a list of the various libraries used in this plugin.
 - [Triump-GUI](https://github.com/TriumphTeam/triumph-gui)
-- [MF-Commands](https://github.com/LichtHund/MF-Documentation/tree/master/mf/mf-1)
+- [ACF](https://github.com/aikar/commands) (Aikar Command Framework)
