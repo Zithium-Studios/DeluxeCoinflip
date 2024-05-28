@@ -51,7 +51,7 @@ public class SQLiteHandler implements StorageHandler {
         }
     }
 
-    public Connection getConnection() {
+    public synchronized Connection getConnection() {
         try {
             if (connection == null || connection.isClosed()) {
                 Class.forName("org.sqlite.JDBC");
@@ -64,7 +64,7 @@ public class SQLiteHandler implements StorageHandler {
         return connection;
     }
 
-    private void createTable() {
+    private synchronized void createTable() {
         checkPre2_7_10();
         try (Connection tableConnection = getConnection();
              Statement statement = tableConnection.createStatement()) {
@@ -88,7 +88,7 @@ public class SQLiteHandler implements StorageHandler {
         }
     }
 
-    private void checkPre2_7_10() {
+    private synchronized void checkPre2_7_10() {
         try {
             Connection tableConnection = getConnection();
             DatabaseMetaData metaData = tableConnection.getMetaData();
@@ -113,7 +113,7 @@ public class SQLiteHandler implements StorageHandler {
     }
 
     @Override
-    public PlayerData getPlayer(final UUID uuid) {
+    public synchronized PlayerData getPlayer(final UUID uuid) {
         String sql = "SELECT wins, losses, profit, total_loss, total_gambled, broadcasts FROM players WHERE uuid=?;";
         try (Connection playerConnection = getConnection();
              PreparedStatement preparedStatement = playerConnection.prepareStatement(sql)) {
@@ -138,7 +138,7 @@ public class SQLiteHandler implements StorageHandler {
     }
 
     @Override
-    public void savePlayer(final PlayerData player) {
+    public synchronized void savePlayer(final PlayerData player) {
         String sql = "REPLACE INTO players (uuid, wins, losses, profit, total_loss, total_gambled, broadcasts) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection playerConnection = getConnection();
              PreparedStatement preparedStatement = playerConnection.prepareStatement(sql)) {
@@ -156,7 +156,7 @@ public class SQLiteHandler implements StorageHandler {
     }
 
     @Override
-    public void saveCoinflip(CoinflipGame game) {
+    public synchronized void saveCoinflip(CoinflipGame game) {
         String sql = "REPLACE INTO games (uuid, provider, amount) VALUES (?, ?, ?)";
         try (Connection coinflipConnection = getConnection();
              PreparedStatement preparedStatement = coinflipConnection.prepareStatement(sql)) {
@@ -170,7 +170,7 @@ public class SQLiteHandler implements StorageHandler {
     }
 
     @Override
-    public void deleteCoinfip(UUID uuid) {
+    public synchronized void deleteCoinfip(UUID uuid) {
         String sql = "DELETE FROM games WHERE uuid=?;";
         try (Connection coinflipConnection = getConnection();
              PreparedStatement preparedStatement = coinflipConnection.prepareStatement(sql)) {
@@ -182,7 +182,7 @@ public class SQLiteHandler implements StorageHandler {
     }
 
     @Override
-    public void dropGamesTable() {
+    public synchronized void dropGamesTable() {
         String sql = "DROP TABLE IF EXISTS games;";
         try (Connection tableConnection = getConnection();
              PreparedStatement preparedStatement = tableConnection.prepareStatement(sql)) {
@@ -194,7 +194,7 @@ public class SQLiteHandler implements StorageHandler {
 
 
     @Override
-    public Map<UUID, CoinflipGame> getGames() {
+    public synchronized Map<UUID, CoinflipGame> getGames() {
         Map<UUID, CoinflipGame> games = new HashMap<>();
         String sql = "SELECT uuid, provider, amount FROM games;";
         try (Connection gamesConnection = getConnection();
