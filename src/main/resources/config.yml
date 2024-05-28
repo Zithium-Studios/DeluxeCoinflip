@@ -5,8 +5,6 @@
 # Developer API
 #   https://github.com/itzsave/DeluxeCoinflipAPI
 
-# Select your storage type
-
 # Should the plugin report stats to https://bstats.org/
 # All usage statistics are anonymous and has zero impact on performance.
 metrics: true
