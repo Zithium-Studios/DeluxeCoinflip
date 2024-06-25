@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'net.zithium'
-version = '2.7.11'
+version = '2.7.12'
 description = 'DeluxeCoinflip'
 
 repositories {
@@ -22,12 +22,12 @@ repositories {
 
 dependencies {
     implementation "co.aikar:acf-paper:0.5.1-SNAPSHOT"
-    implementation 'dev.triumphteam:triumph-gui:3.1.7'
+    implementation 'dev.triumphteam:triumph-gui:3.1.10'
     implementation 'org.bstats:bstats-bukkit:3.0.2'
 
     compileOnly 'io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT'
 
-    compileOnly 'me.clip:placeholderapi:2.11.5'
+    compileOnly 'me.clip:placeholderapi:2.11.6'
     compileOnly 'com.mojang:authlib:1.5.21'
     compileOnly 'org.jetbrains:annotations:24.1.0'
 
