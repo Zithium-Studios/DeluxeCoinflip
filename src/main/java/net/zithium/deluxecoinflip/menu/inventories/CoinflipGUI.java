@@ -140,7 +140,7 @@ public class CoinflipGUI implements Listener {
 
                 // Do animation
                 if (alternate) {
-                    ConfigurationSection animationSection = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.1.");
+                    ConfigurationSection animationSection = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.1");
                     if (animationSection != null) {
                         ItemStack firstAnimationItem = ItemStackBuilder.getItemStack(animationSection).build();
                         gui.setItem(13, winnerHead);
