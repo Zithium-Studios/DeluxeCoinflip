@@ -138,9 +138,10 @@ public class CoinflipGUI implements Listener {
                     cancel();
                 }
 
+
                 // Do animation
                 if (alternate) {
-                    ConfigurationSection animationSection = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.1");
+                    ConfigurationSection animationSection = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.1.");
                     if (animationSection != null) {
                         ItemStack firstAnimationItem = ItemStackBuilder.getItemStack(animationSection).build();
                         gui.setItem(13, winnerHead);
@@ -151,7 +152,7 @@ public class CoinflipGUI implements Listener {
                         plugin.getLogger().warning("Missing configuration section for first animation frame.");
                     }
                 } else {
-                    ConfigurationSection animationSection = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.2");
+                    ConfigurationSection animationSection = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.2.");
                     if (animationSection != null) {
                         ItemStack secondAnimationItem = ItemStackBuilder.getItemStack(animationSection).build();
                         gui.setItem(13, loserHead);
