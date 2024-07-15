@@ -55,6 +55,12 @@ settings:
       enabled: true
       display_currency_name: "TokenEnchant"
 
+    # PlayerPoints Economy (requires PlayerPoints plugin)
+    # https://www.spigotmc.org/resources/playerpoints.80745/
+    PLAYERPOINTS:
+      enabled: false
+      display_currency_name: "PlayerPoints"
+
     # TokenManager Economy (requires TokenManager plugin)
     # https://www.spigotmc.org/resources/8610/
     TOKENMANAGER:
