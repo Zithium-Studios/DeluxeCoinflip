@@ -35,7 +35,6 @@ public interface StorageHandler {
 
     void deleteCoinfip(final UUID uuid);
 
-    void dropGamesTable();
 
     Map<UUID, CoinflipGame> getGames();
 
