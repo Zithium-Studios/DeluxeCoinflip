@@ -63,6 +63,6 @@ shadowJar {
     minimize()
     archiveFileName = "DeluxeCoinflip-${project.version}.jar"
     relocate 'dev.triumphteam.gui', 'net.zithium.deluxecoinflip.libs.gui'
-    relocate 'me.mattstudios.mf', 'net.zithium.deluxecoinflip.libs.command'
+    relocate 'net.zithium.library', 'net.zithium.deluxecoinflip.libs.library'
     relocate 'org.bstats', 'net.zithium.deluxecoinflip.libs.metrics' // bStats
 }
