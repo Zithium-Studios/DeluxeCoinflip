@@ -8,10 +8,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.server.PluginDisableEvent;
 
 import java.util.UUID;
-import java.util.logging.Level;
+
 
 public class PlayerListener implements Listener {
     private final DeluxeCoinflipPlugin plugin;
@@ -33,15 +32,6 @@ public class PlayerListener implements Listener {
             final CoinflipGame coinflipGame = gameManager.getCoinflipGames().get(uuid);
             economyManager.getEconomyProvider(coinflipGame.getProvider()).deposit(player, coinflipGame.getAmount());
             gameManager.removeCoinflipGame(uuid);
-        }
-    }
-
-    @EventHandler
-    public void onPluginDisable(PluginDisableEvent event) {
-        if (event.getPlugin().equals(plugin)) {
-            plugin.getLogger().log(Level.INFO, "Starting cleanup event.");
-            plugin.clearGames(true);
-            plugin.getLogger().log(Level.INFO, "Cleanup completed.");
         }
     }
 }
