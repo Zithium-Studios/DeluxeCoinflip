@@ -79,6 +79,18 @@ settings:
       enabled: true
       display_currency_name: "Tokens"
 
+    CUSTOM_CURRENCY:
+      enabled: true
+      display_currency_name: "Custom"
+      # This is used to check the balance of the user. BE SURE THIS DOES NOT FORMAT THE BALANCE
+      raw_balance_placeholder: '%vault_eco_Balance_fixed%'
+      # These are the commands used to withdraw and deposit winnings to the user. They are ran by console.
+      commands:
+        withdraw:
+          - 'eco take {player} {amount}'
+        deposit:
+          - 'eco give {player} {amount}'
+
 
 coinflip-gui:
   title: "&lFLIPPING COIN.."
