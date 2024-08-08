@@ -1,6 +1,6 @@
 /*
  * DeluxeCoinflip Plugin
- * Copyright (c) 2023 Zithium Studios. All rights reserved.
+ * Copyright (c) 2024 Zithium Studios. All rights reserved.
  */
 
 package net.zithium.deluxecoinflip.storage.handler.impl;
@@ -27,6 +27,7 @@ public class SQLiteHandler implements StorageHandler {
     private final String TABLE_NAME = "players";
 
     @Override
+    @SuppressWarnings("all") // Supressing ignored warning for file.createNewFile();
     public boolean onEnable(final DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
         file = new File(plugin.getDataFolder(), "database.db");
@@ -68,7 +69,7 @@ public class SQLiteHandler implements StorageHandler {
         checkPre2_7_10();
         try (Connection tableConnection = getConnection();
              Statement statement = tableConnection.createStatement()) {
-            String sql = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
+            String createPlayersTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
                     "uuid VARCHAR(255) NOT NULL PRIMARY KEY, " +
                     "wins INTEGER, " +
                     "losses INTEGER, " +
@@ -76,13 +77,13 @@ public class SQLiteHandler implements StorageHandler {
                     "total_loss BIGINT," +
                     "total_gambled BIGINT," +
                     "broadcasts BOOLEAN);";
-            statement.execute(sql);
+            statement.execute(createPlayersTable);
 
-            sql = "CREATE TABLE IF NOT EXISTS games (" +
+            String createGamesTable = "CREATE TABLE IF NOT EXISTS games (" +
                     "uuid VARCHAR(255) NOT NULL PRIMARY KEY, " +
                     "provider VARCHAR(255)," +
                     "amount BIGINT);";
-            statement.execute(sql);
+            statement.execute(createGamesTable);
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Error occurred while creating database tables.", e);
         }
@@ -180,18 +181,6 @@ public class SQLiteHandler implements StorageHandler {
             plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to delete a coinflip game.", e);
         }
     }
-
-    @Override
-    public synchronized void dropGamesTable() {
-        String sql = "DROP TABLE IF EXISTS games;";
-        try (Connection tableConnection = getConnection();
-             PreparedStatement preparedStatement = tableConnection.prepareStatement(sql)) {
-            preparedStatement.execute();
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to delete all coinflip games.", e);
-        }
-    }
-
 
     @Override
     public synchronized Map<UUID, CoinflipGame> getGames() {
