@@ -49,6 +49,12 @@ public class EconomyManager {
                 new BeastTokensProvider()
         ).forEach(provider -> registerEconomyProvider(provider, provider.getIdentifier()));
 
+        // Register CustomCurrencyProvider
+        EconomyProvider customCurrencyProvider = new CustomCurrencyProvider("CUSTOM_CURRENCY", plugin);
+        registerEconomyProvider(customCurrencyProvider, null); // No required plugin for CUSTOM_CURRENCY
+
+
+
         Bukkit.getScheduler().runTask(plugin, () -> {
             for (EconomyProvider provider : new ArrayList<>(economyProviders.values())) {
                 ConfigurationSection providerSection = section.getConfigurationSection(provider.getIdentifier().toUpperCase());
