@@ -5,14 +5,14 @@
 
 package net.zithium.deluxecoinflip.economy.provider.impl;
 
-import com.vk2gpz.tokenenchant.api.TokenEnchantAPI;
+import com.vk2gpz.tokenenchant.api.ITokenEnchant;
 import net.zithium.deluxecoinflip.economy.provider.EconomyProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 public class TokenEnchantProvider extends EconomyProvider {
 
-    private TokenEnchantAPI tokenEnchantAPI;
+    private ITokenEnchant tokenEnchantAPI;
 
     public TokenEnchantProvider() {
         super("TokenEnchant");
@@ -20,7 +20,7 @@ public class TokenEnchantProvider extends EconomyProvider {
 
     @Override
     public void onEnable() {
-        tokenEnchantAPI = (TokenEnchantAPI) Bukkit.getServer().getPluginManager().getPlugin("TokenEnchant");
+        tokenEnchantAPI = (ITokenEnchant) Bukkit.getServer().getPluginManager().getPlugin("TokenEnchant");
     }
 
     @Override
