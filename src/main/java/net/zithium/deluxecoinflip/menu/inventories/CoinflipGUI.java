@@ -28,6 +28,7 @@ import java.util.Random;
 public class CoinflipGUI implements Listener {
 
     private final DeluxeCoinflipPlugin plugin;
+    private static final Random RANDOM = new Random();
     private final EconomyManager economyManager;
     private final FileConfiguration config;
     private final String coinflipGuiTitle;
@@ -48,15 +49,26 @@ public class CoinflipGUI implements Listener {
         this.minimumBroadcastWinnings = config.getLong("settings.minimum-broadcast-winnings");
     }
 
-    public void startGame(@NotNull Player player, @NotNull OfflinePlayer otherPlayer, CoinflipGame game) {
+    public void startGame(@NotNull Player creator, @NotNull OfflinePlayer opponent, CoinflipGame game) {
+        // Send the challenge message BEFORE any swapping
+        Messages.PLAYER_CHALLENGE.send(opponent.getPlayer(), "{OPPONENT}", creator.getName());
 
-        Messages.PLAYER_CHALLENGE.send(otherPlayer.getPlayer(), "{OPPONENT}", player.getName());
+        // Randomly shuffle player order to avoid bias
+        if (RANDOM.nextBoolean()) {
+            Player temp = creator;
+            creator = (Player) opponent;
+            opponent = temp;
+        }
 
-        Random rand = new Random(System.currentTimeMillis());
-        OfflinePlayer winner = rand.nextBoolean() ? player : otherPlayer;
-        OfflinePlayer loser = winner.equals(player) ? otherPlayer : player;
+        // Determine the winner and loser
+        OfflinePlayer winner = RANDOM.nextBoolean() ? creator : opponent;
+        OfflinePlayer loser = (winner == creator) ? opponent : creator;
 
-        runAnimation(player, winner, loser, game);
+        // Log the result for transparency
+        plugin.getLogger().info("Coinflip Result: " + winner.getName() + " won against " + loser.getName());
+
+        // Proceed with the game animation and results
+        runAnimation(creator, winner, loser, game);
     }
 
     private void runAnimation(Player player, OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game) {
