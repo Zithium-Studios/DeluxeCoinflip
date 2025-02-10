@@ -64,9 +64,6 @@ public class CoinflipGUI implements Listener {
         OfflinePlayer winner = RANDOM.nextBoolean() ? creator : opponent;
         OfflinePlayer loser = (winner == creator) ? opponent : creator;
 
-        // Log the result for transparency
-        plugin.getLogger().info("Coinflip Result: " + winner.getName() + " won against " + loser.getName());
-
         // Proceed with the game animation and results
         runAnimation(creator, winner, loser, game);
     }
