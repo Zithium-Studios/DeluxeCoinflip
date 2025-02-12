@@ -81,11 +81,15 @@ public class CoinflipGUI implements Listener {
                 winner.equals(game.getOfflinePlayer()) ? new ItemStack(Material.PLAYER_HEAD) : game.getCachedHead()
         ).withName(ChatColor.YELLOW + loser.getName()).setSkullOwner(loser).build());
 
-        if (winner.isOnline()) {
-            gui.open(winner.getPlayer());
+        Player winnerPlayer = Bukkit.getPlayer(winner.getUniqueId());
+        Player loserPlayer = Bukkit.getPlayer(loser.getUniqueId());
+
+        if (winnerPlayer != null) {
+            gui.open(winnerPlayer);
         }
-        if (loser.isOnline()) {
-            gui.open(loser.getPlayer());
+
+        if (loserPlayer != null) {
+            gui.open(loserPlayer);
         }
 
         new BukkitRunnable() {
