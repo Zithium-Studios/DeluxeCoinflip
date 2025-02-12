@@ -50,7 +50,13 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
         instance = this;
         long start = System.currentTimeMillis();
 
-        final WrappedScheduler scheduler = getScheduler();
+        getLogger().severe("WARNING WARNING WARNING WARNING");
+        getLogger().severe("");
+        getLogger().severe("This build of DeluxeCoinflip is highly");
+        getLogger().severe("experimental! There is likely to be major issues!");
+        getLogger().severe("");
+        getLogger().severe("WARNING WARNING WARNING WARNING");
+
 
         getLogger().log(Level.INFO, "");
         getLogger().log(Level.INFO, " __ __    DeluxeCoinflip v" + getDescription().getVersion());
