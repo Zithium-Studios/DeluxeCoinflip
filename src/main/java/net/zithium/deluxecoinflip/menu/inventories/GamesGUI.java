@@ -18,7 +18,6 @@ import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.deluxecoinflip.utility.TextUtil;
 import dev.triumphteam.gui.guis.GuiItem;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
@@ -183,7 +182,7 @@ public class GamesGUI {
                         ItemStack previousItem = event.getCurrentItem();
                         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1L, 0L);
                         event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("games-gui.error-no-funds")).build());
-                        Bukkit.getScheduler().runTaskLater(plugin, () -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
+                        plugin.getScheduler().runTaskLater(() -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
                         Messages.INSUFFICIENT_FUNDS.send(player);
                         return;
                     }

@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'net.zithium'
-version = '2.8.4'
+version = '2.9.0'
 description = 'DeluxeCoinflip'
 
 repositories {
@@ -25,6 +25,7 @@ dependencies {
     implementation 'dev.triumphteam:triumph-gui:3.1.11'
     implementation 'org.bstats:bstats-bukkit:3.0.2'
     implementation 'com.github.ItzSave:ZithiumLibrary:v2.1.0'
+    implementation 'com.github.NahuLD.folia-scheduler-wrapper:folia-scheduler-wrapper:v0.0.3'
 
     compileOnly 'io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT'
 
@@ -59,7 +60,9 @@ processResources {
 
 
 shadowJar {
-    minimize()
+    minimize {
+        exclude dependency("com.github.NahuLD.folia-scheduler-wrapper:folia-scheduler-wrapper:.*")
+    }
     archiveFileName = "DeluxeCoinflip-${project.version}.jar"
     relocate 'dev.triumphteam.gui', 'net.zithium.deluxecoinflip.libs.gui'
     relocate 'net.zithium.library', 'net.zithium.deluxecoinflip.libs.library'

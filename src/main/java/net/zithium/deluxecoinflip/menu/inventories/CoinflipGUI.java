@@ -2,6 +2,8 @@ package net.zithium.deluxecoinflip.menu.inventories;
 
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
+import me.nahu.scheduler.wrapper.WrappedScheduler;
+import me.nahu.scheduler.wrapper.runnable.WrappedRunnable;
 import net.kyori.adventure.text.Component;
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.deluxecoinflip.api.events.CoinflipCompletedEvent;
@@ -19,7 +21,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -68,7 +69,10 @@ public class CoinflipGUI implements Listener {
         runAnimation(creator, winner, loser, game);
     }
 
+
+
     private void runAnimation(Player player, OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game) {
+        final WrappedScheduler scheduler = plugin.getScheduler();
 
         Gui gui = Gui.gui().rows(3).title(Component.text(coinflipGuiTitle)).create();
         gui.disableAllInteractions();
@@ -92,7 +96,7 @@ public class CoinflipGUI implements Listener {
             gui.open(loserPlayer);
         }
 
-        new BukkitRunnable() {
+        new WrappedRunnable() {
             boolean alternate = false;
             int count = 0;
             long winAmount = game.getAmount() * 2;
@@ -122,10 +126,10 @@ public class CoinflipGUI implements Listener {
                     }
 
                     // Deposit winnings synchronously
-                    Bukkit.getScheduler().runTask(plugin, () -> economyManager.getEconomyProvider(game.getProvider()).deposit(winner, winAmount));
+                    scheduler.runTask(() -> economyManager.getEconomyProvider(game.getProvider()).deposit(winner, winAmount));
 
                     // Run event.
-                    Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount)));
+                    scheduler.runTask(() -> Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount)));
 
 
                     // Update player stats

@@ -35,6 +35,8 @@ public class StorageManager {
     public StorageManager(DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
         this.playerDataMap = new HashMap<>();
+
+
     }
 
     public void onEnable() {
@@ -110,12 +112,12 @@ public class StorageManager {
     }
 
     public void loadPlayerData(UUID uuid) {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> playerDataMap.put(uuid, storageHandler.getPlayer(uuid)));
+        DeluxeCoinflipPlugin.getInstance().getScheduler().runTaskAsynchronously(() -> playerDataMap.put(uuid, storageHandler.getPlayer(uuid)));
     }
 
     public void savePlayerData(PlayerData player, boolean removeCache) {
         UUID uuid = player.getUUID();
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        DeluxeCoinflipPlugin.getInstance().getScheduler().runTaskAsynchronously(() -> {
             storageHandler.savePlayer(player);
             if (removeCache) playerDataMap.remove(uuid);
         });
@@ -133,7 +135,4 @@ public class StorageManager {
         }
     }
 
-    public void dropGames() {
-        storageHandler.dropGamesTable();
-    }
 }

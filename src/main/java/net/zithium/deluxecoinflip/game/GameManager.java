@@ -35,7 +35,7 @@ public class GameManager {
     public void addCoinflipGame(UUID uuid, CoinflipGame game) {
         coinflipGames.put(uuid, game);
         if (Bukkit.isPrimaryThread()) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> storageManager.getStorageHandler().saveCoinflip(game));
+            plugin.getScheduler().runTaskAsynchronously(() -> storageManager.getStorageHandler().saveCoinflip(game));
         } else {
             storageManager.getStorageHandler().saveCoinflip(game);
         }
@@ -49,7 +49,7 @@ public class GameManager {
     public void removeCoinflipGame(UUID uuid) {
         coinflipGames.remove(uuid);
         if (Bukkit.isPrimaryThread()) {
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> storageManager.getStorageHandler().deleteCoinfip(uuid));
+            plugin.getScheduler().runTaskAsynchronously(() -> storageManager.getStorageHandler().deleteCoinfip(uuid));
         } else {
             storageManager.getStorageHandler().deleteCoinfip(uuid);
         }

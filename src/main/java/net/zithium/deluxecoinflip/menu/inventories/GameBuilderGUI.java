@@ -117,7 +117,7 @@ public class GameBuilderGUI {
                 ItemStack previousItem = event.getCurrentItem();
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1L, 0L);
                 event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("gamebuilder-gui.error-game-exists")).build());
-                Bukkit.getScheduler().runTaskLater(plugin, () -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
+                plugin.getScheduler().runTaskLater(() -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
                 return;
             }
 
@@ -125,7 +125,7 @@ public class GameBuilderGUI {
                 ItemStack previousItem = event.getCurrentItem();
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1L, 0L);
                 event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("gamebuilder-gui.error-limits")).build());
-                Bukkit.getScheduler().runTaskLater(plugin, () -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
+                plugin.getScheduler().runTaskLater(() -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
                 return;
             }
 
@@ -133,7 +133,7 @@ public class GameBuilderGUI {
                 ItemStack previousItem = event.getCurrentItem();
                 player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1L, 0L);
                 event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("gamebuilder-gui.error-no-funds")).build());
-                Bukkit.getScheduler().runTaskLater(plugin, () -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
+                plugin.getScheduler().runTaskLater(() -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
                 return;
             }
             gui.close(player);
