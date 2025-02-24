@@ -1,6 +1,6 @@
 /*
  * DeluxeCoinflip Plugin
- * Copyright (c) 2021 - 2022 Lewis D (ItsLewizzz). All rights reserved.
+ * Copyright (c) 2021 - 2025 Zithium Studios. All rights reserved.
  */
 
 package net.zithium.deluxecoinflip.listener;
@@ -9,7 +9,6 @@ import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.deluxecoinflip.config.ConfigType;
 import net.zithium.deluxecoinflip.config.Messages;
 import net.zithium.deluxecoinflip.game.CoinflipGame;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -44,7 +43,7 @@ public class PlayerChatListener implements Listener {
             event.setCancelled(true);
             plugin.getListenerCache().invalidate(uuid);
             Messages.CHAT_CANCELLED.send(player);
-            Bukkit.getScheduler().runTask(plugin, () -> plugin.getInventoryManager().getGameBuilderGUI().openGameBuilderGUI(player, game));
+            plugin.getScheduler().runTask(() -> plugin.getInventoryManager().getGameBuilderGUI().openGameBuilderGUI(player, game));
             return;
         }
 
@@ -75,7 +74,7 @@ public class PlayerChatListener implements Listener {
         event.setCancelled(true);
         plugin.getListenerCache().invalidate(uuid);
         game.setAmount(amount);
-        Bukkit.getScheduler().runTask(plugin, () -> plugin.getInventoryManager().getGameBuilderGUI().openGameBuilderGUI(player, game));
+        plugin.getScheduler().runTask(() -> plugin.getInventoryManager().getGameBuilderGUI().openGameBuilderGUI(player, game));
     }
 
 }
