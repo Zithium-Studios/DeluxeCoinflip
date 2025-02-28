@@ -106,6 +106,10 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
             return String.valueOf(playerData.isDisplayBroadcastMessages());
         }
 
+        if (identifier.equals("total_games")) {
+            return String.valueOf(plugin.getGameManager().getCoinflipGames().size());
+        }
+
         return null;
     }
 }
