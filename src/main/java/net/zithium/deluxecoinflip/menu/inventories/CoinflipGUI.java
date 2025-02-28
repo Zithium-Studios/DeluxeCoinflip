@@ -70,7 +70,6 @@ public class CoinflipGUI implements Listener {
     }
 
 
-
     private void runAnimation(Player player, OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game) {
         final WrappedScheduler scheduler = plugin.getScheduler();
 
@@ -85,16 +84,20 @@ public class CoinflipGUI implements Listener {
                 winner.equals(game.getOfflinePlayer()) ? new ItemStack(Material.PLAYER_HEAD) : game.getCachedHead()
         ).withName(ChatColor.YELLOW + loser.getName()).setSkullOwner(loser).build());
 
+        Location fallbackLocation = Bukkit.getWorlds().get(0).getSpawnLocation();
+
         Player winnerPlayer = Bukkit.getPlayer(winner.getUniqueId());
         Player loserPlayer = Bukkit.getPlayer(loser.getUniqueId());
 
         if (winnerPlayer != null) {
-            gui.open(winnerPlayer);
+            scheduler.runTaskAtLocation(winnerPlayer.getLocation(), () -> gui.open(winnerPlayer));
         }
 
         if (loserPlayer != null) {
-            gui.open(loserPlayer);
+            Location taskLocation = (winnerPlayer != null) ? winnerPlayer.getLocation() : fallbackLocation;
+            scheduler.runTaskAtLocation(taskLocation, () -> gui.open(loserPlayer));
         }
+
 
         new WrappedRunnable() {
             boolean alternate = false;
@@ -125,11 +128,10 @@ public class CoinflipGUI implements Listener {
                         winAmount -= taxed;
                     }
 
-                    // Deposit winnings synchronously
-                    scheduler.runTask(() -> economyManager.getEconomyProvider(game.getProvider()).deposit(winner, winAmount));
-
-                    // Run event.
-                    scheduler.runTask(() -> Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount)));
+                    scheduler.runTask(() -> {
+                        economyManager.getEconomyProvider(game.getProvider()).deposit(winner, winAmount);
+                        Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount));
+                    });
 
 
                     // Update player stats
