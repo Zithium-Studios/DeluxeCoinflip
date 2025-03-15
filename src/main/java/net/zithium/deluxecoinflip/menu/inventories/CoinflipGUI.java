@@ -27,15 +27,15 @@ import java.util.Random;
 
 public class CoinflipGUI implements Listener {
 
-    private final DeluxeCoinflipPlugin plugin;
     private static final Random RANDOM = new Random();
+    private static final int ANIMATION_COUNT_THRESHOLD = 12;
+    private final DeluxeCoinflipPlugin plugin;
     private final EconomyManager economyManager;
     private final FileConfiguration config;
     private final String coinflipGuiTitle;
     private final boolean taxEnabled;
     private final double taxRate;
     private final long minimumBroadcastWinnings;
-    private static final int ANIMATION_COUNT_THRESHOLD = 12;
 
     public CoinflipGUI(@NotNull DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
@@ -123,6 +123,12 @@ public class CoinflipGUI implements Listener {
                     // Run event.
                     Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount)));
 
+                    if (config.getBoolean("webhook.enabled", false))
+                        plugin.getDiscordHook().executeWebhook(winner, loser, winAmount).exceptionally(throwable -> {
+                            plugin.getLogger().severe("An error occurred when triggering the webhook.");
+                            throwable.printStackTrace();
+                            return null;
+                        });
 
                     // Update player stats
                     StorageManager storageManager = plugin.getStorageManager();
