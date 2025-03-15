@@ -90,6 +90,22 @@ settings:
         withdraw: 'eco take {player} {amount}'
         deposit: 'eco give {player} {amount}'
 
+webhook:
+  enabled: false
+  url: "https://discord.com/api/webhooks/ID/TOKEN"
+  username: "Coin Flip"
+  avatar: ""
+  message:
+    content: "" # this is the normal message content
+    embed:
+      enabled: true
+      title: "$%formatted_amount%"
+      description: "%winner% (Winner) VS %loser%"
+      color:
+        r: 0
+        g: 0
+        b: 0
+      timestamp: true
 
 coinflip-gui:
   title: "&lFLIPPING COIN.."
