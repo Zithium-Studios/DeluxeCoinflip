@@ -123,7 +123,7 @@ public class CoinflipGUI implements Listener {
                     // Run event.
                     Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount)));
 
-                    if (config.getBoolean("webhook.enabled", false))
+                    if (config.getBoolean("discord.webhook.enabled", false) || config.getBoolean("discord.bot.enabled", false))
                         plugin.getDiscordHook().executeWebhook(winner, loser, economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmount).exceptionally(throwable -> {
                             plugin.getLogger().severe("An error occurred when triggering the webhook.");
                             throwable.printStackTrace();

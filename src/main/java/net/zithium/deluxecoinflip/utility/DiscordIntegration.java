@@ -11,10 +11,12 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.*;
 
-public class DiscordWebhook {
+public class DiscordIntegration {
 
-    private final String url;
     private final List<EmbedObject> embeds = new ArrayList<>();
+    private String token;
+    private String channel;
+    private String url;
     private String content;
     private String username;
     private String avatarUrl;
@@ -22,45 +24,46 @@ public class DiscordWebhook {
     private boolean suppressMentions;
     private boolean debug = false;
 
-    public DiscordWebhook(String url) {
+    public DiscordIntegration(String url) {
         this.url = url;
     }
 
-    public DiscordWebhook(String id, String token) {
-        this.url = "https://discord.com/api/webhooks/" + id + "/" + token;
+    public DiscordIntegration(String token, String channel) {
+        this.token = token;
+        this.channel = channel;
     }
 
-    public DiscordWebhook setContent(String content) {
+    public DiscordIntegration setContent(String content) {
         this.content = content;
         return this;
     }
 
-    public DiscordWebhook setSuppressMentions(boolean suppressed) {
+    public DiscordIntegration setSuppressMentions(boolean suppressed) {
         this.suppressMentions = suppressed;
         return this;
     }
 
-    public DiscordWebhook debug(boolean debug) {
+    public DiscordIntegration debug(boolean debug) {
         this.debug = debug;
         return this;
     }
 
-    public DiscordWebhook setUsername(String username) {
+    public DiscordIntegration setUsername(String username) {
         this.username = username;
         return this;
     }
 
-    public DiscordWebhook setAvatarUrl(String avatarUrl) {
+    public DiscordIntegration setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
         return this;
     }
 
-    public DiscordWebhook setTts(boolean tts) {
+    public DiscordIntegration setTts(boolean tts) {
         this.tts = tts;
         return this;
     }
 
-    public DiscordWebhook addEmbed(EmbedObject embed) {
+    public DiscordIntegration addEmbed(EmbedObject embed) {
         this.embeds.add(embed);
         return this;
     }
@@ -89,11 +92,21 @@ public class DiscordWebhook {
             json.put("embeds", generateEmbeds().toArray());
         }
 
-        URL url = new URL(this.url);
+        URL url = new URL(this.url == null ? "https://discord.com/api/v10/channels/" + channel + "/messages" : this.url);
+
+        if (debug) {
+            System.out.println("sending request to " + url);
+            System.out.println("request:");
+            System.out.println(json);
+        }
+
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
         connection.addRequestProperty("Content-Type", "application/json");
-        connection.addRequestProperty("User-Agent", "Java-DiscordWebhook-BY-Gelox_");
         connection.setDoOutput(true);
+
+        if (this.url == null)
+            connection.addRequestProperty("Authorization", "Bot " + this.token);
+
         connection.setRequestMethod("POST");
 
         OutputStream stream = connection.getOutputStream();

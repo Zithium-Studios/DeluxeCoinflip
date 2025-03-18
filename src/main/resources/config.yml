@@ -94,11 +94,17 @@ settings:
 # %amount% - The amount of money won
 # %winner% - The name of the winner
 # %loser%  - The name of the loser
-webhook:
-  enabled: false
-  url: "https://discord.com/api/webhooks/ID/TOKEN"
-  username: "Coin Flip"
-  avatar: ""
+
+discord:
+  bot: # Bot will take priority over if both are enabled
+    enabled: false
+    token: "YOUR DISCORD TOKEN"
+    channel: "channelID"
+  webhook:
+    enabled: false
+    url: "https://discord.com/api/webhooks/ID/TOKEN"
+    username: "Coin Flip"
+    avatar: ""
   message:
     content: "" # this is the normal message content
     embed:

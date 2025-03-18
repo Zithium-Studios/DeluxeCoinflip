@@ -3,7 +3,7 @@ package net.zithium.deluxecoinflip.hook;
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.deluxecoinflip.config.ConfigHandler;
 import net.zithium.deluxecoinflip.config.ConfigType;
-import net.zithium.deluxecoinflip.utility.DiscordWebhook;
+import net.zithium.deluxecoinflip.utility.DiscordIntegration;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -23,15 +23,15 @@ public class DiscordHook {
         configHandler = plugin.getConfigHandler(ConfigType.CONFIG);
     }
 
-    public CompletableFuture<DiscordWebhook> executeWebhook(OfflinePlayer winner, OfflinePlayer loser, String currency, long amount) {
+    public CompletableFuture<DiscordIntegration> executeWebhook(OfflinePlayer winner, OfflinePlayer loser, String currency, long amount) {
 
         return CompletableFuture.supplyAsync(() -> {
-            final DiscordWebhook webhook = getWebhook(winner, loser, currency, amount);
+            final DiscordIntegration webhook = getDiscordIntegration(winner, loser, currency, amount);
 
             try {
                 webhook.execute();
             } catch (IOException e) {
-                throw new DiscordWebhook.WebhookExecutionException("An error occurred while executing webhook", e);
+                throw new DiscordIntegration.WebhookExecutionException("An error occurred while executing webhook", e);
             }
 
             return webhook;
@@ -39,29 +39,36 @@ public class DiscordHook {
 
     }
 
-    private DiscordWebhook getWebhook(OfflinePlayer winner, OfflinePlayer loser, String currency, long amount) {
+    private DiscordIntegration getDiscordIntegration(OfflinePlayer winner, OfflinePlayer loser, String currency, long amount) {
         final FileConfiguration config = configHandler.getConfig();
 
-        final DiscordWebhook webhook = new DiscordWebhook(config.getString("webhook.url"))
-                .setUsername(replace(config.getString("webhook.username", "CoinFlip"), winner, loser, currency, amount))
-                .setAvatarUrl(replace(config.getString("webhook.avatar", ""), winner, loser, currency, amount))
-                .setContent(replace(config.getString("webhook.message.content", ""), winner, loser, currency, amount));
+        DiscordIntegration webhook;
 
-        if (config.getBoolean("webhook.message.embed.enabled", false))
+        if (config.getBoolean("discord.bot.enabled", false))
+            webhook = new DiscordIntegration(config.getString("discord.bot.token"), config.getString("discord.bot.channel"));
+        else
+            webhook = new DiscordIntegration(config.getString("discord.webhook.url"));
+
+
+        webhook.setUsername(replace(config.getString("discord.webhook.username", "CoinFlip"), winner, loser, currency, amount))
+                .setAvatarUrl(replace(config.getString("discord.webhook.avatar", ""), winner, loser, currency, amount))
+                .setContent(replace(config.getString("discord.message.content", ""), winner, loser, currency, amount));
+
+        if (config.getBoolean("discord.message.embed.enabled", false))
             webhook.addEmbed(getEmbed(winner, loser, currency, amount));
 
         return webhook;
     }
 
 
-    private DiscordWebhook.EmbedObject getEmbed(OfflinePlayer winner, OfflinePlayer loser, String currency, long amount) {
+    private DiscordIntegration.EmbedObject getEmbed(OfflinePlayer winner, OfflinePlayer loser, String currency, long amount) {
         final FileConfiguration config = configHandler.getConfig();
 
-        return new DiscordWebhook.EmbedObject()
-                .setTimestamp(config.getBoolean("webhook.message.embed.timestamp", false))
-                .setTitle(replace(config.getString("webhook.message.embed.title", ""), winner, loser, currency, amount))
-                .setDescription(replace(config.getString("webhook.message.embed.description", ""), winner, loser, currency, amount))
-                .setColor(new Color(config.getInt("webhook.message.embed.color.r", 0), config.getInt("webhook.message.embed.color.g", 0), config.getInt("webhook.message.embed.color.b", 0)));
+        return new DiscordIntegration.EmbedObject()
+                .setTimestamp(config.getBoolean("discord.message.embed.timestamp", false))
+                .setTitle(replace(config.getString("discord.message.embed.title", ""), winner, loser, currency, amount))
+                .setDescription(replace(config.getString("discord.message.embed.description", ""), winner, loser, currency, amount))
+                .setColor(new Color(config.getInt("discord.message.embed.color.r", 0), config.getInt("discord.message.embed.color.g", 0), config.getInt("discord.message.embed.color.b", 0)));
 
     }
 
