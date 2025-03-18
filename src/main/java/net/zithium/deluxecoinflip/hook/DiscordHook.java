@@ -31,7 +31,7 @@ public class DiscordHook {
             try {
                 webhook.execute();
             } catch (IOException e) {
-                throw new RuntimeException("An error occurred while executing webhook", e);
+                throw new DiscordWebhook.WebhookExecutionException("An error occurred while executing webhook", e);
             }
 
             return webhook;

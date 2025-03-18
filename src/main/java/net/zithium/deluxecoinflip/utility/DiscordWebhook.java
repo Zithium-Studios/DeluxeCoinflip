@@ -381,6 +381,12 @@ public class DiscordWebhook {
         }
     }
 
+    public static class WebhookExecutionException extends RuntimeException {
+        public WebhookExecutionException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
     private class JSONObject {
 
         private final HashMap<String, Object> map = new HashMap<>();
