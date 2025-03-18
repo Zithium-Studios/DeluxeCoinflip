@@ -103,7 +103,7 @@ webhook:
     content: "" # this is the normal message content
     embed:
       enabled: true
-      title: "$%amount%"
+      title: "%amount% %currency%"
       description: "%winner% (Winner) VS %loser%"
       color:
         r: 0
