@@ -17,12 +17,9 @@ public class DiscordHook {
 
     private static final NumberFormat numberFormat = NumberFormat.getInstance();
 
-    private final DeluxeCoinflipPlugin plugin;
     private final ConfigHandler configHandler;
 
     public DiscordHook(DeluxeCoinflipPlugin plugin) {
-        this.plugin = plugin;
-
         configHandler = plugin.getConfigHandler(ConfigType.CONFIG);
     }
 
@@ -34,7 +31,7 @@ public class DiscordHook {
             try {
                 webhook.execute();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("An error occurred while executing webhook", e);
             }
 
             return webhook;
