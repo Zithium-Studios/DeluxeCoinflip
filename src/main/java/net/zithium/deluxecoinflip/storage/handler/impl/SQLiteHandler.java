@@ -183,17 +183,6 @@ public class SQLiteHandler implements StorageHandler {
     }
 
     @Override
-    public synchronized void dropGamesTable() {
-        String sql = "DROP TABLE IF EXISTS games;";
-        try (Connection tableConnection = getConnection();
-             PreparedStatement preparedStatement = tableConnection.prepareStatement(sql)) {
-            preparedStatement.execute();
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to delete all coinflip games.", e);
-        }
-    }
-
-    @Override
     public synchronized Map<UUID, CoinflipGame> getGames() {
         Map<UUID, CoinflipGame> games = new HashMap<>();
         String sql = "SELECT uuid, provider, amount FROM games;";

@@ -5,7 +5,6 @@
 
 package net.zithium.deluxecoinflip.utility;
 
-import net.zithium.deluxecoinflip.utility.color.IridiumColorAPI;
 import org.bukkit.ChatColor;
 
 import java.text.DecimalFormat;
@@ -48,10 +47,6 @@ public class TextUtil {
 
     public static String numberFormat(long amount) {
         return NUMBER_FORMAT.format(amount);
-    }
-
-    public static String color(String string) {
-        return IridiumColorAPI.process(string);
     }
 
     public static String fromList(List<?> list) {

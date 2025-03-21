@@ -3,6 +3,7 @@ version: '${version}'
 main: net.zithium.deluxecoinflip.DeluxeCoinflipPlugin
 authors: [ ItsLewizzz, ItzSave, ItsSimplyLeo ]
 api-version: 1.19
+folia-supported: true
 
 softdepend:
   - PlaceholderAPI
