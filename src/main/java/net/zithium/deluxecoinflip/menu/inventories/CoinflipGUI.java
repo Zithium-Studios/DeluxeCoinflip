@@ -36,6 +36,7 @@ public class CoinflipGUI implements Listener {
     private final boolean taxEnabled;
     private final double taxRate;
     private final long minimumBroadcastWinnings;
+    private static final int ANIMATION_COUNT_THRESHOLD = 12;
 
     public CoinflipGUI(@NotNull DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
