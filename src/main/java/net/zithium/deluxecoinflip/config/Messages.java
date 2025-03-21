@@ -10,7 +10,9 @@ import net.zithium.library.utils.ColorUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 public enum Messages {
@@ -47,6 +49,25 @@ public enum Messages {
     private static FileConfiguration config;
     private final String path;
 
+    private static final boolean papiAvailable;
+    private static final Method papiMethod;
+
+    static {
+        boolean available = false;
+        Method method = null;
+
+        try {
+            Class<?> papiClass = Class.forName("me.clip.placeholderapi.PlaceholderAPI");
+            method = papiClass.getMethod("setPlaceholders", Player.class, String.class);
+            available = true;
+        } catch (Throwable ignored) {
+            // PlaceholderAPI ain't installed it doesn't throw an error :D
+        }
+
+        papiAvailable = available;
+        papiMethod = method;
+    }
+
     Messages(String path) {
         this.path = path;
     }
@@ -70,18 +91,43 @@ public enum Messages {
         }
 
         if (message != null && !message.isEmpty()) {
-            receiver.sendMessage(ColorUtil.color(replace(message, replacements)));
+            message = replace(message, receiver, replacements);
+            receiver.sendMessage(ColorUtil.color(message));
         }
     }
 
-    private String replace(String message, Object... replacements) {
+    private String replace(String message, CommandSender receiver, Object... replacements) {
         for (int i = 0; i < replacements.length; i += 2) {
             if (i + 1 >= replacements.length) break;
-            message = message.replace(String.valueOf(replacements[i]), String.valueOf(replacements[i + 1]));
+
+            String key = String.valueOf(replacements[i]);
+            String value = String.valueOf(replacements[i + 1]);
+
+            if (receiver instanceof Player && papiAvailable && papiMethod != null) {
+                try {
+                    Object result = papiMethod.invoke(null, receiver, value);
+                    if (result instanceof String) {
+                        value = (String) result;
+                    }
+                } catch (Throwable ignored) {}
+            }
+
+            message = message.replace(key, value);
         }
 
         String prefix = config.getString(PREFIX.getPath());
-        return message.replace("{PREFIX}", prefix != null && !prefix.isEmpty() ? prefix : "");
+        message = message.replace("{PREFIX}", prefix != null ? prefix : "");
+
+        if (receiver instanceof Player && papiAvailable && papiMethod != null) {
+            try {
+                Object result = papiMethod.invoke(null, receiver, message);
+                if (result instanceof String) {
+                    message = (String) result;
+                }
+            } catch (Throwable ignored) {}
+        }
+
+        return message;
     }
 
     public String getPath() {
@@ -91,5 +137,4 @@ public enum Messages {
     private String getConfiguration() {
         return "%%__NONCE__%%";
     }
-
 }
