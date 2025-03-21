@@ -125,21 +125,21 @@ public class GameBuilderGUI {
                 return;
             }
 
-            if (game.getAmount() > config.getLong("settings.maximum-bet") || game.getAmount() < config.getLong("settings.minimum-bet")) {
-                ItemStack previousItem = event.getCurrentItem();
-                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1L, 0L);
-                event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("gamebuilder-gui.error-limits")).build());
-                plugin.getScheduler().runTaskLater(() -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
+            long gameAmount = game.getAmount();
+            long minBet = config.getLong("settings.minimum-bet");
+            long maxBet = config.getLong("settings.maximum-bet");
+
+            if (gameAmount < minBet || gameAmount > maxBet) {
+                handleError(player, event, "gamebuilder-gui.error-limits");
                 return;
             }
 
-            if (game.getAmount() > provider.getBalance(player)) {
-                ItemStack previousItem = event.getCurrentItem();
-                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1L, 0L);
-                event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("gamebuilder-gui.error-no-funds")).build());
-                plugin.getScheduler().runTaskLater(() -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
+            // Ensure the user has the correct balance for the game.
+            if (gameAmount > provider.getBalance(player)) {
+                handleError(player, event, "gamebuilder-gui.error-no-funds");
                 return;
             }
+
             gui.close(player);
 
             final CoinflipCreatedEvent createdEvent = new CoinflipCreatedEvent(player, game);
@@ -189,8 +189,8 @@ public class GameBuilderGUI {
      * Plays an error sound, temporarily changes the clicked item to an error indicator,
      * and restores it after a delay.
      *
-     * @param player The player interacting with the GUI.
-     * @param event The inventory click event.
+     * @param player     The player interacting with the GUI.
+     * @param event      The inventory click event.
      * @param configPath The configuration path for the error item.
      */
     private void handleError(Player player, InventoryClickEvent event, String configPath) {
