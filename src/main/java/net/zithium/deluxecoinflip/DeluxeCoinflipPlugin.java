@@ -8,6 +8,8 @@ package net.zithium.deluxecoinflip;
 import co.aikar.commands.PaperCommandManager;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import me.nahu.scheduler.wrapper.FoliaWrappedJavaPlugin;
+import me.nahu.scheduler.wrapper.WrappedScheduler;
 import net.zithium.deluxecoinflip.api.DeluxeCoinflipAPI;
 import net.zithium.deluxecoinflip.command.CoinflipCommand;
 import net.zithium.deluxecoinflip.config.ConfigHandler;
@@ -20,21 +22,22 @@ import net.zithium.deluxecoinflip.game.GameManager;
 import net.zithium.deluxecoinflip.hook.DiscordHook;
 import net.zithium.deluxecoinflip.hook.PlaceholderAPIHook;
 import net.zithium.deluxecoinflip.listener.PlayerChatListener;
-import net.zithium.deluxecoinflip.listener.PlayerListener;
 import net.zithium.deluxecoinflip.menu.InventoryManager;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.StorageManager;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAPI {
+public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements DeluxeCoinflipAPI {
+
+
+    private static DeluxeCoinflipPlugin instance;
 
     private Map<ConfigType, ConfigHandler> configMap;
     private StorageManager storageManager;
@@ -46,12 +49,21 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
     private Cache<UUID, CoinflipGame> listenerCache;
 
     public void onEnable() {
+        instance = this;
         long start = System.currentTimeMillis();
+
+        getLogger().severe("WARNING WARNING WARNING WARNING");
+        getLogger().severe("");
+        getLogger().severe("This build of DeluxeCoinflip is highly");
+        getLogger().severe("experimental! There is likely to be major issues!");
+        getLogger().severe("");
+        getLogger().severe("WARNING WARNING WARNING WARNING");
+
 
         getLogger().log(Level.INFO, "");
         getLogger().log(Level.INFO, " __ __    DeluxeCoinflip v" + getDescription().getVersion());
         getLogger().log(Level.INFO, "/  |_     Author(s): " + getDescription().getAuthors().get(0));
-        getLogger().log(Level.INFO, "\\_ |      (c) Zithium Studios 2020-2023. All rights reserved.");
+        getLogger().log(Level.INFO, "\\_ |      (c) Zithium Studios 2020-2025. All rights reserved.");
         getLogger().log(Level.INFO, "");
 
         enableMetrics();
@@ -96,15 +108,12 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
 
         // Register listeners
         new PlayerChatListener(this);
-        new PlayerListener(this);
 
         // PlaceholderAPI Hook
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PlaceholderAPIHook(this).register();
             getLogger().log(Level.INFO, "Hooked into PlaceholderAPI successfully");
         }
-
-        clearGames(false);
 
         getLogger().log(Level.INFO, "");
         getLogger().log(Level.INFO, "Successfully loaded in " + (System.currentTimeMillis() - start) + "ms");
@@ -175,36 +184,12 @@ public class DeluxeCoinflipPlugin extends JavaPlugin implements DeluxeCoinflipAP
         economyManager.registerEconomyProvider(provider, requiredPlugin);
     }
 
-    /**
-     * Clears all current coinflip games.
-     *
-     * @param returnMoney Should the money be returned to the game owner?
-     */
-    public void clearGames(boolean returnMoney) {
-        getLogger().info("Clearing all active coinflip games.");
-        if (!gameManager.getCoinflipGames().isEmpty()) {
-            final Map<UUID, CoinflipGame> games = gameManager.getCoinflipGames();
-            final List<UUID> gamesToRemove = new ArrayList<>();
-            for (UUID uuid : games.keySet()) {
-                CoinflipGame coinflipGame = gameManager.getCoinflipGames().get(uuid);
-                Player creator = Bukkit.getPlayer(uuid);
-                if (returnMoney && creator != null) {
-                    economyManager.getEconomyProvider(coinflipGame.getProvider()).deposit(creator, coinflipGame.getAmount());
-                }
-                gamesToRemove.add(uuid);
-                storageManager.getStorageHandler().deleteCoinfip(uuid);
-            }
-            for (UUID uuid : gamesToRemove) {
-                gameManager.removeCoinflipGame(uuid);
-            }
-
-            storageManager.dropGames();
-        }
-        getLogger().info("All coinflip games have been cleared.");
-    }
-
     @Override
     public Optional<PlayerData> getPlayerData(Player player) {
         return storageManager.getPlayer(player.getUniqueId());
+    }
+
+    public static DeluxeCoinflipPlugin getInstance() {
+        return instance;
     }
 }

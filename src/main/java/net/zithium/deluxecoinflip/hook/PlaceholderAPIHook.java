@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
+@SuppressWarnings("deprecation")
 public class PlaceholderAPIHook extends PlaceholderExpansion {
 
     private final DeluxeCoinflipPlugin plugin;
@@ -104,6 +105,10 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
 
         if (identifier.equals("display_broadcast_messages")) {
             return String.valueOf(playerData.isDisplayBroadcastMessages());
+        }
+
+        if (identifier.equals("total_games")) {
+            return String.valueOf(plugin.getGameManager().getCoinflipGames().size());
         }
 
         return null;

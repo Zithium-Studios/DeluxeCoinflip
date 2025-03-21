@@ -55,7 +55,7 @@ public class EconomyManager {
 
 
 
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        plugin.getScheduler().runTask(() -> {
             for (EconomyProvider provider : new ArrayList<>(economyProviders.values())) {
                 ConfigurationSection providerSection = section.getConfigurationSection(provider.getIdentifier().toUpperCase());
                 if (providerSection != null) {

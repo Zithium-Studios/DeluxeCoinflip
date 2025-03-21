@@ -5,6 +5,7 @@
 
 package net.zithium.deluxecoinflip.menu.inventories;
 
+import net.kyori.adventure.text.Component;
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.deluxecoinflip.api.events.CoinflipCreatedEvent;
 import net.zithium.deluxecoinflip.config.ConfigType;
@@ -16,11 +17,13 @@ import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.deluxecoinflip.utility.TextUtil;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
+import net.zithium.library.utils.ColorUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.text.NumberFormat;
@@ -35,7 +38,7 @@ public class GameBuilderGUI {
     private final EconomyManager economyManager;
     private final FileConfiguration config;
 
-    private final String guiTitle;
+    private final String GUI_TITLE;
 
     private final boolean BROADCAST_CREATION;
 
@@ -43,14 +46,17 @@ public class GameBuilderGUI {
         this.plugin = plugin;
         this.economyManager = plugin.getEconomyManager();
         config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
-        this.guiTitle = config.getString("gamebuilder-gui.title");
+        this.GUI_TITLE = ColorUtil.color(config.getString("gamebuilder-gui.title"));
         this.BROADCAST_CREATION = config.getBoolean("settings.broadcast-coinflip-creation");
     }
 
     public void openGameBuilderGUI(Player player, CoinflipGame game) {
 
-        @SuppressWarnings("deprecation") // Suppressing new Gui() deprecation warning.
-        Gui gui = new Gui(config.getInt("gamebuilder-gui.rows"), TextUtil.color(guiTitle));
+        //@SuppressWarnings("deprecation") // Suppressing new Gui() deprecation warning.
+        //Gui gui = new Gui(config.getInt("gamebuilder-gui.rows"), GUI_TITLE);
+
+        Gui gui = Gui.gui().rows(config.getInt("gamebuilder-rui.rows")).title(Component.text(GUI_TITLE)).create();
+
         gui.setDefaultClickAction(event -> event.setCancelled(true));
 
         ConfigurationSection fillerItemsSection = config.getConfigurationSection("gamebuilder-gui.filler-items");
@@ -113,29 +119,27 @@ public class GameBuilderGUI {
                 .build(), event -> {
             EconomyProvider provider = economyManager.getEconomyProvider(game.getProvider());
 
+
             if (plugin.getGameManager().getCoinflipGames().containsKey(player.getUniqueId())) {
-                ItemStack previousItem = event.getCurrentItem();
-                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1L, 0L);
-                event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("gamebuilder-gui.error-game-exists")).build());
-                Bukkit.getScheduler().runTaskLater(plugin, () -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
+                handleError(player, event, "gamebuilder-gui.error-game-exists");
                 return;
             }
 
-            if (game.getAmount() > config.getLong("settings.maximum-bet") || game.getAmount() < config.getLong("settings.minimum-bet")) {
-                ItemStack previousItem = event.getCurrentItem();
-                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1L, 0L);
-                event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("gamebuilder-gui.error-limits")).build());
-                Bukkit.getScheduler().runTaskLater(plugin, () -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
+            long gameAmount = game.getAmount();
+            long minBet = config.getLong("settings.minimum-bet");
+            long maxBet = config.getLong("settings.maximum-bet");
+
+            if (gameAmount < minBet || gameAmount > maxBet) {
+                handleError(player, event, "gamebuilder-gui.error-limits");
                 return;
             }
 
-            if (game.getAmount() > provider.getBalance(player)) {
-                ItemStack previousItem = event.getCurrentItem();
-                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1L, 0L);
-                event.getClickedInventory().setItem(event.getSlot(), ItemStackBuilder.getItemStack(config.getConfigurationSection("gamebuilder-gui.error-no-funds")).build());
-                Bukkit.getScheduler().runTaskLater(plugin, () -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
+            // Ensure the user has the correct balance for the game.
+            if (gameAmount > provider.getBalance(player)) {
+                handleError(player, event, "gamebuilder-gui.error-no-funds");
                 return;
             }
+
             gui.close(player);
 
             final CoinflipCreatedEvent createdEvent = new CoinflipCreatedEvent(player, game);
@@ -171,7 +175,7 @@ public class GameBuilderGUI {
         return lore;
     }
 
-    public String getNext(String provider) {
+    private String getNext(String provider) {
         List<String> providers = new ArrayList<>(economyManager.getEconomyProviders().keySet());
         int i = providers.indexOf(provider);
         try {
@@ -179,6 +183,22 @@ public class GameBuilderGUI {
         } catch (IndexOutOfBoundsException e) {
             return economyManager.getEconomyProviders().keySet().stream().findFirst().get();
         }
+    }
+
+    /**
+     * Plays an error sound, temporarily changes the clicked item to an error indicator,
+     * and restores it after a delay.
+     *
+     * @param player     The player interacting with the GUI.
+     * @param event      The inventory click event.
+     * @param configPath The configuration path for the error item.
+     */
+    private void handleError(Player player, InventoryClickEvent event, String configPath) {
+        ItemStack previousItem = event.getCurrentItem();
+        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1L, 0L);
+        event.getClickedInventory().setItem(event.getSlot(),
+                ItemStackBuilder.getItemStack(config.getConfigurationSection(configPath)).build());
+        plugin.getScheduler().runTaskLater(() -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
     }
 
 }
