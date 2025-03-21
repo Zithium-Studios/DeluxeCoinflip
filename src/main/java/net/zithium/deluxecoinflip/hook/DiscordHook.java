@@ -57,6 +57,8 @@ public class DiscordHook {
         if (config.getBoolean("discord.message.embed.enabled", false))
             webhook.addEmbed(getEmbed(winner, loser, currency, amount));
 
+        webhook.debug(config.getBoolean("discord.debug", false));
+
         return webhook;
     }
 

@@ -94,8 +94,8 @@ settings:
 # %amount% - The amount of money won
 # %winner% - The name of the winner
 # %loser%  - The name of the loser
-
 discord:
+  debug: false # prints the payloads sent
   bot: # Bot will take priority over if both are enabled
     enabled: false
     token: "YOUR DISCORD TOKEN"
