@@ -18,6 +18,7 @@ import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.deluxecoinflip.utility.TextUtil;
 import dev.triumphteam.gui.guis.GuiItem;
+import net.zithium.library.utils.ColorUtil;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
@@ -46,7 +47,7 @@ public class GamesGUI {
         this.economyManager = plugin.getEconomyManager();
         this.config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
 
-        GUI_TITLE = TextUtil.color(config.getString("games-gui.title"));
+        GUI_TITLE = ColorUtil.color(config.getString("games-gui.title"));
         GUI_ROWS = config.getInt("games-gui.rows");
 
         if (config.contains("games-gui.coinflip-game.material") && !config.getString("games-gui.coinflip-game.material").equalsIgnoreCase("PLAYER_HEAD")) {
@@ -60,7 +61,7 @@ public class GamesGUI {
         // Fetch player data
         Optional<PlayerData> optionalPlayerData = plugin.getStorageManager().getPlayer(player.getUniqueId());
         if (optionalPlayerData.isEmpty()) {
-            player.sendMessage(TextUtil.color("&cYour player data was not found, please relog or contact an administrator if the issue persists."));
+            player.sendMessage(ColorUtil.color("&cYour player data was not found, please relog or contact an administrator if the issue persists."));
             return;
         }
 

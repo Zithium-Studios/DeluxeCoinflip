@@ -5,6 +5,7 @@
 
 package net.zithium.deluxecoinflip.utility;
 
+import net.zithium.library.utils.ColorUtil;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
@@ -95,7 +96,7 @@ public class ItemStackBuilder {
 
     public ItemStackBuilder withName(String name) {
         final ItemMeta meta = ITEM_STACK.getItemMeta();
-        meta.setDisplayName(TextUtil.color(name));
+        meta.setDisplayName(ColorUtil.color(name));
         ITEM_STACK.setItemMeta(meta);
         return this;
     }
@@ -119,7 +120,7 @@ public class ItemStackBuilder {
         final ItemMeta meta = ITEM_STACK.getItemMeta();
         List<String> coloredLore = new ArrayList<>();
         for (String s : lore) {
-            coloredLore.add(TextUtil.color(s));
+            coloredLore.add(ColorUtil.color(s));
         }
         meta.setLore(coloredLore);
         ITEM_STACK.setItemMeta(meta);

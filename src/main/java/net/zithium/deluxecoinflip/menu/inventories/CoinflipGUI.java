@@ -15,6 +15,7 @@ import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.StorageManager;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.deluxecoinflip.utility.TextUtil;
+import net.zithium.library.utils.ColorUtil;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -23,13 +24,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
-import java.util.Random;
+import java.security.SecureRandom;
+import java.util.*;
 
 public class CoinflipGUI implements Listener {
 
     private final DeluxeCoinflipPlugin plugin;
-    private static final Random RANDOM = new Random();
     private final EconomyManager economyManager;
     private final FileConfiguration config;
     private final String coinflipGuiTitle;
@@ -44,7 +44,7 @@ public class CoinflipGUI implements Listener {
         this.config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
 
         // Load config values into variables this helps improve performance.
-        this.coinflipGuiTitle = TextUtil.color(config.getString("coinflip-gui.title"));
+        this.coinflipGuiTitle = ColorUtil.color(config.getString("coinflip-gui.title"));
         this.taxEnabled = config.getBoolean("settings.tax.enabled");
         this.taxRate = config.getDouble("settings.tax.rate");
         this.minimumBroadcastWinnings = config.getLong("settings.minimum-broadcast-winnings");
@@ -54,25 +54,26 @@ public class CoinflipGUI implements Listener {
         // Send the challenge message BEFORE any swapping
         Messages.PLAYER_CHALLENGE.send(opponent.getPlayer(), "{OPPONENT}", creator.getName());
 
-        // Randomly shuffle player order to avoid bias
-        if (RANDOM.nextBoolean()) {
-            Player temp = creator;
-            creator = (Player) opponent;
-            opponent = temp;
-        }
+        // SecureRandom for better randomness
+        SecureRandom random = new SecureRandom();
+        random.setSeed(System.nanoTime() + creator.getUniqueId().hashCode() + opponent.getUniqueId().hashCode());
 
-        // Determine the winner and loser
-        OfflinePlayer winner = RANDOM.nextBoolean() ? creator : opponent;
+        // Randomly shuffle player order
+        List<OfflinePlayer> players = new ArrayList<>(Arrays.asList(creator, opponent));
+        Collections.shuffle(players, random);
+
+        creator = (Player) players.get(0);
+        opponent = players.get(1);
+
+        OfflinePlayer winner = players.get(random.nextInt(players.size()));
         OfflinePlayer loser = (winner == creator) ? opponent : creator;
 
-        // Proceed with the game animation and results
         runAnimation(creator, winner, loser, game);
     }
 
 
     private void runAnimation(Player player, OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game) {
         final WrappedScheduler scheduler = plugin.getScheduler();
-
         Gui gui = Gui.gui().rows(3).title(Component.text(coinflipGuiTitle)).create();
         gui.disableAllInteractions();
 
@@ -98,6 +99,16 @@ public class CoinflipGUI implements Listener {
             scheduler.runTaskAtLocation(taskLocation, () -> gui.open(loserPlayer));
         }
 
+        ConfigurationSection animationConfig1 = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.1.");
+        ConfigurationSection animationConfig2 = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.2.");
+
+        ItemStack firstAnimationItem = (animationConfig1 != null)
+                ? ItemStackBuilder.getItemStack(animationConfig1).build()
+                : new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
+
+        ItemStack secondAnimationItem = (animationConfig2 != null)
+                ? ItemStackBuilder.getItemStack(animationConfig2).build()
+                : new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
 
         new WrappedRunnable() {
             boolean alternate = false;
@@ -108,10 +119,8 @@ public class CoinflipGUI implements Listener {
             @Override
             public void run() {
                 count++;
-                gui.getGuiItems().clear();
-
                 if (count >= ANIMATION_COUNT_THRESHOLD) {
-                    // Completed animation
+                    // Final state
                     gui.setItem(13, winnerHead);
                     gui.getFiller().fill(new GuiItem(Material.LIGHT_BLUE_STAINED_GLASS_PANE));
                     gui.disableAllInteractions();
@@ -122,7 +131,6 @@ public class CoinflipGUI implements Listener {
                     }
 
                     long taxed = 0;
-
                     if (taxEnabled) {
                         taxed = (long) ((taxRate * winAmount) / 100.0);
                         winAmount -= taxed;
@@ -133,56 +141,40 @@ public class CoinflipGUI implements Listener {
                         Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount));
                     });
 
-
                     // Update player stats
                     StorageManager storageManager = plugin.getStorageManager();
                     updatePlayerStats(storageManager, winner, winAmount, beforeTax, true);
                     updatePlayerStats(storageManager, loser, 0, beforeTax, false);
 
+                    // Send messages
                     String winAmountFormatted = TextUtil.numberFormat(winAmount);
                     String taxedFormatted = TextUtil.numberFormat(taxed);
 
-                    // Send win/loss messages
                     if (winner.isOnline()) {
-                        Messages.GAME_SUMMARY_WIN.send(winner.getPlayer(), replacePlaceholders(String.valueOf(taxRate), taxedFormatted, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmountFormatted));
+                        Messages.GAME_SUMMARY_WIN.send(winner.getPlayer(), replacePlaceholders(
+                                String.valueOf(taxRate), taxedFormatted, winner.getName(), loser.getName(),
+                                economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmountFormatted
+                        ));
                     }
-                    if (loser.isOnline()) {
-                        Messages.GAME_SUMMARY_LOSS.send(loser.getPlayer(), replacePlaceholders(String.valueOf(taxRate), taxedFormatted, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmountFormatted));
-                    }
-                    // Broadcast to the server
-                    broadcastWinningMessage(winAmount, taxed, winner.getName(), loser.getName(), economyManager.getEconomyProvider(game.getProvider()).getDisplayName());
 
-                    //closeAnimationGUI(gui);
+                    if (loser.isOnline()) {
+                        Messages.GAME_SUMMARY_LOSS.send(loser.getPlayer(), replacePlaceholders(
+                                String.valueOf(taxRate), taxedFormatted, winner.getName(), loser.getName(),
+                                economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmountFormatted
+                        ));
+                    }
+
+                    // Broadcast results
+                    broadcastWinningMessage(winAmount, taxed, winner.getName(), loser.getName(),
+                            economyManager.getEconomyProvider(game.getProvider()).getDisplayName());
 
                     cancel();
+                    return;
                 }
 
-
-                // Do animation
-                if (alternate) {
-                    ConfigurationSection animationSection = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.1.");
-                    if (animationSection != null) {
-                        ItemStack firstAnimationItem = ItemStackBuilder.getItemStack(animationSection).build();
-                        gui.setItem(13, winnerHead);
-                        gui.getFiller().fill(new GuiItem(firstAnimationItem));
-                    } else {
-                        gui.setItem(13, winnerHead);
-                        gui.getFiller().fill(new GuiItem(Material.YELLOW_STAINED_GLASS_PANE));
-                        plugin.getLogger().warning("Missing configuration section for first animation frame.");
-                    }
-                } else {
-                    ConfigurationSection animationSection = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.2.");
-                    if (animationSection != null) {
-                        ItemStack secondAnimationItem = ItemStackBuilder.getItemStack(animationSection).build();
-                        gui.setItem(13, loserHead);
-                        gui.getFiller().fill(new GuiItem(secondAnimationItem));
-                    } else {
-                        gui.setItem(13, loserHead);
-                        gui.getFiller().fill(new GuiItem(Material.GRAY_STAINED_GLASS_PANE));
-                        plugin.getLogger().warning("Missing configuration section for second animation frame.");
-                    }
-                }
-
+                // Animation swapping
+                gui.setItem(13, alternate ? winnerHead : loserHead);
+                gui.getFiller().fill(new GuiItem(alternate ? firstAnimationItem : secondAnimationItem));
                 alternate = !alternate;
 
                 if (player.isOnline()) {
@@ -193,6 +185,7 @@ public class CoinflipGUI implements Listener {
             }
         }.runTaskTimerAsynchronously(plugin, 0L, 10L);
     }
+
 
     private void updatePlayerStats(StorageManager storageManager, OfflinePlayer player, long winAmount, long beforeTax, boolean isWinner) {
         Optional<PlayerData> playerDataOptional = storageManager.getPlayer(player.getUniqueId());

@@ -17,6 +17,7 @@ import net.zithium.deluxecoinflip.game.CoinflipGame;
 import net.zithium.deluxecoinflip.game.GameManager;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.utility.TextUtil;
+import net.zithium.library.utils.ColorUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -67,16 +68,16 @@ public class CoinflipCommand extends BaseCommand {
     @Subcommand("about")
     public void aboutSubCommand(final CommandSender sender) {
         sender.sendMessage("");
-        sender.sendMessage(TextUtil.color("&e&lDeluxeCoinflip"));
-        sender.sendMessage(TextUtil.color("&eVersion: &fv" + plugin.getDescription().getVersion()));
-        sender.sendMessage(TextUtil.color("&eAuthor: &fItsLewizzz"));
+        sender.sendMessage(ColorUtil.color("&e&lDeluxeCoinflip"));
+        sender.sendMessage(ColorUtil.color("&eVersion: &fv" + plugin.getDescription().getVersion()));
+        sender.sendMessage(ColorUtil.color("&eAuthor: &fItsLewizzz"));
 
         if (!TextUtil.isValidDownload()) {
-            sender.sendMessage(TextUtil.color("&4Registered to: &cFailed to find licensed owner to this plugin. Contact developer to report possible leak (ItsLewizzz#6023)."));
+            sender.sendMessage(ColorUtil.color("&4Registered to: &cFailed to find licensed owner to this plugin. Contact developer to report possible leak (ItsLewizzz#6023)."));
         } else if (TextUtil.isMCMarket()) {
-            sender.sendMessage(TextUtil.color("&4Registered to: &chttps://www.mc-market.org/members/%%__USER__%%/"));
+            sender.sendMessage(ColorUtil.color("&4Registered to: &chttps://www.mc-market.org/members/%%__USER__%%/"));
         } else {
-            sender.sendMessage(TextUtil.color("&4Registered to: &chttps://www.spigotmc.org/members/%%__USER__%%/"));
+            sender.sendMessage(ColorUtil.color("&4Registered to: &chttps://www.spigotmc.org/members/%%__USER__%%/"));
         }
         sender.sendMessage("");
     }
@@ -92,7 +93,7 @@ public class CoinflipCommand extends BaseCommand {
         java.util.Optional<PlayerData> playerDataOptional = plugin.getStorageManager().getPlayer(player.getUniqueId());
 
         if(playerDataOptional.isEmpty()) {
-            sender.sendMessage(TextUtil.color("&cYour player data has not loaded yet, please wait a few moments or relog."));
+            sender.sendMessage(ColorUtil.color("&cYour player data has not loaded yet, please wait a few moments or relog."));
             return;
         }
 
@@ -158,7 +159,7 @@ public class CoinflipCommand extends BaseCommand {
 
         final List<EconomyProvider> providers = new ArrayList<>(economyManager.getEconomyProviders().values());
         if (providers.isEmpty()) {
-            player.sendMessage(TextUtil.color("&cThere are no economy providers found or not enabled in the configuration. Please contact an administrator."));
+            player.sendMessage(ColorUtil.color("&cThere are no economy providers found or not enabled in the configuration. Please contact an administrator."));
             return;
         }
 
