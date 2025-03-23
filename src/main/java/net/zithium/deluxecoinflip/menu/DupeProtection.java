@@ -23,9 +23,14 @@ public class DupeProtection implements Listener {
     }
 
     private void cleanPlayerInventoryAsync(Player player) {
-        CompletableFuture.runAsync(() -> {
-            boolean changed = false;
+        if (!player.isOnline()) return;
+
+        // Run async to minimize impact on the main thread
+        CompletableFuture.supplyAsync(() -> {
             ItemStack[] contents = player.getInventory().getContents();
+            boolean changed = false;
+
+            // Check for protected items and nullify them
             for (int i = 0; i < contents.length; i++) {
                 ItemStack item = contents[i];
                 if (isProtected(item)) {
@@ -33,11 +38,17 @@ public class DupeProtection implements Listener {
                     changed = true;
                 }
             }
-            if (changed) {
-                Bukkit.getScheduler().runTask(plugin, () -> player.getInventory().setContents(contents));
+
+            return changed ? contents : null;
+        }).thenAccept(updatedContents -> {
+            if (updatedContents != null && player.isOnline()) {
+                // Update inventory safely on the main thread
+                plugin.getScheduler().runTask(() -> player.getInventory().setContents(updatedContents));
             }
         });
     }
+
+
 
     private boolean isProtected(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return false;
