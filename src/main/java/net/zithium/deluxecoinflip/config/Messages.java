@@ -88,7 +88,4 @@ public enum Messages {
         return this.path;
     }
 
-    private String getConfiguration() {
-        return "%%__NONCE__%%";
-    }
 }
