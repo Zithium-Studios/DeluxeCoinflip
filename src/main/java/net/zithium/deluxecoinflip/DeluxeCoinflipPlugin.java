@@ -25,8 +25,12 @@ import net.zithium.deluxecoinflip.menu.InventoryManager;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.StorageManager;
 import org.bstats.bukkit.Metrics;
+import net.zithium.deluxecoinflip.menu.DupeProtection;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
+import org.bukkit.NamespacedKey;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -88,8 +92,12 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
         economyManager.onEnable();
         gameManager = new GameManager(this);
 
+
         inventoryManager = new InventoryManager();
         inventoryManager.load(this);
+        new DupeProtection(this);
+        ItemStackBuilder.setPlugin(this);
+
 
         List<String> aliases = getConfigHandler(ConfigType.CONFIG).getConfig().getStringList("settings.command_aliases");
 
@@ -169,6 +177,9 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
         return listenerCache;
     }
 
+    public NamespacedKey getKey(String key) {
+        return new NamespacedKey(this, key);
+    }
     // API methods
     @Override
     public void registerEconomyProvider(EconomyProvider provider, String requiredPlugin) {

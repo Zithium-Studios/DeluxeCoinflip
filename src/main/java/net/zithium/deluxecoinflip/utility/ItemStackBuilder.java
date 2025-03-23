@@ -5,6 +5,7 @@
 
 package net.zithium.deluxecoinflip.utility;
 
+import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.library.utils.ColorUtil;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -19,7 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ItemStackBuilder {
+    private static DeluxeCoinflipPlugin plugin;
 
+    public static void setPlugin(DeluxeCoinflipPlugin pluginInstance) {
+        plugin = pluginInstance;
+    }
     private final ItemStack ITEM_STACK;
 
     public ItemStackBuilder(ItemStack item) {
@@ -136,7 +141,17 @@ public class ItemStackBuilder {
     }
 
     public ItemStack build() {
+        if (plugin != null && ITEM_STACK != null && ITEM_STACK.getItemMeta() != null) {
+            var meta = ITEM_STACK.getItemMeta();
+            meta.getPersistentDataContainer().set(
+                    plugin.getKey("dcf.dupeprotection"),
+                    org.bukkit.persistence.PersistentDataType.BYTE,
+                    (byte) 1
+            );
+            ITEM_STACK.setItemMeta(meta);
+        }
         return ITEM_STACK;
     }
+
 }
 
