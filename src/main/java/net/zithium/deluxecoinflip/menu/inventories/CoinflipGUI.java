@@ -139,8 +139,15 @@ public class CoinflipGUI implements Listener {
                         Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount));
                     });
 
-                    scheduler.runTaskLaterAtLocation(winnerPlayer.getLocation(), winnerPlayer::closeInventory, 20L);
-                    scheduler.runTaskLaterAtLocation(loserPlayer.getLocation(), loserPlayer::closeInventory, 20L);
+                    if (winnerPlayer != null) {
+                        Location winnerLoc = winnerPlayer.getLocation();
+                        scheduler.runTaskLaterAtLocation(winnerLoc, winnerPlayer::closeInventory, 20L);
+                    }
+
+                    if (loserPlayer != null) {
+                        Location loserLoc = loserPlayer.getLocation();
+                        scheduler.runTaskLaterAtLocation(loserLoc, loserPlayer::closeInventory, 20L);
+                    }
 
                     // Update player stats
                     StorageManager storageManager = plugin.getStorageManager();
