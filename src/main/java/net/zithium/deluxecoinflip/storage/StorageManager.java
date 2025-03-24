@@ -21,7 +21,11 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Stream;
@@ -35,17 +39,13 @@ public class StorageManager {
     public StorageManager(DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
         this.playerDataMap = new HashMap<>();
-
-
     }
 
     public void onEnable() {
-        switch (plugin.getConfig().getString("storage.type").toUpperCase()) {
-            case "SQLITE":
-                storageHandler = new SQLiteHandler();
-                break;
-            default:
-                throw new InvalidStorageHandlerException("Invalid storage handler specified");
+        if (plugin.getConfig().getString("storage.type").toUpperCase().equals("SQLITE")) {
+            storageHandler = new SQLiteHandler();
+        } else {
+            throw new InvalidStorageHandlerException("Invalid storage handler specified");
         }
 
         if (!storageHandler.onEnable(plugin)) {
@@ -75,7 +75,7 @@ public class StorageManager {
         File directory = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "data");
         if (directory.exists() && isDirectoryEmpty(directory.toPath())) directory.delete();
 
-        plugin.getLogger().info("Saving player data to database..");
+        plugin.getLogger().info("Saving player data to database...");
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.execute(() -> {
             for (PlayerData player : new ArrayList<>(playerDataMap.values())) {
@@ -134,5 +134,4 @@ public class StorageManager {
             return false;
         }
     }
-
 }

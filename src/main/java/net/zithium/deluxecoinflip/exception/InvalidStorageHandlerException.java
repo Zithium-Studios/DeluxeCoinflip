@@ -10,5 +10,4 @@ public class InvalidStorageHandlerException extends RuntimeException {
     public InvalidStorageHandlerException(String message) {
         super(message);
     }
-
 }

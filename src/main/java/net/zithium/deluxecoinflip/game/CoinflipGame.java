@@ -75,5 +75,4 @@ public class CoinflipGame {
     public CoinflipGame clone() {
         return new CoinflipGame(uuid, provider, amount, player, cachedHead);
     }
-
 }

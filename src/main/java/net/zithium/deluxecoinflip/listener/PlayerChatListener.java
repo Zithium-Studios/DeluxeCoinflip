@@ -76,5 +76,4 @@ public class PlayerChatListener implements Listener {
         game.setAmount(amount);
         plugin.getScheduler().runTask(() -> plugin.getInventoryManager().getGameBuilderGUI().openGameBuilderGUI(player, game));
     }
-
 }
