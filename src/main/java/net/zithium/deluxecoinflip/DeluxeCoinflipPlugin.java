@@ -9,7 +9,6 @@ import co.aikar.commands.PaperCommandManager;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import me.nahu.scheduler.wrapper.FoliaWrappedJavaPlugin;
-import me.nahu.scheduler.wrapper.WrappedScheduler;
 import net.zithium.deluxecoinflip.api.DeluxeCoinflipAPI;
 import net.zithium.deluxecoinflip.command.CoinflipCommand;
 import net.zithium.deluxecoinflip.config.ConfigHandler;
@@ -28,11 +27,14 @@ import org.bstats.bukkit.Metrics;
 import net.zithium.deluxecoinflip.menu.DupeProtection;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import org.bukkit.NamespacedKey;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -52,14 +54,6 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
     public void onEnable() {
         instance = this;
         long start = System.currentTimeMillis();
-
-        getLogger().severe("WARNING WARNING WARNING WARNING");
-        getLogger().severe("");
-        getLogger().severe("This build of DeluxeCoinflip is highly");
-        getLogger().severe("experimental! There is likely to be major issues!");
-        getLogger().severe("");
-        getLogger().severe("WARNING WARNING WARNING WARNING");
-
 
         getLogger().log(Level.INFO, "");
         getLogger().log(Level.INFO, " __ __    DeluxeCoinflip v" + getDescription().getVersion());
