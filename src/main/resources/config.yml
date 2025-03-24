@@ -79,6 +79,13 @@ settings:
       enabled: true
       display_currency_name: "Tokens"
 
+    # Player XP Economy (Player's Total XP Points)
+    # Player's XP will be used as the currency
+    # When a player leaves the server, their existing game will be removed if the type is XP
+    XP:
+      enabled: true
+      display_currency_name: "XP"
+
     CUSTOM_CURRENCY:
       # Should the custom currency be enabled.
       enabled: true

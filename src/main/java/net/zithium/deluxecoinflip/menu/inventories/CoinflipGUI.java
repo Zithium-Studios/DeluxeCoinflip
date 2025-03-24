@@ -99,8 +99,8 @@ public class CoinflipGUI implements Listener {
             scheduler.runTaskAtLocation(taskLocation, () -> gui.open(loserPlayer));
         }
 
-        ConfigurationSection animationConfig1 = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.1.");
-        ConfigurationSection animationConfig2 = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.2.");
+        ConfigurationSection animationConfig1 = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.1");
+        ConfigurationSection animationConfig2 = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.2");
 
         ItemStack firstAnimationItem = (animationConfig1 != null)
                 ? ItemStackBuilder.getItemStack(animationConfig1).build()

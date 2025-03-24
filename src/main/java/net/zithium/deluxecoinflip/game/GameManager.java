@@ -6,6 +6,7 @@
 package net.zithium.deluxecoinflip.game;
 
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
+import net.zithium.deluxecoinflip.economy.provider.EconomyProvider;
 import net.zithium.deluxecoinflip.storage.StorageManager;
 import org.bukkit.Bukkit;
 
@@ -46,13 +47,24 @@ public class GameManager {
      *
      * @param uuid The UUID of the player removing the game
      */
-    public void removeCoinflipGame(UUID uuid) {
-        coinflipGames.remove(uuid);
+    public void removeCoinflipGame(UUID uuid, boolean refund) {
+        CoinflipGame removed = this.coinflipGames.remove(uuid);
         if (Bukkit.isPrimaryThread()) {
             plugin.getScheduler().runTaskAsynchronously(() -> storageManager.getStorageHandler().deleteCoinfip(uuid));
         } else {
             storageManager.getStorageHandler().deleteCoinfip(uuid);
         }
+
+        if (removed != null && refund) {
+            EconomyProvider provider = plugin.getEconomyManager().getEconomyProvider(removed.getProvider());
+            if (provider != null) {
+                provider.deposit(Bukkit.getOfflinePlayer(removed.getPlayerUUID()), removed.getAmount());
+            }
+        }
+    }
+
+    public void removeCoinflipGame(UUID uniqueId) {
+        removeCoinflipGame(uniqueId, false);
     }
 
     /**
@@ -71,4 +83,5 @@ public class GameManager {
     public void canStartGame(boolean canStartGame) {
         this.canStartGame = canStartGame;
     }
+
 }
