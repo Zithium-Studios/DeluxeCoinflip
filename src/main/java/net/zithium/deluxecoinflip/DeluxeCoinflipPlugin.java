@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 
 public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements DeluxeCoinflipAPI {
 
-
     private static DeluxeCoinflipPlugin instance;
 
     private Map<ConfigType, ConfigHandler> configMap;
@@ -92,12 +91,10 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
         economyManager.onEnable();
         gameManager = new GameManager(this);
 
-
         inventoryManager = new InventoryManager();
         inventoryManager.load(this);
         new DupeProtection(this);
         ItemStackBuilder.setPlugin(this);
-
 
         List<String> aliases = getConfigHandler(ConfigType.CONFIG).getConfig().getStringList("settings.command_aliases");
 
@@ -180,6 +177,7 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
     public NamespacedKey getKey(String key) {
         return new NamespacedKey(this, key);
     }
+
     // API methods
     @Override
     public void registerEconomyProvider(EconomyProvider provider, String requiredPlugin) {

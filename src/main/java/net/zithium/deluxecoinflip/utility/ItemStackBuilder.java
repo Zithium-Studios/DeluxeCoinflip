@@ -25,6 +25,7 @@ public class ItemStackBuilder {
     public static void setPlugin(DeluxeCoinflipPlugin pluginInstance) {
         plugin = pluginInstance;
     }
+
     private final ItemStack ITEM_STACK;
 
     public ItemStackBuilder(ItemStack item) {
@@ -152,6 +153,4 @@ public class ItemStackBuilder {
         }
         return ITEM_STACK;
     }
-
 }
-

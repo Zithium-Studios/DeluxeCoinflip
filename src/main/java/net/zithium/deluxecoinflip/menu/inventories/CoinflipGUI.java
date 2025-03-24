@@ -71,7 +71,6 @@ public class CoinflipGUI implements Listener {
         runAnimation(creator, winner, loser, game);
     }
 
-
     private void runAnimation(Player player, OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game) {
         final WrappedScheduler scheduler = plugin.getScheduler();
         Gui gui = Gui.gui().rows(3).title(Component.text(coinflipGuiTitle)).create();
@@ -85,18 +84,17 @@ public class CoinflipGUI implements Listener {
                 winner.equals(game.getOfflinePlayer()) ? new ItemStack(Material.PLAYER_HEAD) : game.getCachedHead()
         ).withName(ChatColor.YELLOW + loser.getName()).setSkullOwner(loser).build());
 
-        Location fallbackLocation = Bukkit.getWorlds().get(0).getSpawnLocation();
-
         Player winnerPlayer = Bukkit.getPlayer(winner.getUniqueId());
         Player loserPlayer = Bukkit.getPlayer(loser.getUniqueId());
 
         if (winnerPlayer != null) {
-            scheduler.runTaskAtLocation(winnerPlayer.getLocation(), () -> gui.open(winnerPlayer));
+            Location winnerLocation = winnerPlayer.getLocation();
+            scheduler.runTaskAtLocation(winnerLocation, () -> gui.open(winnerPlayer));
         }
 
         if (loserPlayer != null) {
-            Location taskLocation = (winnerPlayer != null) ? winnerPlayer.getLocation() : fallbackLocation;
-            scheduler.runTaskAtLocation(taskLocation, () -> gui.open(loserPlayer));
+            Location loserLocation = loserPlayer.getLocation();
+            scheduler.runTaskAtLocation(loserLocation, () -> gui.open(loserPlayer));
         }
 
         ConfigurationSection animationConfig1 = plugin.getConfig().getConfigurationSection("coinflip-gui.animation.1.");
@@ -141,6 +139,9 @@ public class CoinflipGUI implements Listener {
                         Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount));
                     });
 
+                    scheduler.runTaskLaterAtLocation(winnerPlayer.getLocation(), winnerPlayer::closeInventory, 20L);
+                    scheduler.runTaskLaterAtLocation(loserPlayer.getLocation(), loserPlayer::closeInventory, 20L);
+
                     // Update player stats
                     StorageManager storageManager = plugin.getStorageManager();
                     updatePlayerStats(storageManager, winner, winAmount, beforeTax, true);
@@ -174,18 +175,30 @@ public class CoinflipGUI implements Listener {
 
                 // Animation swapping
                 gui.setItem(13, alternate ? winnerHead : loserHead);
-                gui.getFiller().fill(new GuiItem(alternate ? firstAnimationItem : secondAnimationItem));
+
+                ItemStack animationPane = (alternate ? firstAnimationItem.clone() : secondAnimationItem.clone());
+                GuiItem filler = new GuiItem(animationPane);
+
+                for (int i = 0; i < gui.getInventory().getSize(); i++) {
+                    if (i == 13) continue;
+                    gui.setItem(i, filler);
+                }
+
                 alternate = !alternate;
 
                 if (player.isOnline()) {
                     player.playSound(player.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1L, 0L);
                 }
 
-                gui.update();
+                if (player.isOnline()) {
+                    player.getOpenInventory();
+                    if (player.getOpenInventory().getTopInventory().equals(gui.getInventory())) {
+                        gui.update();
+                    }
+                }
             }
         }.runTaskTimerAsynchronously(plugin, 0L, 10L);
     }
-
 
     private void updatePlayerStats(StorageManager storageManager, OfflinePlayer player, long winAmount, long beforeTax, boolean isWinner) {
         Optional<PlayerData> playerDataOptional = storageManager.getPlayer(player.getUniqueId());

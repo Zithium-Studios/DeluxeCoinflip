@@ -87,5 +87,4 @@ public enum Messages {
     public String getPath() {
         return this.path;
     }
-
 }
