@@ -158,7 +158,7 @@ public class GameBuilderGUI {
             Messages.CREATED_GAME.send(player, "{AMOUNT}", amountFormatted, "{CURRENCY}", provider.getDisplayName());
         }));
 
-        gui.open(player);
+        plugin.getScheduler().runTask(() -> gui.open(player));
     }
 
     private List<String> getCurrencyLore(ConfigurationSection section, CoinflipGame game) {

@@ -218,7 +218,7 @@ public class GamesGUI {
             }
         }
 
-        gui.open(player);
+        plugin.getScheduler().runTask(() -> gui.open(player));
 
         plugin.getScheduler().runTaskLater(() -> {
             player.getOpenInventory();
