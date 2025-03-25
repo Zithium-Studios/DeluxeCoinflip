@@ -31,7 +31,17 @@ settings:
 
   tax:
     enabled: true
-    rate: 5.0 # 5% tax
+    rate: 5.0 # 5% tax, set to -1 to use bracket based tax system
+    brackets:
+      1:
+        amount: 0 # acts as the minimum value
+        rate: 5.0
+      2:
+        amount: 1000
+        rate: 7.5
+      3:
+        amount: 10000
+        rate: 10.0
 
   # Economy providers
   #   If you are using custom provider (from our API),

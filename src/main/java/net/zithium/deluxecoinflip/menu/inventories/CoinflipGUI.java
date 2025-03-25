@@ -34,7 +34,7 @@ public class CoinflipGUI implements Listener {
     private final FileConfiguration config;
     private final String coinflipGuiTitle;
     private final boolean taxEnabled;
-    private final double taxRate;
+
     private final long minimumBroadcastWinnings;
     private static final int ANIMATION_COUNT_THRESHOLD = 12;
 
@@ -46,7 +46,6 @@ public class CoinflipGUI implements Listener {
         // Load config values into variables this helps improve performance.
         this.coinflipGuiTitle = ColorUtil.color(config.getString("coinflip-gui.title"));
         this.taxEnabled = config.getBoolean("settings.tax.enabled");
-        this.taxRate = config.getDouble("settings.tax.rate");
         this.minimumBroadcastWinnings = config.getLong("settings.minimum-broadcast-winnings");
     }
 
@@ -131,6 +130,7 @@ public class CoinflipGUI implements Listener {
                     }
 
                     long taxed = 0;
+                    double taxRate = plugin.getGameManager().calculateTax(beforeTax);
                     if (taxEnabled) {
                         taxed = (long) ((taxRate * winAmount) / 100.0);
                         winAmount -= taxed;
@@ -219,6 +219,7 @@ public class CoinflipGUI implements Listener {
 
     private void broadcastWinningMessage(long winAmount, long tax, String winner, String loser, String currency) {
         if (winAmount >= minimumBroadcastWinnings) {
+            double taxRate = plugin.getGameManager().calculateTax(winAmount);
             for (Player player : Bukkit.getServer().getOnlinePlayers()) {
                 plugin.getStorageManager().getPlayer(player.getUniqueId()).ifPresent(playerData -> {
                     if (playerData.isDisplayBroadcastMessages()) {
