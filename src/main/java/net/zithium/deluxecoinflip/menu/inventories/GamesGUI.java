@@ -1,6 +1,6 @@
 /*
  * DeluxeCoinflip Plugin
- * Copyright (c) 2021 - 2022 Lewis D (ItsLewizzz). All rights reserved.
+ * Copyright (c) 2021 - 2025 Zithium Studios. All rights reserved.
  */
 
 package net.zithium.deluxecoinflip.menu.inventories;
@@ -16,7 +16,6 @@ import net.zithium.deluxecoinflip.game.CoinflipGame;
 import net.zithium.deluxecoinflip.game.GameManager;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
-import net.zithium.deluxecoinflip.utility.TextUtil;
 import dev.triumphteam.gui.guis.GuiItem;
 import net.zithium.library.utils.ColorUtil;
 import org.bukkit.Material;
@@ -218,9 +217,9 @@ public class GamesGUI {
             }
         }
 
-        plugin.getScheduler().runTask(() -> gui.open(player));
+        plugin.getScheduler().runTaskAtLocation(player.getLocation(), () -> gui.open(player));
 
-        plugin.getScheduler().runTaskLater(() -> {
+        plugin.getScheduler().runTaskLaterAtLocation(player.getLocation(), () -> {
             player.getOpenInventory();
             if (player.getOpenInventory().getTopInventory().equals(gui.getInventory())) {
                 gui.update();

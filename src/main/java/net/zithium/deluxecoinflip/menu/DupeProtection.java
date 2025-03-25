@@ -1,3 +1,8 @@
+/*
+ * DeluxeCoinflip Plugin
+ * Copyright (c) 2021 - 2025 Zithium Studios. All rights reserved.
+ */
+
 package net.zithium.deluxecoinflip.menu;
 
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
@@ -50,8 +55,6 @@ public class DupeProtection implements Listener {
         });
     }
 
-
-
     private boolean isProtected(ItemStack item) {
         if (item == null || !item.hasItemMeta()) return false;
         var meta = item.getItemMeta();
@@ -73,7 +76,7 @@ public class DupeProtection implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         // Only cancel the interact event if the item being used is flagged.
         ItemStack interactedItem = event.getItem();
-        if (interactedItem != null && isProtected(interactedItem)) {
+        if (isProtected(interactedItem)) {
             event.setCancelled(true);
         }
         cleanPlayerInventoryAsync(event.getPlayer());

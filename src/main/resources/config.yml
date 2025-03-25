@@ -1,6 +1,6 @@
-# DeluxeCoinflip
+# DeluxeCoinflip - Configuration
 # Author: Zithium Studios
-# Copyright Zithium Studios 2025. All rights reserved.
+# Copyright Zithium Studios 2021 - 2025. All rights reserved.
 #
 # Developer API
 #   https://github.com/itzsave/DeluxeCoinflipAPI
@@ -89,7 +89,6 @@ settings:
       commands:
         withdraw: 'eco take {player} {amount}'
         deposit: 'eco give {player} {amount}'
-
 
 coinflip-gui:
   title: "&lFLIPPING COIN.."

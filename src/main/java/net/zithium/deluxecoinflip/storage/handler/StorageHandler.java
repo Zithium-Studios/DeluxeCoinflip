@@ -1,6 +1,6 @@
 /*
  * DeluxeCoinflip Plugin
- * Copyright (c) 2021 - 2022 Lewis D (ItsLewizzz). All rights reserved.
+ * Copyright (c) 2021 - 2025 Zithium Studios. All rights reserved.
  */
 
 package net.zithium.deluxecoinflip.storage.handler;
@@ -36,5 +36,4 @@ public interface StorageHandler {
     void deleteCoinfip(final UUID uuid);
 
     Map<UUID, CoinflipGame> getGames();
-
 }

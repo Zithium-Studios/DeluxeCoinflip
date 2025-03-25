@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("io.github.goooler.shadow") version "8.1.8"
+    id("com.gradleup.shadow") version "8.3.6"
 }
 
 group = "net.zithium"
@@ -23,7 +23,7 @@ repositories {
 dependencies {
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("dev.triumphteam:triumph-gui:3.1.11")
-    implementation("org.bstats:bstats-bukkit:3.0.2")
+    implementation("org.bstats:bstats-bukkit:3.1.0")
     implementation("com.github.ItzSave:ZithiumLibrary:v2.1.2")
     implementation("com.github.NahuLD.folia-scheduler-wrapper:folia-scheduler-wrapper:v0.0.3")
 
@@ -31,7 +31,7 @@ dependencies {
 
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("com.mojang:authlib:1.5.21")
-    compileOnly("org.jetbrains:annotations:24.1.0")
+    compileOnly("org.jetbrains:annotations:26.0.2")
 
     compileOnly("com.github.Realizedd:TokenManager:3.2.4") { isTransitive = false }
     compileOnly("net.milkbowl.vault:VaultAPI:1.7")
@@ -60,6 +60,7 @@ tasks.shadowJar {
     minimize {
         exclude(dependency("com.github.NahuLD.folia-scheduler-wrapper:folia-scheduler-wrapper:.*"))
     }
+
     archiveFileName.set("DeluxeCoinflip-${project.version}.jar")
     relocate("dev.triumphteam.gui", "net.zithium.deluxecoinflip.libs.gui")
     relocate("net.zithium.library", "net.zithium.deluxecoinflip.libs.library")

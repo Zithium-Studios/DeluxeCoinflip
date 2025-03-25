@@ -1,6 +1,6 @@
 /*
  * DeluxeCoinflip Plugin
- * Copyright (c) Zithium Studios. All rights reserved.
+ * Copyright (c) 2021 - 2025 Zithium Studios. All rights reserved.
  */
 
 package net.zithium.deluxecoinflip.menu.inventories;
@@ -51,9 +51,6 @@ public class GameBuilderGUI {
     }
 
     public void openGameBuilderGUI(Player player, CoinflipGame game) {
-
-        //@SuppressWarnings("deprecation") // Suppressing new Gui() deprecation warning.
-        //Gui gui = new Gui(config.getInt("gamebuilder-gui.rows"), GUI_TITLE);
 
         Gui gui = Gui.gui().rows(config.getInt("gamebuilder-gui.rows")).title(Component.text(GUI_TITLE)).create();
 
@@ -140,7 +137,7 @@ public class GameBuilderGUI {
                 return;
             }
 
-            gui.close(player);
+            plugin.getScheduler().runTaskAtLocation(player.getLocation(), () -> gui.close(player));
 
             final CoinflipCreatedEvent createdEvent = new CoinflipCreatedEvent(player, game);
             Bukkit.getPluginManager().callEvent(createdEvent);
@@ -158,7 +155,7 @@ public class GameBuilderGUI {
             Messages.CREATED_GAME.send(player, "{AMOUNT}", amountFormatted, "{CURRENCY}", provider.getDisplayName());
         }));
 
-        plugin.getScheduler().runTask(() -> gui.open(player));
+        plugin.getScheduler().runTaskAtLocation(player.getLocation(), () -> gui.open(player));
     }
 
     private List<String> getCurrencyLore(ConfigurationSection section, CoinflipGame game) {
@@ -200,5 +197,4 @@ public class GameBuilderGUI {
                 ItemStackBuilder.getItemStack(config.getConfigurationSection(configPath)).build());
         plugin.getScheduler().runTaskLater(() -> event.getClickedInventory().setItem(event.getSlot(), previousItem), 45L);
     }
-
 }
