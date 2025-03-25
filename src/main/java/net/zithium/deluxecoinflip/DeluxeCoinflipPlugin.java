@@ -18,17 +18,18 @@ import net.zithium.deluxecoinflip.economy.EconomyManager;
 import net.zithium.deluxecoinflip.economy.provider.EconomyProvider;
 import net.zithium.deluxecoinflip.game.CoinflipGame;
 import net.zithium.deluxecoinflip.game.GameManager;
+import net.zithium.deluxecoinflip.hook.DiscordHook;
 import net.zithium.deluxecoinflip.hook.PlaceholderAPIHook;
 import net.zithium.deluxecoinflip.listener.PlayerChatListener;
+import net.zithium.deluxecoinflip.menu.DupeProtection;
 import net.zithium.deluxecoinflip.menu.InventoryManager;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.StorageManager;
-import org.bstats.bukkit.Metrics;
-import net.zithium.deluxecoinflip.menu.DupeProtection;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
+import org.bstats.bukkit.Metrics;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -45,6 +46,7 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
     private GameManager gameManager;
     private InventoryManager inventoryManager;
     private EconomyManager economyManager;
+    private DiscordHook discordHook;
 
     private Cache<UUID, CoinflipGame> listenerCache;
 
@@ -86,10 +88,13 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
             return;
         }
 
+        discordHook = new DiscordHook(this);
+
         economyManager = new EconomyManager(this);
         economyManager.onEnable();
-        gameManager = new GameManager(this);
 
+        gameManager = new GameManager(this);
+        gameManager.onEnable();
 
         inventoryManager = new InventoryManager();
         inventoryManager.load(this);
@@ -169,6 +174,10 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
 
     public EconomyManager getEconomyManager() {
         return economyManager;
+    }
+
+    public DiscordHook getDiscordHook() {
+        return discordHook;
     }
 
     public Cache<UUID, CoinflipGame> getListenerCache() {

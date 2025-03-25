@@ -7,9 +7,11 @@ package net.zithium.deluxecoinflip.storage;
 
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.deluxecoinflip.exception.InvalidStorageHandlerException;
+import net.zithium.deluxecoinflip.game.CoinflipGame;
 import net.zithium.deluxecoinflip.storage.handler.StorageHandler;
 import net.zithium.deluxecoinflip.storage.handler.impl.SQLiteHandler;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -63,7 +65,13 @@ public class StorageManager {
                 }, new Listener() {
                     @EventHandler(priority = EventPriority.MONITOR)
                     public void onPlayerQuit(final PlayerQuitEvent event) {
-                        getPlayer(event.getPlayer().getUniqueId()).ifPresent(data -> savePlayerData(data, true));
+                        Player player = event.getPlayer();
+                        getPlayer(player.getUniqueId()).ifPresent(data -> savePlayerData(data, true));
+
+                        // remove the xp coinflip game if the player logs out because we can not change a player's xp when they are offline
+                        CoinflipGame game = plugin.getGameManager().getCoinflipGames().get(player.getUniqueId());
+                        if (game != null && game.getProvider().equalsIgnoreCase("XP"))
+                            plugin.getGameManager().removeCoinflipGame(player.getUniqueId(), true);
                     }
                 }).forEach(listener -> plugin.getServer().getPluginManager().registerEvents(listener, plugin));
 
@@ -80,6 +88,10 @@ public class StorageManager {
         scheduler.execute(() -> {
             for (PlayerData player : new ArrayList<>(playerDataMap.values())) {
                 storageHandler.savePlayer(player);
+                // remove the xp coinflip game if the player logs out because we can not change a player's xp when they are offline
+                CoinflipGame game = plugin.getGameManager().getCoinflipGames().get(player.getUUID());
+                if (game != null && game.getProvider().equalsIgnoreCase("XP"))
+                    plugin.getGameManager().removeCoinflipGame(player.getUUID(), true);
             }
 
             if (shutdown) {
