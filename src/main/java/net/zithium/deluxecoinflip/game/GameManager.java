@@ -42,7 +42,7 @@ public class GameManager {
 
         for (String key : section.getKeys(false)) {
             double amount = section.getDouble(key + ".amount");
-            double tax = section.getDouble(key + ".tax");
+            double tax = section.getDouble(key + ".rate");
             taxBrackets.put(amount, tax);
         }
     }
