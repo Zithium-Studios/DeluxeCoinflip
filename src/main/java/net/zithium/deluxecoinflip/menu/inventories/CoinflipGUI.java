@@ -142,7 +142,7 @@ public class CoinflipGUI implements Listener {
                     });
 
                     if (config.getBoolean("discord.webhook.enabled", false) || config.getBoolean("discord.bot.enabled", false))
-                        plugin.getDiscordHook().executeWebhook(winner, loser, economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmount).exceptionally(throwable -> {
+                        plugin.getDiscordHook().executeWebhook(winner, loser, economyManager.getEconomyProvider(game.getProvider()).getDisplayName(), winAmount, taxRate).exceptionally(throwable -> {
                             plugin.getLogger().severe("An error occurred when triggering the webhook.");
                             throwable.printStackTrace();
                             return null;
