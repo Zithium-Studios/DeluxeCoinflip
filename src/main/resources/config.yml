@@ -91,7 +91,7 @@ settings:
         deposit: 'eco give {player} {amount}'
 
 coinflip-gui:
-  title: "&lFLIPPING COIN.."
+  title: "&lFLIPPING COIN..."
   # There can only be two items here. Both must be present!
   animation:
     1:
