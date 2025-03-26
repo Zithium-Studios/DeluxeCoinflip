@@ -55,7 +55,7 @@ public class GameBuilderGUI {
         //@SuppressWarnings("deprecation") // Suppressing new Gui() deprecation warning.
         //Gui gui = new Gui(config.getInt("gamebuilder-gui.rows"), GUI_TITLE);
 
-        Gui gui = Gui.gui().rows(config.getInt("gamebuilder-rui.rows")).title(Component.text(GUI_TITLE)).create();
+        Gui gui = Gui.gui().rows(config.getInt("gamebuilder-gui.rows")).title(Component.text(GUI_TITLE)).create();
 
         gui.setDefaultClickAction(event -> event.setCancelled(true));
 

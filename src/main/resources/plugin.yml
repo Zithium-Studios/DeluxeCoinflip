@@ -11,6 +11,7 @@ softdepend:
   - TokenEnchant
   - TokenManager
   - EssentialsX
+  - ZithiumMobcoins
 
 permissions:
   coinflip.admin:
