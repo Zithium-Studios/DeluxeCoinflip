@@ -220,7 +220,6 @@ public class GamesGUI {
         plugin.getScheduler().runTaskAtEntity(player, () -> gui.open(player));
 
         plugin.getScheduler().runTaskLaterAtEntity(player, () -> {
-            player.getOpenInventory();
             if (player.getOpenInventory().getTopInventory().equals(gui.getInventory())) {
                 gui.update();
             }
