@@ -1,6 +1,6 @@
 /*
  * DeluxeCoinflip Plugin
- * Copyright (c) 2021 - 2022 Lewis D (ItsLewizzz). All rights reserved.
+ * Copyright (c) 2021 - 2025 Zithium Studios. All rights reserved.
  */
 
 package net.zithium.deluxecoinflip.hook;
@@ -63,55 +63,20 @@ public class PlaceholderAPIHook extends PlaceholderExpansion {
         }
 
         PlayerData playerData = playerDataOptional.get();
-        if (identifier.equals("games_played")) {
-            return String.valueOf(playerData.getTotalGames());
-        }
-
-        if (identifier.equals("wins")) {
-            return String.valueOf(playerData.getWins());
-        }
-
-        if (identifier.equals("win_percentage")) {
-            return String.valueOf(playerData.getWinPercentage());
-        }
-
-        if (identifier.equals("losses")) {
-            return String.valueOf(playerData.getLosses());
-        }
-
-        if (identifier.equals("profit")) {
-            return String.valueOf(playerData.getProfit());
-        }
-
-        if (identifier.equals("profit_formatted")) {
-            return String.valueOf(playerData.getProfitFormatted());
-        }
-
-        if (identifier.equals("total_losses")) {
-            return String.valueOf(playerData.getTotalLosses());
-        }
-
-        if (identifier.equals("total_losses_formatted")) {
-            return String.valueOf(playerData.getTotalLossesFormatted());
-        }
-
-        if (identifier.equals("total_gambled")) {
-            return String.valueOf(playerData.getTotalGambled());
-        }
-
-        if (identifier.equals("total_gambled_formatted")) {
-            return String.valueOf(playerData.getTotalGambledFormatted());
-        }
-
-        if (identifier.equals("display_broadcast_messages")) {
-            return String.valueOf(playerData.isDisplayBroadcastMessages());
-        }
-
-        if (identifier.equals("total_games")) {
-            return String.valueOf(plugin.getGameManager().getCoinflipGames().size());
-        }
-
-        return null;
+        return switch (identifier) {
+            case "games_played" -> String.valueOf(playerData.getTotalGames());
+            case "wins" -> String.valueOf(playerData.getWins());
+            case "win_percentage" -> String.valueOf(playerData.getWinPercentage());
+            case "losses" -> String.valueOf(playerData.getLosses());
+            case "profit" -> String.valueOf(playerData.getProfit());
+            case "profit_formatted" -> String.valueOf(playerData.getProfitFormatted());
+            case "total_losses" -> String.valueOf(playerData.getTotalLosses());
+            case "total_losses_formatted" -> String.valueOf(playerData.getTotalLossesFormatted());
+            case "total_gambled" -> String.valueOf(playerData.getTotalGambled());
+            case "total_gambled_formatted" -> String.valueOf(playerData.getTotalGambledFormatted());
+            case "display_broadcast_messages" -> String.valueOf(playerData.isDisplayBroadcastMessages());
+            case "total_games" -> String.valueOf(plugin.getGameManager().getCoinflipGames().size());
+            default -> null;
+        };
     }
 }
-

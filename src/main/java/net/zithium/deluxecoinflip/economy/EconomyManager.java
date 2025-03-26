@@ -1,6 +1,6 @@
 /*
  * DeluxeCoinflip Plugin
- * Copyright (c) 2021 - 2022 Lewis D (ItsLewizzz). All rights reserved.
+ * Copyright (c) 2021 - 2025 Zithium Studios. All rights reserved.
  */
 
 package net.zithium.deluxecoinflip.economy;
@@ -12,7 +12,10 @@ import net.zithium.deluxecoinflip.economy.provider.impl.*;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -52,8 +55,6 @@ public class EconomyManager {
         // Register CustomCurrencyProvider
         EconomyProvider customCurrencyProvider = new CustomCurrencyProvider("CUSTOM_CURRENCY", plugin);
         registerEconomyProvider(customCurrencyProvider, null); // No required plugin for CUSTOM_CURRENCY
-
-
 
         plugin.getScheduler().runTask(() -> {
             for (EconomyProvider provider : new ArrayList<>(economyProviders.values())) {

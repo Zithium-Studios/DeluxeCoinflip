@@ -1,6 +1,6 @@
 /*
  * DeluxeCoinflip Plugin
- * Copyright (c) 2021 - 2022 Lewis D (ItsLewizzz). All rights reserved.
+ * Copyright (c) 2021 - 2025 Zithium Studios. All rights reserved.
  */
 
 package net.zithium.deluxecoinflip.menu.inventories;
@@ -16,7 +16,6 @@ import net.zithium.deluxecoinflip.game.CoinflipGame;
 import net.zithium.deluxecoinflip.game.GameManager;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
-import net.zithium.deluxecoinflip.utility.TextUtil;
 import dev.triumphteam.gui.guis.GuiItem;
 import net.zithium.library.utils.ColorUtil;
 import org.bukkit.Material;
@@ -29,7 +28,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public class GamesGUI {
@@ -74,8 +78,15 @@ public class GamesGUI {
         loadFillerItems(gui);
 
         // Navigation items
-        gui.setItem(config.getInt("games-gui.previous-page.slot"), new GuiItem(ItemStackBuilder.getItemStack(config.getConfigurationSection("games-gui.previous-page")).build(), event -> gui.previous()));
-        gui.setItem(config.getInt("games-gui.next-page.slot"), new GuiItem(ItemStackBuilder.getItemStack(config.getConfigurationSection("games-gui.next-page")).build(), event -> gui.next()));
+        int previousSlot = config.getInt("games-gui.previous-page.slot", -1);
+        if (previousSlot >= 0) {
+            gui.setItem(previousSlot, new GuiItem(ItemStackBuilder.getItemStack(config.getConfigurationSection("games-gui.previous-page")).build(), event -> gui.previous()));
+        }
+
+        int nextSlot = config.getInt("games-gui.next-page.slot", -1);
+        if (nextSlot >= 0) {
+            gui.setItem(nextSlot, new GuiItem(ItemStackBuilder.getItemStack(config.getConfigurationSection("games-gui.next-page")).build(), event -> gui.next()));
+        }
 
         gui.setDefaultClickAction(event -> event.setCancelled(true));
 
@@ -112,8 +123,12 @@ public class GamesGUI {
 
         // Open Game Builder GUI
         if (config.getBoolean("games-gui.create-new-game.enabled")) {
-            gui.setItem(config.getInt("games-gui.create-new-game.slot"), new GuiItem(ItemStackBuilder.getItemStack(config.getConfigurationSection("games-gui.create-new-game")).build(),
-                    event -> plugin.getInventoryManager().getGameBuilderGUI().openGameBuilderGUI(player, new CoinflipGame(player.getUniqueId(), economyManager.getEconomyProviders().entrySet().stream().findFirst().get().getKey(), 0))));
+            int newGameSlot = config.getInt("games-gui.create-new-game.slot", -1);
+            if (newGameSlot >= 0) {
+                gui.setItem(newGameSlot, new GuiItem(ItemStackBuilder.getItemStack(config.getConfigurationSection("games-gui.create-new-game")).build(),
+                        event -> plugin.getInventoryManager().getGameBuilderGUI().openGameBuilderGUI(player, new CoinflipGame(player.getUniqueId(),
+                                economyManager.getEconomyProviders().entrySet().stream().findFirst().get().getKey(), 0))));
+            }
         }
 
         double taxRate = config.getDouble("settings.tax.rate");
@@ -122,13 +137,17 @@ public class GamesGUI {
         GameManager gameManager = plugin.getGameManager();
         if (gameManager.getCoinflipGames().isEmpty()) {
             ItemStack noGames = ItemStackBuilder.getItemStack(config.getConfigurationSection("games-gui.no-games")).build();
-            gui.setItem(config.getInt("games-gui.no-games.slot"), new GuiItem(noGames));
+            int noGamesSlot = config.getInt("games-gui.no-games.slot", -1);
+            if (noGamesSlot >= 0) {
+                gui.setItem(noGamesSlot, new GuiItem(noGames));
+            }
         }
 
         // Otherwise, list available games
         else {
             NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.US);
-            for (Map.Entry<UUID, CoinflipGame> entry : gameManager.getCoinflipGames().entrySet()) {
+            Map<UUID, CoinflipGame> coinflipGames = new HashMap<>(gameManager.getCoinflipGames());
+            for (Map.Entry<UUID, CoinflipGame> entry : coinflipGames.entrySet()) {
                 CoinflipGame coinflipGame = entry.getValue();
                 if (economyManager.getEconomyProvider(coinflipGame.getProvider()) == null) continue;
 
@@ -198,8 +217,13 @@ public class GamesGUI {
             }
         }
 
-        gui.open(player);
-        gui.update();
+        plugin.getScheduler().runTaskAtEntity(player, () -> gui.open(player));
+
+        plugin.getScheduler().runTaskLaterAtEntity(player, () -> {
+            if (player.getOpenInventory().getTopInventory().equals(gui.getInventory())) {
+                gui.update();
+            }
+        }, 2L);
     }
 
     private void loadFillerItems(PaginatedGui gui) {
@@ -217,7 +241,9 @@ public class GamesGUI {
                         slotStrings.forEach(slotString -> {
                             try {
                                 int slot = Integer.parseInt(slotString);
-                                gui.setItem(slot, new GuiItem(builder.build()));
+                                if (slot >= 0 && slot < gui.getInventory().getSize()) {
+                                    gui.setItem(slot, new GuiItem(builder.build()));
+                                }
                             } catch (NumberFormatException e) {
                                 // Handle invalid slot format (e.g., not a number)
                                 plugin.getLogger().log(Level.WARNING, "Invalid slot format in filler items configuration: " + slotString);
@@ -237,6 +263,4 @@ public class GamesGUI {
             plugin.getLogger().log(Level.SEVERE, "Could not find the filler items section in the configuration file!");
         }
     }
-
-
 }

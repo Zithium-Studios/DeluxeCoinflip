@@ -1,4 +1,9 @@
-# DeluxeCoinflip Messages
+# DeluxeCoinflip - Messages
+# Author: Zithium Studios
+# Copyright Zithium Studios 2021 - 2025. All rights reserved.
+#
+# Developer API
+#   https://github.com/itzsave/DeluxeCoinflipAPI
 
 general:
   prefix: "&6[&e&lCoinflip&6]"
