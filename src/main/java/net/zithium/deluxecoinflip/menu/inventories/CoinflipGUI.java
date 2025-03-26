@@ -101,18 +101,16 @@ public class CoinflipGUI implements Listener {
         Player loserPlayer = Bukkit.getPlayer(loser.getUniqueId());
 
         if (winnerPlayer != null) {
-            Location winnerLoc = winnerPlayer.getLocation();
-            scheduler.runTaskAtLocation(winnerLoc, () -> {
+            scheduler.runTaskAtEntity(winnerPlayer, () -> {
                 gui.open(winnerPlayer);
-                startAnimation(scheduler, gui, winnerHead, loserHead, winner, loser, game, winnerPlayer, winnerLoc, true);
+                startAnimation(scheduler, gui, winnerHead, loserHead, winner, loser, game, winnerPlayer, winnerPlayer.getLocation(), true);
             });
         }
 
         if (loserPlayer != null) {
-            Location loserLoc = loserPlayer.getLocation();
-            scheduler.runTaskAtLocation(loserLoc, () -> {
+            scheduler.runTaskAtEntity(loserPlayer, () -> {
                 gui.open(loserPlayer);
-                startAnimation(scheduler, gui, winnerHead, loserHead, winner, loser, game, loserPlayer, loserLoc, false);
+                startAnimation(scheduler, gui, winnerHead, loserHead, winner, loser, game, loserPlayer, loserPlayer.getLocation(), false);
             });
         }
     }
@@ -152,7 +150,11 @@ public class CoinflipGUI implements Listener {
 
                 if (targetPlayer.isOnline()) {
                     targetPlayer.playSound(targetPlayer.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
-                    scheduler.runTaskLaterAtLocation(regionLoc, targetPlayer::closeInventory, 20L);
+                    scheduler.runTaskLaterAtEntity(targetPlayer, () -> {
+                        if (targetPlayer.isOnline()) {
+                            targetPlayer.closeInventory();
+                        }
+                    }, 20L);
                 }
 
                 long taxed = 0;
@@ -217,7 +219,7 @@ public class CoinflipGUI implements Listener {
                 }
             }
 
-            scheduler.runTaskLaterAtLocation(regionLoc, task[0], 10L);
+            scheduler.runTaskLaterAtEntity(targetPlayer, task[0], 10L);
         };
 
         scheduler.runTaskAtLocation(regionLoc, task[0]);

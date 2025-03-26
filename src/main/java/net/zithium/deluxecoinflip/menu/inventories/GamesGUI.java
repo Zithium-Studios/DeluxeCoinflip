@@ -217,10 +217,9 @@ public class GamesGUI {
             }
         }
 
-        plugin.getScheduler().runTaskAtLocation(player.getLocation(), () -> gui.open(player));
+        plugin.getScheduler().runTaskAtEntity(player, () -> gui.open(player));
 
-        plugin.getScheduler().runTaskLaterAtLocation(player.getLocation(), () -> {
-            player.getOpenInventory();
+        plugin.getScheduler().runTaskLaterAtEntity(player, () -> {
             if (player.getOpenInventory().getTopInventory().equals(gui.getInventory())) {
                 gui.update();
             }

@@ -137,7 +137,7 @@ public class GameBuilderGUI {
                 return;
             }
 
-            plugin.getScheduler().runTaskAtLocation(player.getLocation(), () -> gui.close(player));
+            plugin.getScheduler().runTaskAtEntity(player, () -> gui.close(player));
 
             final CoinflipCreatedEvent createdEvent = new CoinflipCreatedEvent(player, game);
             Bukkit.getPluginManager().callEvent(createdEvent);
@@ -155,7 +155,7 @@ public class GameBuilderGUI {
             Messages.CREATED_GAME.send(player, "{AMOUNT}", amountFormatted, "{CURRENCY}", provider.getDisplayName());
         }));
 
-        plugin.getScheduler().runTaskAtLocation(player.getLocation(), () -> gui.open(player));
+        plugin.getScheduler().runTaskAtEntity(player, () -> gui.open(player));
     }
 
     private List<String> getCurrencyLore(ConfigurationSection section, CoinflipGame game) {
