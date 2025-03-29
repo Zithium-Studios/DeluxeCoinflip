@@ -31,7 +31,7 @@ dependencies {
 
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("com.mojang:authlib:1.5.21")
-    compileOnly("org.jetbrains:annotations:24.1.0")
+    compileOnly("org.jetbrains:annotations:26.0.2")
 
     compileOnly("com.github.Realizedd:TokenManager:3.2.4") { isTransitive = false }
     compileOnly("net.milkbowl.vault:VaultAPI:1.7")
