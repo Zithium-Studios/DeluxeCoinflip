@@ -132,10 +132,8 @@ public class CoinflipCommand extends BaseCommand {
     //@WrongUsage("&c/coinflip create <amount> [economy]")
     @CommandCompletion("* @providers")
     public void createSubCommand(final Player player, String amountInput, @Optional String currencyProvider) {
-        final long amount;
-        try {
-            amount = Long.parseLong(amountInput.replace(",", ""));
-        } catch (Exception ex) {
+        final long amount = TextUtil.parseAlias(amountInput);
+        if (amount <= 0) {
             Messages.INVALID_AMOUNT.send(player, "{INPUT}", amountInput);
             return;
         }
