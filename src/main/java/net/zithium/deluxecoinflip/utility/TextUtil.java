@@ -61,5 +61,42 @@ public class TextUtil {
         return builder.toString();
     }
 
+    // parses a string input (such as 3m or 3.5m) into a double value
+    public static long parseAlias(String input) {
+        if (input == null || input.isEmpty()) {
+            return -1;
+        }
+
+        input = input.toLowerCase().trim();
+
+        // if the input is a number, just return it
+        if (input.matches("^[0-9]+(\\.[0-9]+)?$")) {
+            try {
+                return (long) Double.parseDouble(input);
+            } catch (NumberFormatException e) {
+                return -1;
+            }
+        }
+
+        if (!input.matches("^[0-9]+(\\.[0-9]+)?[kmb]$")) {
+            return -1;
+        }
+
+        char suffix = input.charAt(input.length() - 1);
+        String numericPart = input.substring(0, input.length() - 1);
+
+        try {
+            double value = Double.parseDouble(numericPart); // it is a double since we also accept usages like 3.5m
+
+            return switch (suffix) {
+                case 'k' -> (long) (value * 1_000);
+                case 'm' -> (long) (value * 1_000_000);
+                case 'b' -> (long) (value * 1_000_000_000);
+                default -> -1;
+            };
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
 
 }

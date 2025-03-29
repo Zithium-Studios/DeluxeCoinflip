@@ -31,7 +31,17 @@ settings:
 
   tax:
     enabled: true
-    rate: 5.0 # 5% tax
+    rate: 5.0 # 5% tax, set to -1 to use bracket based tax system
+    brackets:
+      1:
+        amount: 0 # acts as the minimum value
+        rate: 5.0
+      2:
+        amount: 1000
+        rate: 7.5
+      3:
+        amount: 10000
+        rate: 10.0
 
   # Economy providers
   #   If you are using custom provider (from our API),
@@ -79,6 +89,13 @@ settings:
       enabled: true
       display_currency_name: "Tokens"
 
+    # Player XP Economy (Player's Total XP Points)
+    # Player's XP will be used as the currency
+    # When a player leaves the server, their existing game will be removed if the type is XP
+    XP:
+      enabled: true
+      display_currency_name: "XP"
+
     CUSTOM_CURRENCY:
       # Should the custom currency be enabled.
       enabled: true
@@ -90,6 +107,32 @@ settings:
         withdraw: 'eco take {player} {amount}'
         deposit: 'eco give {player} {amount}'
 
+# Available Placeholders
+# %amount% - The amount of money won
+# %winner% - The name of the winner
+# %loser%  - The name of the loser
+discord:
+  debug: false # prints the payloads sent
+  bot: # Bot will take priority over if both are enabled
+    enabled: false
+    token: "YOUR DISCORD TOKEN"
+    channel: "channelID"
+  webhook:
+    enabled: false
+    url: "https://discord.com/api/webhooks/ID/TOKEN"
+    username: "Coin Flip"
+    avatar: ""
+  message:
+    content: "" # this is the normal message content
+    embed:
+      enabled: true
+      title: "%amount% %currency%"
+      description: "%winner% (Winner) VS %loser%"
+      color:
+        r: 0
+        g: 0
+        b: 0
+      timestamp: true
 
 coinflip-gui:
   title: "&lFLIPPING COIN.."

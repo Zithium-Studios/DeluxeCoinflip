@@ -6,6 +6,7 @@
 package net.zithium.deluxecoinflip.menu.inventories;
 
 import dev.triumphteam.gui.guis.Gui;
+import dev.triumphteam.gui.guis.GuiItem;
 import dev.triumphteam.gui.guis.PaginatedGui;
 import net.kyori.adventure.text.Component;
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
@@ -16,8 +17,6 @@ import net.zithium.deluxecoinflip.game.CoinflipGame;
 import net.zithium.deluxecoinflip.game.GameManager;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
-import net.zithium.deluxecoinflip.utility.TextUtil;
-import dev.triumphteam.gui.guis.GuiItem;
 import net.zithium.library.utils.ColorUtil;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -116,8 +115,6 @@ public class GamesGUI {
                     event -> plugin.getInventoryManager().getGameBuilderGUI().openGameBuilderGUI(player, new CoinflipGame(player.getUniqueId(), economyManager.getEconomyProviders().entrySet().stream().findFirst().get().getKey(), 0))));
         }
 
-        double taxRate = config.getDouble("settings.tax.rate");
-
         // Check if there is any games available
         GameManager gameManager = plugin.getGameManager();
         if (gameManager.getCoinflipGames().isEmpty()) {
@@ -133,6 +130,7 @@ public class GamesGUI {
                 if (economyManager.getEconomyProvider(coinflipGame.getProvider()) == null) continue;
 
                 long taxed = 0;
+                double taxRate = plugin.getGameManager().calculateTax(coinflipGame.getAmount());
                 if (config.getBoolean("settings.tax.enabled"))
                     taxed = (long) ((taxRate * coinflipGame.getAmount()) / 100.0);
 
