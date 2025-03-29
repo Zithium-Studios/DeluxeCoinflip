@@ -35,7 +35,7 @@ dependencies {
 
     compileOnly("com.github.Realizedd:TokenManager:3.2.4") { isTransitive = false }
     compileOnly("net.milkbowl.vault:VaultAPI:1.7")
-    compileOnly("org.black_ixx:playerpoints:3.2.6")
+    compileOnly("org.black_ixx:playerpoints:3.3.0")
     compileOnly(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 }
 
