@@ -42,7 +42,7 @@ public class StorageManager {
     }
 
     public void onEnable() {
-        if (plugin.getConfig().getString("storage.type").toUpperCase().equals("SQLITE")) {
+        if (plugin.getConfig().getString("storage.type").equalsIgnoreCase("SQLITE")) {
             storageHandler = new SQLiteHandler();
         } else {
             throw new InvalidStorageHandlerException("Invalid storage handler specified");
