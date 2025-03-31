@@ -1,6 +1,6 @@
-# DeluxeCoinflip
+# DeluxeCoinflip - Configuration
 # Author: Zithium Studios
-# Copyright Zithium Studios 2025. All rights reserved.
+# Copyright Zithium Studios 2021 - 2025. All rights reserved.
 #
 # Developer API
 #   https://github.com/itzsave/DeluxeCoinflipAPI
@@ -36,7 +36,7 @@ settings:
   # Economy providers
   #   If you are using custom provider (from our API),
   #   ensure to add the section with the provider identifier
-  #   being the main key (e.g. VAULT).
+  #   being the main key (e.g., VAULT).
   providers:
     # This economy provider will be used if the player does /cf create <amount>
     # without specifying a currency provider after the amount to use if multiple
@@ -80,7 +80,7 @@ settings:
       display_currency_name: "Tokens"
 
     CUSTOM_CURRENCY:
-      # Should the custom currency be enabled.
+      # Should the custom currency be enabled?
       enabled: true
       display_currency_name: "Custom"
       # This is used to check the balance of the user. BE SURE THIS DOES NOT FORMAT THE BALANCE
@@ -90,9 +90,8 @@ settings:
         withdraw: 'eco take {player} {amount}'
         deposit: 'eco give {player} {amount}'
 
-
 coinflip-gui:
-  title: "&lFLIPPING COIN.."
+  title: "&lFLIPPING COIN..."
   # There can only be two items here. Both must be present!
   animation:
     1:
@@ -130,7 +129,7 @@ games-gui:
         - " &eTotal Gambled: &f${TOTAL_GAMBLED}"
         - " &eWin Percentage: &f{WIN_PERCENTAGE}%"
 
-  # Items below here are fixed and ID should not be removed/changed.
+  # Items below here are fixed, and the ID should not be removed/changed.
   create-new-game:
     # Set false to disable the game builder gui
     enabled: true

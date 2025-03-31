@@ -1,6 +1,6 @@
 /*
  * DeluxeCoinflip Plugin
- * Copyright (c) 2021 - 2022 Lewis D (ItsLewizzz). All rights reserved.
+ * Copyright (c) 2021 - 2025 Zithium Studios. All rights reserved.
  */
 
 package net.zithium.deluxecoinflip.utility;
@@ -25,6 +25,7 @@ public class ItemStackBuilder {
     public static void setPlugin(DeluxeCoinflipPlugin pluginInstance) {
         plugin = pluginInstance;
     }
+
     private final ItemStack ITEM_STACK;
 
     public ItemStackBuilder(ItemStack item) {
@@ -152,6 +153,4 @@ public class ItemStackBuilder {
         }
         return ITEM_STACK;
     }
-
 }
-
