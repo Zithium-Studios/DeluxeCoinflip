@@ -1,3 +1,8 @@
+/*
+ * DeluxeCoinflip Plugin
+ * Copyright (c) 2021 - 2025 Zithium Studios. All rights reserved.
+ */
+
 package net.zithium.deluxecoinflip.economy.provider.impl;
 
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
@@ -38,15 +43,18 @@ public class CustomCurrencyProvider extends EconomyProvider {
 
     @Override
     public void withdraw(OfflinePlayer player, double amount) {
-        String command = withdrawCommandTemplate.replace("{player}", player.getName()).replace("{amount}", String.valueOf(amount));
+        String formattedAmount = (amount % 1 == 0) ? String.valueOf((long) amount) : String.valueOf(amount);
+        String command = withdrawCommandTemplate.replace("{player}", player.getName()).replace("{amount}", formattedAmount);
         executeCommand(command);
     }
 
     @Override
     public void deposit(OfflinePlayer player, double amount) {
-        String command = depositCommandTemplate.replace("{player}", player.getName()).replace("{amount}", String.valueOf(amount));
+        String formattedAmount = (amount % 1 == 0) ? String.valueOf((long) amount) : String.valueOf(amount);
+        String command = depositCommandTemplate.replace("{player}", player.getName()).replace("{amount}", formattedAmount);
         executeCommand(command);
     }
+
 
     private void executeCommand(String command) {
         ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();

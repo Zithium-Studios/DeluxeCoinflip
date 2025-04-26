@@ -1,6 +1,6 @@
 /*
  * DeluxeCoinflip Plugin
- * Copyright (c) 2021 - 2022 Lewis D (ItsLewizzz). All rights reserved.
+ * Copyright (c) 2021 - 2025 Zithium Studios. All rights reserved.
  */
 
 package net.zithium.deluxecoinflip.game;
@@ -11,7 +11,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.UUID;
 
@@ -75,5 +74,4 @@ public class CoinflipGame {
     public CoinflipGame clone() {
         return new CoinflipGame(uuid, provider, amount, player, cachedHead);
     }
-
 }

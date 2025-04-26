@@ -1,6 +1,6 @@
 /*
  * DeluxeCoinflip Plugin
- * Copyright (c) 2021 - 2022 Lewis D (ItsLewizzz). All rights reserved.
+ * Copyright (c) 2021 - 2025 Zithium Studios. All rights reserved.
  */
 
 package net.zithium.deluxecoinflip;
@@ -31,13 +31,16 @@ import org.bukkit.entity.Player;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import org.bukkit.NamespacedKey;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements DeluxeCoinflipAPI {
-
 
     private static DeluxeCoinflipPlugin instance;
 
@@ -54,18 +57,10 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
         instance = this;
         long start = System.currentTimeMillis();
 
-        getLogger().severe("WARNING WARNING WARNING WARNING");
-        getLogger().severe("");
-        getLogger().severe("This build of DeluxeCoinflip is highly");
-        getLogger().severe("experimental! There is likely to be major issues!");
-        getLogger().severe("");
-        getLogger().severe("WARNING WARNING WARNING WARNING");
-
-
         getLogger().log(Level.INFO, "");
         getLogger().log(Level.INFO, " __ __    DeluxeCoinflip v" + getDescription().getVersion());
-        getLogger().log(Level.INFO, "/  |_     Author(s): " + getDescription().getAuthors().get(0));
-        getLogger().log(Level.INFO, "\\_ |      (c) Zithium Studios 2020-2025. All rights reserved.");
+        getLogger().log(Level.INFO, "/  |_     Author: " + getDescription().getAuthors().get(1));
+        getLogger().log(Level.INFO, "\\_ |      (c) Zithium Studios 2021 - 2025. All rights reserved.");
         getLogger().log(Level.INFO, "");
 
         enableMetrics();
@@ -95,12 +90,10 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
 
         gameManager = new GameManager(this);
 
-
         inventoryManager = new InventoryManager();
         inventoryManager.load(this);
         new DupeProtection(this);
         ItemStackBuilder.setPlugin(this);
-
 
         List<String> aliases = getConfigHandler(ConfigType.CONFIG).getConfig().getStringList("settings.command_aliases");
 
@@ -187,6 +180,7 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
     public NamespacedKey getKey(String key) {
         return new NamespacedKey(this, key);
     }
+
     // API methods
     @Override
     public void registerEconomyProvider(EconomyProvider provider, String requiredPlugin) {
