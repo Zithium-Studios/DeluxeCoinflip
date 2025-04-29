@@ -21,7 +21,6 @@ import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.deluxecoinflip.utility.TextUtil;
 import net.zithium.library.utils.ColorUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -91,11 +90,11 @@ public class CoinflipGUI implements Listener {
 
         GuiItem winnerHead = new GuiItem(new ItemStackBuilder(
                 winner.equals(game.getOfflinePlayer()) ? game.getCachedHead() : new ItemStack(Material.PLAYER_HEAD)
-        ).withName(ChatColor.YELLOW + winner.getName()).setSkullOwner(winner).build());
+        ).withName(ColorUtil.color("<yellow>" + winner.getName())).setSkullOwner(winner).build());
 
         GuiItem loserHead = new GuiItem(new ItemStackBuilder(
                 winner.equals(game.getOfflinePlayer()) ? new ItemStack(Material.PLAYER_HEAD) : game.getCachedHead()
-        ).withName(ChatColor.YELLOW + loser.getName()).setSkullOwner(loser).build());
+        ).withName(ColorUtil.color("<yellow>" + loser.getName())).setSkullOwner(loser).build());
 
         Player winnerPlayer = Bukkit.getPlayer(winner.getUniqueId());
         Player loserPlayer = Bukkit.getPlayer(loser.getUniqueId());
