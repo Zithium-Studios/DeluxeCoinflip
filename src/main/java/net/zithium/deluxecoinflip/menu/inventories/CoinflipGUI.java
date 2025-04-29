@@ -86,8 +86,6 @@ public class CoinflipGUI implements Listener {
 
     private void runAnimation(OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game) {
         final WrappedScheduler scheduler = plugin.getScheduler();
-        Gui gui = Gui.gui().rows(3).title(Component.text(coinflipGuiTitle)).create();
-        gui.disableAllInteractions();
 
         GuiItem winnerHead = new GuiItem(new ItemStackBuilder(
                 winner.equals(game.getOfflinePlayer()) ? game.getCachedHead() : new ItemStack(Material.PLAYER_HEAD)
@@ -101,16 +99,20 @@ public class CoinflipGUI implements Listener {
         Player loserPlayer = Bukkit.getPlayer(loser.getUniqueId());
 
         if (winnerPlayer != null) {
+            Gui winnerGui = Gui.gui().rows(3).title(Component.text(coinflipGuiTitle)).create();
+            winnerGui.disableAllInteractions();
             scheduler.runTaskAtEntity(winnerPlayer, () -> {
-                gui.open(winnerPlayer);
-                startAnimation(scheduler, gui, winnerHead, loserHead, winner, loser, game, winnerPlayer, winnerPlayer.getLocation(), true);
+                winnerGui.open(winnerPlayer);
+                startAnimation(scheduler, winnerGui, winnerHead, loserHead, winner, loser, game, winnerPlayer, winnerPlayer.getLocation(), true);
             });
         }
 
         if (loserPlayer != null) {
+            Gui loserGui = Gui.gui().rows(3).title(Component.text(coinflipGuiTitle)).create();
+            loserGui.disableAllInteractions();
             scheduler.runTaskAtEntity(loserPlayer, () -> {
-                gui.open(loserPlayer);
-                startAnimation(scheduler, gui, winnerHead, loserHead, winner, loser, game, loserPlayer, loserPlayer.getLocation(), false);
+                loserGui.open(loserPlayer);
+                startAnimation(scheduler, loserGui, winnerHead, loserHead, winner, loser, game, loserPlayer, loserPlayer.getLocation(), false);
             });
         }
     }
