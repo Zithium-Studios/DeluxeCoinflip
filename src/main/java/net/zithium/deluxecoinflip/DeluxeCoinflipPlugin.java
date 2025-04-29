@@ -18,6 +18,7 @@ import net.zithium.deluxecoinflip.economy.EconomyManager;
 import net.zithium.deluxecoinflip.economy.provider.EconomyProvider;
 import net.zithium.deluxecoinflip.game.CoinflipGame;
 import net.zithium.deluxecoinflip.game.GameManager;
+import net.zithium.deluxecoinflip.hook.DiscordHook;
 import net.zithium.deluxecoinflip.hook.PlaceholderAPIHook;
 import net.zithium.deluxecoinflip.listener.PlayerChatListener;
 import net.zithium.deluxecoinflip.menu.InventoryManager;
@@ -48,6 +49,7 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
     private GameManager gameManager;
     private InventoryManager inventoryManager;
     private EconomyManager economyManager;
+    private DiscordHook discordHook;
 
     private Cache<UUID, CoinflipGame> listenerCache;
 
@@ -81,8 +83,11 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
             return;
         }
 
+        discordHook = new DiscordHook(this);
+
         economyManager = new EconomyManager(this);
         economyManager.onEnable();
+
         gameManager = new GameManager(this);
 
         inventoryManager = new InventoryManager();
@@ -162,6 +167,10 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
 
     public EconomyManager getEconomyManager() {
         return economyManager;
+    }
+
+    public DiscordHook getDiscordHook() {
+        return discordHook;
     }
 
     public Cache<UUID, CoinflipGame> getListenerCache() {
