@@ -15,6 +15,7 @@ import net.zithium.deluxecoinflip.config.ConfigType;
 import net.zithium.deluxecoinflip.config.Messages;
 import net.zithium.deluxecoinflip.economy.EconomyManager;
 import net.zithium.deluxecoinflip.game.CoinflipGame;
+import net.zithium.deluxecoinflip.game.GameAnimationRunner;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.StorageManager;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
@@ -80,41 +81,14 @@ public class CoinflipGUI implements Listener {
         OfflinePlayer winner = players.get(random.nextInt(players.size()));
         OfflinePlayer loser = (winner == creator) ? opponent : creator;
 
-        runAnimation(winner, loser, game);
+        Gui gameGui = Gui.gui().rows(3).title(Component.text(coinflipGuiTitle)).create();
+        gameGui.disableAllInteractions();
+
+
+        new GameAnimationRunner(plugin).runAnimation(winner, loser, game, gameGui);
     }
 
-    private void runAnimation(OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game) {
-        final WrappedScheduler scheduler = plugin.getScheduler();
-        Gui gui = Gui.gui().rows(3).title(Component.text(coinflipGuiTitle)).create();
-        gui.disableAllInteractions();
-
-        GuiItem winnerHead = new GuiItem(new ItemStackBuilder(
-                winner.equals(game.getOfflinePlayer()) ? game.getCachedHead() : new ItemStack(Material.PLAYER_HEAD)
-        ).withName(ColorUtil.color("<yellow>" + winner.getName())).setSkullOwner(winner).build());
-
-        GuiItem loserHead = new GuiItem(new ItemStackBuilder(
-                winner.equals(game.getOfflinePlayer()) ? new ItemStack(Material.PLAYER_HEAD) : game.getCachedHead()
-        ).withName(ColorUtil.color("<yellow>" + loser.getName())).setSkullOwner(loser).build());
-
-        Player winnerPlayer = Bukkit.getPlayer(winner.getUniqueId());
-        Player loserPlayer = Bukkit.getPlayer(loser.getUniqueId());
-
-        if (winnerPlayer != null) {
-            scheduler.runTaskAtEntity(winnerPlayer, () -> {
-                gui.open(winnerPlayer);
-                startAnimation(scheduler, gui, winnerHead, loserHead, winner, loser, game, winnerPlayer, winnerPlayer.getLocation(), true);
-            });
-        }
-
-        if (loserPlayer != null) {
-            scheduler.runTaskAtEntity(loserPlayer, () -> {
-                gui.open(loserPlayer);
-                startAnimation(scheduler, gui, winnerHead, loserHead, winner, loser, game, loserPlayer, loserPlayer.getLocation(), false);
-            });
-        }
-    }
-
-    private void startAnimation(WrappedScheduler scheduler, Gui gui, GuiItem winnerHead, GuiItem loserHead,
+    public void startAnimation(WrappedScheduler scheduler, Gui gui, GuiItem winnerHead, GuiItem loserHead,
                                 OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game,
                                 Player targetPlayer, Location regionLoc, boolean isWinnerThread) {
 
