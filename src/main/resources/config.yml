@@ -90,6 +90,33 @@ settings:
         withdraw: 'eco take {player} {amount}'
         deposit: 'eco give {player} {amount}'
 
+# Available Placeholders
+# %amount% - The amount of money won
+# %winner% - The name of the winner
+# %loser%  - The name of the loser
+discord:
+  debug: false # prints the payloads sent
+  bot: # Bot will take priority over if both are enabled
+    enabled: false
+    token: "YOUR DISCORD TOKEN"
+    channel: "channelID"
+  webhook:
+    enabled: false
+    url: "https://discord.com/api/webhooks/ID/TOKEN"
+    username: "Coin Flip"
+    avatar: ""
+  message:
+    content: "" # this is the normal message content
+    embed:
+      enabled: true
+      title: "%amount% %currency%"
+      description: "%winner% (Winner) VS %loser%"
+      color:
+        r: 0
+        g: 0
+        b: 0
+      timestamp: true
+
 coinflip-gui:
   title: "&lFLIPPING COIN..."
   # There can only be two items here. Both must be present!
