@@ -13,7 +13,6 @@ import net.zithium.deluxecoinflip.storage.handler.StorageHandler;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,7 +32,6 @@ public class SQLiteHandler implements StorageHandler {
     private final String TABLE_NAME = "players";
 
     @Override
-    @SuppressWarnings("all") // Supressing ignored warning for file.createNewFile();
     public boolean onEnable(final DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
         file = new File(plugin.getDataFolder(), "database.db");
@@ -72,7 +70,6 @@ public class SQLiteHandler implements StorageHandler {
     }
 
     private synchronized void createTable() {
-        checkPre2_7_10();
         try (Connection tableConnection = getConnection();
              Statement statement = tableConnection.createStatement()) {
             String createPlayersTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" +
@@ -90,30 +87,6 @@ public class SQLiteHandler implements StorageHandler {
                     "provider VARCHAR(255)," +
                     "amount BIGINT);";
             statement.execute(createGamesTable);
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "Error occurred while creating database tables.", e);
-        }
-    }
-
-    private synchronized void checkPre2_7_10() {
-        try {
-            Connection tableConnection = getConnection();
-            DatabaseMetaData metaData = tableConnection.getMetaData();
-
-            ResultSet rsTotalLoss = metaData.getColumns(null, null, TABLE_NAME, "total_loss");
-
-            if (rsTotalLoss.next()) return;
-
-            plugin.getLogger().log(Level.INFO, "Pre-2.7.11 table found, updating database...");
-
-            String query1 = "ALTER TABLE " + TABLE_NAME + " ADD total_loss BIGINT";
-            String query2 = "ALTER TABLE " + TABLE_NAME + " ADD total_gambled BIGINT";
-
-            Statement statement = tableConnection.createStatement();
-
-            statement.execute(query1);
-            statement.execute(query2);
-
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Error occurred while creating database tables.", e);
         }
