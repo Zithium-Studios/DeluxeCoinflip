@@ -6,12 +6,12 @@
 #   https://github.com/itzsave/DeluxeCoinflipAPI
 
 general:
-  prefix: "&6[&e&lCoinflip&6]"
+  prefix: "<dark_gray>[<gradient:gold:yellow:gold><b>DeluxeCoinflip</gradient><dark_gray>]  "
   reload: "{PREFIX} &7The configuration files have been reloaded!"
   no-permission: "&cYou do not have permission to execute this command."
   help_default:
     - " "
-    - " &e&lCoinflip Commands"
+    - " <yellow><b>Coinflip Commands</b>"
     - " "
     - " &e/coinflip &8- &7&oOpen the coinflip GUI."
     - " &e/coinflip toggle &8- &7&oToggle game broadcast messages."
@@ -19,7 +19,7 @@ general:
     - " &e/coinflip delete &8- &7&oRemove your current coinflip listing."
     - ""
   help_admin:
-    - " &6&lAdmin Commands"
+    - " <gold><b>Admin Commands</b>"
     - " &7&oOnly players with coinflip.admin can view admin commands.&r"
     - ""
     - " &6/coinflip reload &8- &7&oReload the configuration files."
