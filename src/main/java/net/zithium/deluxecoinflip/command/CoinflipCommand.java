@@ -95,10 +95,10 @@ public class CoinflipCommand extends BaseCommand {
             return;
         }
 
-        Player player = (Player) sender;
-        java.util.Optional<PlayerData> playerDataOptional = plugin.getStorageManager().getPlayer(player.getUniqueId());
+            Player player = (Player) sender;
+        Optional<PlayerData> playerDataOptional = plugin.getStorageManager().getPlayer(player.getUniqueId());
 
-        if(playerDataOptional.isEmpty()) {
+        if (playerDataOptional.isEmpty()) {
             sender.sendMessage(ColorUtil.color("&cYour player data has not loaded yet, please wait a few moments or relog."));
             return;
         }
