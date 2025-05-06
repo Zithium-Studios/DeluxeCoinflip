@@ -24,7 +24,7 @@ dependencies {
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("dev.triumphteam:triumph-gui:3.1.11")
     implementation("org.bstats:bstats-bukkit:3.1.0")
-    implementation("com.github.ItzSave:ZithiumLibrary:v2.1.2")
+    implementation("com.github.ItzSave:ZithiumLibrary:v2.1.3")
     implementation("com.github.NahuLD.folia-scheduler-wrapper:folia-scheduler-wrapper:v0.0.3")
 
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
