@@ -94,6 +94,9 @@ public class ItemStackBuilder {
     }
 
     public ItemStackBuilder withFlags(ItemFlag... flags) {
+        if (ITEM_STACK.getType() == Material.AIR) {
+            return this;
+        }
         ItemMeta meta = ITEM_STACK.getItemMeta();
         meta.addItemFlags(flags);
         ITEM_STACK.setItemMeta(meta);
@@ -101,6 +104,9 @@ public class ItemStackBuilder {
     }
 
     public ItemStackBuilder withName(String name) {
+        if (ITEM_STACK.getType() == Material.AIR) {
+            return this;
+        }
         final ItemMeta meta = ITEM_STACK.getItemMeta();
         meta.setDisplayName(ColorUtil.color(name));
         ITEM_STACK.setItemMeta(meta);
@@ -123,6 +129,9 @@ public class ItemStackBuilder {
     }
 
     public ItemStackBuilder withLore(List<String> lore) {
+        if (ITEM_STACK.getType() == Material.AIR) {
+            return this;
+        }
         final ItemMeta meta = ITEM_STACK.getItemMeta();
         List<String> coloredLore = new ArrayList<>();
         for (String s : lore) {
