@@ -95,6 +95,11 @@ public class ItemStackBuilder {
 
     public ItemStackBuilder withFlags(ItemFlag... flags) {
         ItemMeta meta = ITEM_STACK.getItemMeta();
+
+        if (ITEM_STACK.getType() == Material.AIR) {
+            return this;
+        }
+
         meta.addItemFlags(flags);
         ITEM_STACK.setItemMeta(meta);
         return this;
@@ -102,6 +107,11 @@ public class ItemStackBuilder {
 
     public ItemStackBuilder withName(String name) {
         final ItemMeta meta = ITEM_STACK.getItemMeta();
+
+        if (ITEM_STACK.getType() == Material.AIR) {
+            return this;
+        }
+
         meta.setDisplayName(ColorUtil.color(name));
         ITEM_STACK.setItemMeta(meta);
         return this;
@@ -109,6 +119,11 @@ public class ItemStackBuilder {
 
     public ItemStackBuilder withCustomModelData(int data) {
         final ItemMeta meta = ITEM_STACK.getItemMeta();
+
+        if (ITEM_STACK.getType() == Material.AIR) {
+            return this;
+        }
+
         meta.setCustomModelData(data);
         ITEM_STACK.setItemMeta(meta);
         return this;
@@ -124,6 +139,11 @@ public class ItemStackBuilder {
 
     public ItemStackBuilder withLore(List<String> lore) {
         final ItemMeta meta = ITEM_STACK.getItemMeta();
+
+        if (ITEM_STACK.getType() == Material.AIR) {
+            return this;
+        }
+
         List<String> coloredLore = new ArrayList<>();
         for (String s : lore) {
             coloredLore.add(ColorUtil.color(s));
