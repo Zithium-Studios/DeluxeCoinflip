@@ -200,7 +200,7 @@ public class CoinflipGUI implements Listener {
                 }
             }
 
-            scheduler.runTaskLaterAtEntity(targetPlayer, task[0], 10L);
+            scheduler.runTaskLaterAtLocation(regionLoc, task[0], 10L);
         };
 
         scheduler.runTaskAtLocation(regionLoc, task[0]);
