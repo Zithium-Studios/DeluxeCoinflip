@@ -6,10 +6,13 @@
 package net.zithium.deluxecoinflip.storage;
 
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
+import net.zithium.deluxecoinflip.config.Messages;
 import net.zithium.deluxecoinflip.exception.InvalidStorageHandlerException;
+import net.zithium.deluxecoinflip.game.CoinflipGame;
 import net.zithium.deluxecoinflip.storage.handler.StorageHandler;
 import net.zithium.deluxecoinflip.storage.handler.impl.SQLiteHandler;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -113,6 +116,20 @@ public class StorageManager {
 
     public void loadPlayerData(UUID uuid) {
         DeluxeCoinflipPlugin.getInstance().getScheduler().runTaskAsynchronously(() -> playerDataMap.put(uuid, storageHandler.getPlayer(uuid)));
+        DeluxeCoinflipPlugin.getInstance().getScheduler().runTaskAsynchronously(() -> {
+            playerDataMap.put(uuid, storageHandler.getPlayer(uuid));
+
+            CoinflipGame game = storageHandler.getCoinflipGame(uuid);
+            if (game != null) {
+                plugin.getScheduler().runTask(() -> {
+                    OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
+                    plugin.getEconomyManager().getEconomyProvider(game.getProvider()).deposit(player, game.getAmount());
+                    Messages.GAME_REFUNDED.send(player.getPlayer(), "{AMOUNT}", game.getAmount(), "{PROVIDER}", game.getProvider());
+                });
+
+                storageHandler.deleteCoinfip(uuid);
+            }
+        });
     }
 
     public void savePlayerData(PlayerData player, boolean removeCache) {

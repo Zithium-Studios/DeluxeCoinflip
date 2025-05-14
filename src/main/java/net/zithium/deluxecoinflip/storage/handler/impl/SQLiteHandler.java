@@ -9,6 +9,7 @@ import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.deluxecoinflip.game.CoinflipGame;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.handler.StorageHandler;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -178,5 +179,25 @@ public class SQLiteHandler implements StorageHandler {
             plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to get all coinflip games.", e);
         }
         return games;
+    }
+
+    @Override
+    public CoinflipGame getCoinflipGame(@NotNull UUID uuid) {
+        final String SQL = "SELECT * FROM games WHERE uuid = ?";
+
+        try (Connection GAME_CONNECTION = getConnection();
+             PreparedStatement preparedStatement = GAME_CONNECTION.prepareStatement(SQL)) {
+            preparedStatement.setString(1, uuid.toString());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                String provider = resultSet.getString("provider");
+                long amount = resultSet.getLong("amount");
+                return new CoinflipGame(uuid, provider, amount);
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to get a coinflip game.", e);
+        }
+
+        return null;
     }
 }

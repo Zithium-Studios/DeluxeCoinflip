@@ -36,4 +36,6 @@ public interface StorageHandler {
     void deleteCoinfip(final UUID uuid);
 
     Map<UUID, CoinflipGame> getGames();
+
+    CoinflipGame getCoinflipGame(final UUID uuid);
 }
