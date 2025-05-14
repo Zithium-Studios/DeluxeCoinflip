@@ -51,6 +51,8 @@ coinflip:
   broadcast-coinflip: "&e&l** &a{WINNER} &fjust beat &c{LOSER} &fin a Coinflip worth {WINNINGS} &7({CURRENCY}) &c(-${TAX_DEDUCTION} {TAX_RATE}% Tax) &e&l**"
   broadcast-created-coinflip: "&f{PLAYER} &7has just created a Coinflip of &f{AMOUNT} &7({CURRENCY}). Type &f/coinflip &7to accept."
 
+  refunded: "{PREFIX} &7You have been refunded &f{AMOUNT} &f({CURRENCY})&7, due to the game being cancelled."
+
   summary-loss:
     - ""
     - "         &e&lGame Summary"

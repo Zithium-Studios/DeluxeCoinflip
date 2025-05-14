@@ -41,6 +41,7 @@ public enum Messages {
     INVALID_CURRENCY("coinflip.invalid-currency"),
     INVALID_AMOUNT("coinflip.invalid-amount"),
 
+    GAME_REFUNDED("coinflip.refunded"),
     GAME_SUMMARY_LOSS("coinflip.summary-loss"),
     GAME_SUMMARY_WIN("coinflip.summary-win");
 
