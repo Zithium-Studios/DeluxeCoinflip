@@ -4,24 +4,20 @@ import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import me.nahu.scheduler.wrapper.WrappedScheduler;
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
-import net.zithium.deluxecoinflip.config.ConfigType;
 import net.zithium.deluxecoinflip.utility.ItemStackBuilder;
 import net.zithium.library.utils.ColorUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class GameAnimationRunner {
 
     private final DeluxeCoinflipPlugin plugin;
-    private final FileConfiguration config;
 
     public GameAnimationRunner(DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
-        this.config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
     }
 
 
