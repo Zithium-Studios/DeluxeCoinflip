@@ -45,6 +45,7 @@ public class CoinflipGUI implements Listener {
     private final DeluxeCoinflipPlugin plugin;
     private final EconomyManager economyManager;
     private final FileConfiguration config;
+    private final GameAnimationRunner gameAnimationRunner;
     private final String coinflipGuiTitle;
     private final boolean taxEnabled;
     private final double taxRate;
@@ -55,6 +56,7 @@ public class CoinflipGUI implements Listener {
         this.plugin = plugin;
         this.economyManager = plugin.getEconomyManager();
         this.config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
+        this.gameAnimationRunner = new GameAnimationRunner(plugin);
 
         // Load config values into variables this helps improve performance.
         this.coinflipGuiTitle = ColorUtil.color(config.getString("coinflip-gui.title"));
@@ -84,8 +86,7 @@ public class CoinflipGUI implements Listener {
         Gui gameGui = Gui.gui().rows(3).title(Component.text(coinflipGuiTitle)).create();
         gameGui.disableAllInteractions();
 
-
-        new GameAnimationRunner(plugin).runAnimation(winner, loser, game, gameGui);
+        this.gameAnimationRunner.runAnimation(winner, loser, game, gameGui);
     }
 
     public void startAnimation(WrappedScheduler scheduler, Gui gui, GuiItem winnerHead, GuiItem loserHead,

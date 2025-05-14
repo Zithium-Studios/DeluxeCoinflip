@@ -17,11 +17,9 @@ import org.bukkit.inventory.ItemStack;
 public class GameAnimationRunner {
 
     private final DeluxeCoinflipPlugin plugin;
-    private final FileConfiguration config;
 
     public GameAnimationRunner(DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
-        this.config = plugin.getConfigHandler(ConfigType.CONFIG).getConfig();
     }
 
 
