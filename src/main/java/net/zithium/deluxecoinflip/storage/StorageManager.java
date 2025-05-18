@@ -29,8 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Stream;
 
 public class StorageManager {
@@ -79,19 +77,14 @@ public class StorageManager {
         if (directory.exists() && isDirectoryEmpty(directory.toPath())) directory.delete();
 
         plugin.getLogger().info("Saving player data to database...");
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.execute(() -> {
-            for (PlayerData player : new ArrayList<>(playerDataMap.values())) {
-                storageHandler.savePlayer(player);
-            }
 
-            if (shutdown) {
-                playerDataMap.clear();
-                storageHandler.onDisable();
-            }
+        for (PlayerData player : new ArrayList<>(playerDataMap.values())) {
+            storageHandler.savePlayer(player);
+        }
 
-        });
-        scheduler.shutdown();
+        if (shutdown) {
+            playerDataMap.clear();
+        }
     }
 
     public Optional<PlayerData> getPlayer(UUID uuid) {
@@ -138,6 +131,10 @@ public class StorageManager {
             storageHandler.savePlayer(player);
             if (removeCache) playerDataMap.remove(uuid);
         });
+    }
+
+    public Map<UUID, PlayerData> getPlayerDataMap() {
+        return playerDataMap;
     }
 
     public StorageHandler getStorageHandler() {
