@@ -73,7 +73,7 @@ public class StorageManager {
 
     public void onDisable(boolean shutdown) {
         // Delete old data folder if empty
-        File directory = new File(plugin.getDataFolder(), "data");
+        File directory = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "data");
         if (directory.exists() && isDirectoryEmpty(directory.toPath())) {
             directory.delete();
         }
