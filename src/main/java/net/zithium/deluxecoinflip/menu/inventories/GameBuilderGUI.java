@@ -249,4 +249,3 @@ public class GameBuilderGUI {
         plugin.getScheduler().runTaskLater(() -> event.getClickedInventory().setItem(event.getSlot(), original), 45L);
     }
 }
-
