@@ -169,7 +169,7 @@ public class CoinflipCommand extends BaseCommand {
             return;
         }
 
-        EconomyProvider provider = null;
+        EconomyProvider provider;
         if (currencyProvider == null) {
             if (providers.size() == 1) {
                 provider = providers.get(0);
@@ -177,6 +177,8 @@ public class CoinflipCommand extends BaseCommand {
                 String defaultProvider = config.getString("settings.providers.default_provider");
                 if (defaultProvider != null && !defaultProvider.isEmpty()) {
                     provider = economyManager.getEconomyProviders().get(defaultProvider);
+                } else {
+                    provider = null;
                 }
             }
         } else {
@@ -199,7 +201,17 @@ public class CoinflipCommand extends BaseCommand {
             gameManager.addCoinflipGame(player.getUniqueId(), coinflipGame);
 
             if(config.getBoolean("settings.broadcast-coinflip-creation")) {
-                Messages.COINFLIP_CREATED_BROADCAST.broadcast("{PLAYER}", player.getName(), "{CURRENCY}", provider.getDisplayName(), "{AMOUNT}", TextUtil.numberFormat(amount));
+                Bukkit.getOnlinePlayers().forEach(onlinePlayer -> {
+                    java.util.Optional<PlayerData> playerDataOptional = plugin.getStorageManager().getPlayer(player.getUniqueId());
+
+                    if (playerDataOptional.isPresent()) {
+                        PlayerData playerData = playerDataOptional.get();
+                        if (playerData.isDisplayBroadcastMessages()) {
+                            Messages.COINFLIP_CREATED_BROADCAST.send(onlinePlayer, "{PLAYER}", player.getName(), "{CURRENCY}", provider.getDisplayName(), "{AMOUNT}", TextUtil.numberFormat(amount));
+                        }
+                    }
+
+                });
             }
 
             Messages.CREATED_GAME.send(player, "{CURRENCY}", provider.getDisplayName(), "{AMOUNT}", TextUtil.numberFormat(amount));
