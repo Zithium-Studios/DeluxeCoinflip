@@ -89,9 +89,6 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
 
         discordHook = new DiscordHook(this);
 
-        economyManager = new EconomyManager(this);
-        economyManager.onEnable();
-
         gameManager = new GameManager(this);
 
         inventoryManager = new InventoryManager();
