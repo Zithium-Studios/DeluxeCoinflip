@@ -73,17 +73,13 @@ public class StorageManager {
 
     public void onDisable(boolean shutdown) {
         // Delete old data folder if empty
-        File directory = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "data");
-        if (directory.exists() && isDirectoryEmpty(directory.toPath())) directory.delete();
-
-        plugin.getLogger().info("Saving player data to database...");
-
-        for (PlayerData player : new ArrayList<>(playerDataMap.values())) {
-            storageHandler.savePlayer(player);
+        File directory = new File(plugin.getDataFolder(), "data");
+        if (directory.exists() && isDirectoryEmpty(directory.toPath())) {
+            directory.delete();
         }
 
         if (shutdown) {
-            playerDataMap.clear();
+            storageHandler.onDisable();
         }
     }
 
