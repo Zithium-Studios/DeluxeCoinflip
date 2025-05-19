@@ -19,12 +19,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -72,12 +66,6 @@ public class StorageManager {
     }
 
     public void onDisable(boolean shutdown) {
-        // Delete old data folder if empty
-        File directory = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "data");
-        if (directory.exists() && isDirectoryEmpty(directory.toPath())) {
-            directory.delete();
-        }
-
         if (shutdown) {
             storageHandler.onDisable();
         }
@@ -135,13 +123,5 @@ public class StorageManager {
 
     public StorageHandler getStorageHandler() {
         return storageHandler;
-    }
-
-    private static boolean isDirectoryEmpty(final Path directory) {
-        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
-            return !dirStream.iterator().hasNext();
-        } catch (IOException ex) {
-            return false;
-        }
     }
 }
