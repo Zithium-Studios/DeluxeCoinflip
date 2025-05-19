@@ -66,6 +66,7 @@ public class StorageManager {
                 }, new Listener() {
                     @EventHandler(priority = EventPriority.MONITOR)
                     public void onPlayerQuit(final PlayerQuitEvent event) {
+                        plugin.getGameManager().removeCoinflipGame(event.getPlayer().getUniqueId());
                         getPlayer(event.getPlayer().getUniqueId()).ifPresent(data -> savePlayerData(data, true));
                     }
                 }).forEach(listener -> plugin.getServer().getPluginManager().registerEvents(listener, plugin));
@@ -128,6 +129,7 @@ public class StorageManager {
                 });
 
                 storageHandler.deleteCoinfip(uuid);
+                plugin.getGameManager().removeCoinflipGame(uuid);
             }
         });
     }
