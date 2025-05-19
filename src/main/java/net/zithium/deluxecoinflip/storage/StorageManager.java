@@ -105,6 +105,7 @@ public class StorageManager {
                 });
 
                 storageHandler.deleteCoinfip(uuid);
+                plugin.getGameManager().removeCoinflipGame(uuid);
             }
         });
     }

@@ -100,21 +100,21 @@ public class SQLiteHandler implements StorageHandler {
         try (Connection playerConnection = getConnection();
              PreparedStatement preparedStatement = playerConnection.prepareStatement(sql)) {
             preparedStatement.setString(1, uuid.toString());
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                PlayerData playerData = new PlayerData(uuid);
-                playerData.setWins(resultSet.getInt("wins"));
-                playerData.setLosses(resultSet.getInt("losses"));
-                playerData.setProfit(resultSet.getLong("profit"));
-                playerData.setTotalLosses(resultSet.getLong("total_loss"));
-                playerData.setTotalGambled(resultSet.getLong("total_gambled"));
-                playerData.setDisplayBroadcastMessages(resultSet.getBoolean("broadcasts"));
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    PlayerData playerData = new PlayerData(uuid);
+                    playerData.setWins(resultSet.getInt("wins"));
+                    playerData.setLosses(resultSet.getInt("losses"));
+                    playerData.setProfit(resultSet.getLong("profit"));
+                    playerData.setTotalLosses(resultSet.getLong("total_loss"));
+                    playerData.setTotalGambled(resultSet.getLong("total_gambled"));
+                    playerData.setDisplayBroadcastMessages(resultSet.getBoolean("broadcasts"));
 
-                return playerData;
+                    return playerData;
+                }
             }
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to get a player's data.", e);
-            return null;
         }
         return new PlayerData(uuid);
     }
