@@ -47,22 +47,28 @@ tasks.compileJava {
     options.encoding = "UTF-8"
 }
 
-tasks.processResources {
-    val props = mapOf("version" to version)
-    inputs.properties(props)
-    filteringCharset = "UTF-8"
-    filesMatching("plugin.yml") {
-        expand(props)
-    }
-}
 
-tasks.shadowJar {
-    minimize {
-        exclude(dependency("com.github.NahuLD.folia-scheduler-wrapper:folia-scheduler-wrapper:.*"))
+tasks {
+    build {
+        dependsOn("shadowJar")
+    }
+    processResources {
+        val props = mapOf("version" to version)
+        inputs.properties(props)
+        filteringCharset = "UTF-8"
+        filesMatching("plugin.yml") {
+            expand(props)
+        }
     }
 
-    archiveFileName.set("DeluxeCoinflip-${project.version}.jar")
-    relocate("dev.triumphteam.gui", "net.zithium.deluxecoinflip.libs.gui")
-    relocate("net.zithium.library", "net.zithium.deluxecoinflip.libs.library")
-    relocate("org.bstats", "net.zithium.deluxecoinflip.libs.metrics") // bStats
+    shadowJar {
+        minimize {
+            exclude(dependency("com.github.NahuLD.folia-scheduler-wrapper:folia-scheduler-wrapper:.*"))
+        }
+
+        archiveFileName.set("DeluxeCoinflip-${project.version}.jar")
+        relocate("dev.triumphteam.gui", "net.zithium.deluxecoinflip.libs.gui")
+        relocate("net.zithium.library", "net.zithium.deluxecoinflip.libs.library")
+        relocate("org.bstats", "net.zithium.deluxecoinflip.libs.metrics") // bStats
+    }
 }
