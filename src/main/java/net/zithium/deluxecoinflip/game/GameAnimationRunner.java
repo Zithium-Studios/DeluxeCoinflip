@@ -20,7 +20,6 @@ public class GameAnimationRunner {
         this.plugin = plugin;
     }
 
-
     public void runAnimation(OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game, Gui gui) {
         final WrappedScheduler scheduler = plugin.getScheduler();
 
@@ -58,7 +57,4 @@ public class GameAnimationRunner {
             });
         }
     }
-
-
-
 }

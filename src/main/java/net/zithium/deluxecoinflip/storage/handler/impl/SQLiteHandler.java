@@ -19,6 +19,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -28,7 +29,6 @@ public class SQLiteHandler implements StorageHandler {
 
     private DeluxeCoinflipPlugin plugin;
     private File file;
-    private Connection connection;
 
     private final String TABLE_NAME = "players";
 
@@ -50,24 +50,25 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public void onDisable() {
-        try {
-            if (connection != null && !connection.isClosed()) connection.close();
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "Error occurred while closing the database connection.", e);
+        plugin.getLogger().info("Saving player data to database...");
+
+        Map<UUID, PlayerData> playerDataMap = DeluxeCoinflipPlugin.getInstance().getStorageManager().getPlayerDataMap();
+
+        for (PlayerData player : new ArrayList<>(playerDataMap.values())) {
+            savePlayer(player);
         }
+
+        playerDataMap.clear();
     }
 
-    public synchronized Connection getConnection() {
+    public Connection getConnection() {
         try {
-            if (connection == null || connection.isClosed()) {
-                Class.forName("org.sqlite.JDBC");
-                connection = DriverManager.getConnection("jdbc:sqlite:" + file);
-            }
-            return connection;
+            Class.forName("org.sqlite.JDBC");
+            return DriverManager.getConnection("jdbc:sqlite:" + file);
         } catch (SQLException | ClassNotFoundException ex) {
-            plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to setup the database connection.", ex);
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while setting up the database connection.", ex);
+            return null;
         }
-        return connection;
     }
 
     private synchronized void createTable() {
