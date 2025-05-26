@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "net.zithium"
-version = "2.10.1"
+version = "2.10.3"
 description = "DeluxeCoinflip"
 
 repositories {
@@ -24,7 +24,7 @@ dependencies {
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
     implementation("dev.triumphteam:triumph-gui:3.1.11")
     implementation("org.bstats:bstats-bukkit:3.1.0")
-    implementation("com.github.ItzSave:ZithiumLibrary:v2.1.3")
+    implementation("com.github.ItzSave:ZithiumLibrary:1f5182b77f")
     implementation("com.github.NahuLD.folia-scheduler-wrapper:folia-scheduler-wrapper:v0.0.3")
 
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
@@ -47,22 +47,28 @@ tasks.compileJava {
     options.encoding = "UTF-8"
 }
 
-tasks.processResources {
-    val props = mapOf("version" to version)
-    inputs.properties(props)
-    filteringCharset = "UTF-8"
-    filesMatching("plugin.yml") {
-        expand(props)
-    }
-}
 
-tasks.shadowJar {
-    minimize {
-        exclude(dependency("com.github.NahuLD.folia-scheduler-wrapper:folia-scheduler-wrapper:.*"))
+tasks {
+    build {
+        dependsOn("shadowJar")
+    }
+    processResources {
+        val props = mapOf("version" to version)
+        inputs.properties(props)
+        filteringCharset = "UTF-8"
+        filesMatching("plugin.yml") {
+            expand(props)
+        }
     }
 
-    archiveFileName.set("DeluxeCoinflip-${project.version}.jar")
-    relocate("dev.triumphteam.gui", "net.zithium.deluxecoinflip.libs.gui")
-    relocate("net.zithium.library", "net.zithium.deluxecoinflip.libs.library")
-    relocate("org.bstats", "net.zithium.deluxecoinflip.libs.metrics") // bStats
+    shadowJar {
+        minimize {
+            exclude(dependency("com.github.NahuLD.folia-scheduler-wrapper:folia-scheduler-wrapper:.*"))
+        }
+
+        archiveFileName.set("DeluxeCoinflip-${project.version}.jar")
+        relocate("dev.triumphteam.gui", "net.zithium.deluxecoinflip.libs.gui")
+        relocate("net.zithium.library", "net.zithium.deluxecoinflip.libs.library")
+        relocate("org.bstats", "net.zithium.deluxecoinflip.libs.metrics") // bStats
+    }
 }
