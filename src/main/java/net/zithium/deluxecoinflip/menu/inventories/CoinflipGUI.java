@@ -86,7 +86,6 @@ public class CoinflipGUI implements Listener {
         Gui gameGui = Gui.gui().rows(3).title(Component.text(coinflipGuiTitle)).create();
         gameGui.disableAllInteractions();
 
-
         this.gameAnimationRunner.runAnimation(winner, loser, game, gameGui);
     }
 
@@ -151,7 +150,6 @@ public class CoinflipGUI implements Listener {
                             throwable.printStackTrace();
                             return null;
                         });
-
 
                     // Update player stats
                     StorageManager storageManager = plugin.getStorageManager();

@@ -19,13 +19,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Stream;
 
 public class StorageManager {
@@ -69,20 +66,9 @@ public class StorageManager {
     }
 
     public void onDisable(boolean shutdown) {
-        plugin.getLogger().info("Saving player data to database...");
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.execute(() -> {
-            for (PlayerData player : new ArrayList<>(playerDataMap.values())) {
-                storageHandler.savePlayer(player);
-            }
-
-            if (shutdown) {
-                playerDataMap.clear();
-                storageHandler.onDisable();
-            }
-
-        });
-        scheduler.shutdown();
+        if (shutdown) {
+            storageHandler.onDisable();
+        }
     }
 
     public Optional<PlayerData> getPlayer(UUID uuid) {
@@ -130,6 +116,10 @@ public class StorageManager {
             storageHandler.savePlayer(player);
             if (removeCache) playerDataMap.remove(uuid);
         });
+    }
+
+    public Map<UUID, PlayerData> getPlayerDataMap() {
+        return playerDataMap;
     }
 
     public StorageHandler getStorageHandler() {

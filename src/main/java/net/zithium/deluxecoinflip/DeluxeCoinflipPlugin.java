@@ -73,6 +73,10 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
         registerConfig(ConfigType.MESSAGES);
         Messages.setConfiguration(configMap.get(ConfigType.MESSAGES).getConfig());
 
+        // Initialize economy manager early
+        economyManager = new EconomyManager(this);
+        economyManager.onEnable();
+
         // Load storage
         storageManager = new StorageManager(this);
         try {
@@ -84,9 +88,6 @@ public class DeluxeCoinflipPlugin extends FoliaWrappedJavaPlugin implements Delu
         }
 
         discordHook = new DiscordHook(this);
-
-        economyManager = new EconomyManager(this);
-        economyManager.onEnable();
 
         gameManager = new GameManager(this);
 
