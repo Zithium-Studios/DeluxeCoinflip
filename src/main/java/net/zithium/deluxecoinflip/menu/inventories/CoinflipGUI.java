@@ -139,8 +139,9 @@ public class CoinflipGUI implements Listener {
                 }
 
                 if (isWinnerThread) {
+                    long providedWinAmount = finalWinAmount;
                     scheduler.runTask(() -> {
-                        economyManager.getEconomyProvider(game.getProvider()).deposit(winner, winAmount);
+                        economyManager.getEconomyProvider(game.getProvider()).deposit(winner, providedWinAmount);
                         Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount));
                     });
 
