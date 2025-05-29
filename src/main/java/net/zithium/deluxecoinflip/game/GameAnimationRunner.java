@@ -20,7 +20,7 @@ public class GameAnimationRunner {
         this.plugin = plugin;
     }
 
-    public void runAnimation(OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game, Gui gui) {
+    public void runAnimation(OfflinePlayer winner, OfflinePlayer loser, CoinflipGame game, Gui winnerGui, Gui loserGui) {
         final WrappedScheduler scheduler = plugin.getScheduler();
 
         boolean isWinnerGamePlayer = winner.equals(game.getOfflinePlayer());
@@ -45,15 +45,19 @@ public class GameAnimationRunner {
 
         if (winnerPlayer != null) {
             scheduler.runTaskAtEntity(winnerPlayer, () -> {
-                gui.open(winnerPlayer);
-                plugin.getInventoryManager().getCoinflipGUI().startAnimation(scheduler, gui, winnerHead, loserHead, winner, loser, game, winnerPlayer, winnerPlayer.getLocation(), true);
+                winnerGui.open(winnerPlayer);
+                plugin.getInventoryManager().getCoinflipGUI().startAnimation(
+                    scheduler, winnerGui, winnerHead, loserHead,
+                    winner, loser, game, winnerPlayer, winnerPlayer.getLocation(), true);
             });
         }
 
         if (loserPlayer != null) {
             scheduler.runTaskAtEntity(loserPlayer, () -> {
-                gui.open(loserPlayer);
-                plugin.getInventoryManager().getCoinflipGUI().startAnimation(scheduler, gui, winnerHead, loserHead, winner, loser, game, loserPlayer, loserPlayer.getLocation(), false);
+                loserGui.open(loserPlayer);
+                plugin.getInventoryManager().getCoinflipGUI().startAnimation(
+                    scheduler, loserGui, winnerHead, loserHead,
+                    winner, loser, game, loserPlayer, loserPlayer.getLocation(), false);
             });
         }
     }
