@@ -83,10 +83,17 @@ public class CoinflipGUI implements Listener {
         OfflinePlayer winner = players.get(random.nextInt(players.size()));
         OfflinePlayer loser = (winner == creator) ? opponent : creator;
 
-        Gui gameGui = Gui.gui().rows(3).title(Component.text(coinflipGuiTitle)).create();
-        gameGui.disableAllInteractions();
+        // Mitigate concurrency issues with Folia
+        Gui winnerGui = createGameGui();
+        Gui loserGui = createGameGui();
 
-        this.gameAnimationRunner.runAnimation(winner, loser, game, gameGui);
+        this.gameAnimationRunner.runAnimation(winner, loser, game, winnerGui, loserGui);
+    }
+
+    private Gui createGameGui() {
+        Gui gui = Gui.gui().rows(3).title(Component.text(coinflipGuiTitle)).create();
+        gui.disableAllInteractions();
+        return gui;
     }
 
     public void startAnimation(WrappedScheduler scheduler, Gui gui, GuiItem winnerHead, GuiItem loserHead,
