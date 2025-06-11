@@ -14,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-@SuppressWarnings("deprecation")
 public class PlaceholderAPIHook extends PlaceholderExpansion {
 
     private final DeluxeCoinflipPlugin plugin;

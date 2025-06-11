@@ -1,15 +1,20 @@
 package net.zithium.deluxecoinflip.utility;
 
 import javax.net.ssl.HttpsURLConnection;
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
 public class DiscordIntegration {
 
@@ -114,7 +119,7 @@ public class DiscordIntegration {
         stream.flush();
         stream.close();
 
-        connection.getInputStream().close(); //I'm not sure why but it doesn't work without getting the InputStream
+        connection.getInputStream().close(); // I'm not sure why, but it doesn't work without getting the InputStream
         connection.disconnect();
     }
 
@@ -303,7 +308,7 @@ public class DiscordIntegration {
             return this;
         }
 
-        private class Footer {
+        private static class Footer {
             private final String text;
             private final String iconUrl;
 
@@ -321,7 +326,7 @@ public class DiscordIntegration {
             }
         }
 
-        private class Thumbnail {
+        private static class Thumbnail {
             private final String url;
 
             private Thumbnail(String url) {
@@ -333,7 +338,7 @@ public class DiscordIntegration {
             }
         }
 
-        private class Image {
+        private static class Image {
             private final String url;
 
             private Image(String url) {
@@ -345,7 +350,7 @@ public class DiscordIntegration {
             }
         }
 
-        private class Author {
+        private static class Author {
             private final String name;
             private final String url;
             private final String iconUrl;
@@ -369,7 +374,7 @@ public class DiscordIntegration {
             }
         }
 
-        private class Field {
+        private static class Field {
             private final String name;
             private final String value;
             private final boolean inline;
@@ -400,7 +405,7 @@ public class DiscordIntegration {
         }
     }
 
-    private class JSONObject {
+    private static class JSONObject {
 
         private final HashMap<String, Object> map = new HashMap<>();
 
@@ -448,5 +453,4 @@ public class DiscordIntegration {
             return "\"" + string + "\"";
         }
     }
-
 }

@@ -90,15 +90,14 @@ public class CoinflipCommand extends BaseCommand {
 
     @Subcommand("toggle")
     public void toggleSubCommand(final CommandSender sender) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage("Only players can toggle broadcast messages");
             return;
         }
 
-        Player player = (Player) sender;
         java.util.Optional<PlayerData> playerDataOptional = plugin.getStorageManager().getPlayer(player.getUniqueId());
 
-        if(playerDataOptional.isEmpty()) {
+        if (playerDataOptional.isEmpty()) {
             sender.sendMessage(ColorUtil.color("&cYour player data has not loaded yet, please wait a few moments or relog."));
             return;
         }
@@ -115,12 +114,11 @@ public class CoinflipCommand extends BaseCommand {
 
     @Subcommand("delete|remove")
     public void deleteSubCommand(final CommandSender sender) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             sender.sendMessage("Only players can remove a coinflip game");
             return;
         }
 
-        Player player = (Player) sender;
         UUID uuid = player.getUniqueId();
         if (gameManager.getCoinflipGames().containsKey(uuid)) {
             final CoinflipGame game = gameManager.getCoinflipGames().get(uuid);
@@ -135,7 +133,6 @@ public class CoinflipCommand extends BaseCommand {
     }
 
     @Subcommand("create|new")
-    //@WrongUsage("&c/coinflip create <amount> [economy]")
     @CommandCompletion("* @providers")
     public void createSubCommand(final Player player, String amountInput, @Optional String currencyProvider) {
         final long amount;
@@ -200,7 +197,7 @@ public class CoinflipCommand extends BaseCommand {
             provider.withdraw(player, amount);
             gameManager.addCoinflipGame(player.getUniqueId(), coinflipGame);
 
-            if(config.getBoolean("settings.broadcast-coinflip-creation")) {
+            if (config.getBoolean("settings.broadcast-coinflip-creation")) {
                 Bukkit.getOnlinePlayers().forEach(onlinePlayer -> {
                     java.util.Optional<PlayerData> playerDataOptional = plugin.getStorageManager().getPlayer(player.getUniqueId());
 
@@ -210,7 +207,6 @@ public class CoinflipCommand extends BaseCommand {
                             Messages.COINFLIP_CREATED_BROADCAST.send(onlinePlayer, "{PLAYER}", player.getName(), "{CURRENCY}", provider.getDisplayName(), "{AMOUNT}", TextUtil.numberFormat(amount));
                         }
                     }
-
                 });
             }
 
