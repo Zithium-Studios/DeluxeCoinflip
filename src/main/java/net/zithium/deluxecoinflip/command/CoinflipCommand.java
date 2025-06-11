@@ -76,10 +76,10 @@ public class CoinflipCommand extends BaseCommand {
         sender.sendMessage("");
         sender.sendMessage(ColorUtil.color("&e&lDeluxeCoinflip"));
         sender.sendMessage(ColorUtil.color("&eVersion: &fv" + plugin.getDescription().getVersion()));
-        sender.sendMessage(ColorUtil.color("&eAuthor: &fItsLewizzz"));
+        sender.sendMessage(ColorUtil.color("&eAuthor: &fItzSave"));
 
         if (!TextUtil.isValidDownload()) {
-            sender.sendMessage(ColorUtil.color("&4Registered to: &cFailed to find licensed owner to this plugin. Contact developer to report possible leak (ItsLewizzz#6023)."));
+            sender.sendMessage(ColorUtil.color("&4Registered to: &cFailed to find licensed owner to this plugin. Contact developer to report possible leak (itzsave)."));
         } else if (TextUtil.isMCMarket()) {
             sender.sendMessage(ColorUtil.color("&4Registered to: &chttps://www.mc-market.org/members/%%__USER__%%/"));
         } else {
