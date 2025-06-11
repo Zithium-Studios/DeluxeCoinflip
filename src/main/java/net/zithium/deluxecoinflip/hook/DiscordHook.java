@@ -1,3 +1,8 @@
+/*
+ * DeluxeCoinflip Plugin
+ * Copyright (c) 2021 - 2025 Zithium Studios. All rights reserved.
+ */
+
 package net.zithium.deluxecoinflip.hook;
 
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
@@ -7,7 +12,7 @@ import net.zithium.deluxecoinflip.utility.DiscordIntegration;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Objects;
@@ -36,19 +41,17 @@ public class DiscordHook {
 
             return webhook;
         });
-
     }
 
     private DiscordIntegration getDiscordIntegration(OfflinePlayer winner, OfflinePlayer loser, String currency, long amount) {
         final FileConfiguration config = configHandler.getConfig();
 
         DiscordIntegration webhook;
-
-        if (config.getBoolean("discord.bot.enabled", false))
+        if (config.getBoolean("discord.bot.enabled", false)) {
             webhook = new DiscordIntegration(config.getString("discord.bot.token"), config.getString("discord.bot.channel"));
-        else
+        } else {
             webhook = new DiscordIntegration(config.getString("discord.webhook.url"));
-
+        }
 
         webhook.setUsername(replace(config.getString("discord.webhook.username", "CoinFlip"), winner, loser, currency, amount))
                 .setAvatarUrl(replace(config.getString("discord.webhook.avatar", ""), winner, loser, currency, amount))
@@ -62,7 +65,6 @@ public class DiscordHook {
         return webhook;
     }
 
-
     private DiscordIntegration.EmbedObject getEmbed(OfflinePlayer winner, OfflinePlayer loser, String currency, long amount) {
         final FileConfiguration config = configHandler.getConfig();
 
@@ -71,17 +73,13 @@ public class DiscordHook {
                 .setTitle(replace(config.getString("discord.message.embed.title", ""), winner, loser, currency, amount))
                 .setDescription(replace(config.getString("discord.message.embed.description", ""), winner, loser, currency, amount))
                 .setColor(new Color(config.getInt("discord.message.embed.color.r", 0), config.getInt("discord.message.embed.color.g", 0), config.getInt("discord.message.embed.color.b", 0)));
-
     }
-
 
     private String replace(String string, OfflinePlayer winner, OfflinePlayer loser, String currency, long amount) {
         return string
                 .replace("%winner%", Objects.requireNonNullElse(winner.getName(), "null"))
                 .replace("%loser%", Objects.requireNonNullElse(loser.getName(), "null"))
                 .replace("%currency%", Objects.requireNonNullElse(currency, "null"))
-                .replace("%amount%", numberFormat.format(amount))
-                ;
+                .replace("%amount%", numberFormat.format(amount));
     }
-
 }

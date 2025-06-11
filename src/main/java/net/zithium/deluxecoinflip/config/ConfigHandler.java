@@ -35,7 +35,8 @@ public class ConfigHandler {
     public void saveDefaultConfig() {
         if (!this.file.exists()) {
             int length = this.file.toPath().getNameCount();
-            this.plugin.saveResource(this.file.getParentFile().getName().equals(this.plugin.getName()) ? this.name : this.file.toPath().subpath(length - 2, length).toFile().getPath(), false);
+            this.plugin.saveResource(this.file.getParentFile().getName().equals(this.plugin.getName())
+                    ? this.name : this.file.toPath().subpath(length - 2, length).toFile().getPath(), false);
         }
 
         try {

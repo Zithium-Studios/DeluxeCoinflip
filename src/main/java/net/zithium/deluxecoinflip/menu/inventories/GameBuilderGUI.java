@@ -125,6 +125,16 @@ public class GameBuilderGUI {
                         game.setAmount(game.getAmount() - delta);
                     }
                     player.playSound(player.getLocation(), Sound.BLOCK_TRIPWIRE_CLICK_ON, 5L, 0L);
+
+                    ConfigurationSection currencySection = config.getConfigurationSection("gamebuilder-gui.currency-select");
+                    if (currencySection != null && currencySection.getBoolean("enabled", true)) {
+                        int currencySlot = currencySection.getInt("slot");
+                        ItemStack updatedCurrencyItem = ItemStackBuilder.getItemStack(currencySection)
+                                .withLore(getCurrencyLore(currencySection, game))
+                                .build();
+                        gui.setItem(currencySlot, new GuiItem(updatedCurrencyItem));
+                    }
+
                     gui.update();
                 }
             });

@@ -1,7 +1,7 @@
 name: DeluxeCoinflip
 version: '${version}'
 main: net.zithium.deluxecoinflip.DeluxeCoinflipPlugin
-authors: [ ItsLewizzz, ItzSave, ItsSimplyLeo ]
+authors: [ ItzSave, ItsLewizzz, ItsSimplyLeo ]
 api-version: 1.19
 folia-supported: true
 
@@ -10,7 +10,7 @@ softdepend:
   - Vault
   - TokenEnchant
   - TokenManager
-  - EssentialsX
+  - Essentials
   - ZithiumMobcoins
 
 permissions:
