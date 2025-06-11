@@ -149,7 +149,7 @@ public class CoinflipGUI implements Listener {
                     long providedWinAmount = finalWinAmount;
                     scheduler.runTask(() -> {
                         economyManager.getEconomyProvider(game.getProvider()).deposit(winner, providedWinAmount);
-                        Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, winAmount));
+                        Bukkit.getPluginManager().callEvent(new CoinflipCompletedEvent(winner, loser, providedWinAmount));
                     });
 
                     if (config.getBoolean("discord.webhook.enabled", false) || config.getBoolean("discord.bot.enabled", false))
