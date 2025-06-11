@@ -22,7 +22,7 @@ public class TextUtil {
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#.##");
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getNumberInstance(Locale.US);
 
-    public static boolean isMCMarket() {
+    public static boolean isBuiltByBit() {
         String hash = "%__FILEHASH__%";
         return !(hash.charAt(0) + hash + hash.charAt(0)).equals("%%__FILEHASH__%%");
     }

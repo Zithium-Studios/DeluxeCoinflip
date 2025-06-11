@@ -80,8 +80,8 @@ public class CoinflipCommand extends BaseCommand {
 
         if (!TextUtil.isValidDownload()) {
             sender.sendMessage(ColorUtil.color("&4Registered to: &cFailed to find licensed owner to this plugin. Contact developer to report possible leak (itzsave)."));
-        } else if (TextUtil.isMCMarket()) {
-            sender.sendMessage(ColorUtil.color("&4Registered to: &chttps://www.mc-market.org/members/%%__USER__%%/"));
+        } else if (TextUtil.isBuiltByBit()) {
+            sender.sendMessage(ColorUtil.color("&4Registered to: &chttps://builtbybit.com/members/%%__USER__%%/"));
         } else {
             sender.sendMessage(ColorUtil.color("&4Registered to: &chttps://www.spigotmc.org/members/%%__USER__%%/"));
         }
