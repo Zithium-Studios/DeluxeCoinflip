@@ -96,7 +96,7 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public synchronized PlayerData getPlayer(final UUID uuid) {
-        String sql = "SELECT wins, losses, profit, total_loss, total_gambled, broadcasts FROM players WHERE uuid=?;";
+        String sql = "SELECT wins, losses, profit, total_loss, total_gambled, broadcasts FROM players WHERE uuid = ?;";
         try (Connection playerConnection = getConnection();
              PreparedStatement preparedStatement = playerConnection.prepareStatement(sql)) {
             preparedStatement.setString(1, uuid.toString());
@@ -121,7 +121,7 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public synchronized void savePlayer(final PlayerData player) {
-        String sql = "REPLACE INTO players (uuid, wins, losses, profit, total_loss, total_gambled, broadcasts) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "REPLACE INTO players (uuid, wins, losses, profit, total_loss, total_gambled, broadcasts) VALUES (?, ?, ?, ?, ?, ?, ?);";
         try (Connection playerConnection = getConnection();
              PreparedStatement preparedStatement = playerConnection.prepareStatement(sql)) {
             preparedStatement.setString(1, player.getUUID().toString());
@@ -139,7 +139,7 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public synchronized void saveCoinflip(CoinflipGame game) {
-        String sql = "REPLACE INTO games (uuid, provider, amount) VALUES (?, ?, ?)";
+        String sql = "REPLACE INTO games (uuid, provider, amount) VALUES (?, ?, ?);";
         try (Connection coinflipConnection = getConnection();
              PreparedStatement preparedStatement = coinflipConnection.prepareStatement(sql)) {
             preparedStatement.setString(1, game.getPlayerUUID().toString());
@@ -153,7 +153,7 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public synchronized void deleteCoinfip(UUID uuid) {
-        String sql = "DELETE FROM games WHERE uuid=?;";
+        String sql = "DELETE FROM games WHERE uuid = ?;";
         try (Connection coinflipConnection = getConnection();
              PreparedStatement preparedStatement = coinflipConnection.prepareStatement(sql)) {
             preparedStatement.setString(1, uuid.toString());
@@ -184,21 +184,19 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public CoinflipGame getCoinflipGame(@NotNull UUID uuid) {
-        final String SQL = "SELECT * FROM games WHERE uuid = ?";
+        final String SQL = "SELECT * FROM games WHERE uuid = ?;";
 
         try (Connection GAME_CONNECTION = getConnection();
              PreparedStatement preparedStatement = GAME_CONNECTION.prepareStatement(SQL)) {
             preparedStatement.setString(1, uuid.toString());
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                String provider = resultSet.getString("provider");
-                long amount = resultSet.getLong("amount");
-                return new CoinflipGame(uuid, provider, amount);
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                if (rs.next()) {
+                    return new CoinflipGame(uuid, rs.getString("provider"), rs.getLong("amount"));
+                }
             }
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to get a coinflip game.", e);
         }
-
         return null;
     }
 }
