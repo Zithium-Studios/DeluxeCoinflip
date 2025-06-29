@@ -54,11 +54,7 @@ public class SQLiteHandler implements StorageHandler {
         plugin.getLogger().info("Saving player data to database...");
 
         Map<UUID, PlayerData> playerDataMap = DeluxeCoinflipPlugin.getInstance().getStorageManager().getPlayerDataMap();
-
-        for (PlayerData player : new ArrayList<>(playerDataMap.values())) {
-            savePlayer(player);
-        }
-
+        playerDataMap.values().forEach(this::savePlayer);
         playerDataMap.clear();
     }
 
