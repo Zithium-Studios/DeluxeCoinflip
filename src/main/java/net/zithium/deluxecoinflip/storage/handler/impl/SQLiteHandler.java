@@ -38,7 +38,8 @@ public class SQLiteHandler implements StorageHandler {
         file = new File(plugin.getDataFolder(), "database.db");
         if (!file.exists()) {
             try {
-                file.createNewFile();
+                if (!file.createNewFile())
+                    throw new IOException("Failed to create database file.");
             } catch (IOException e) {
                 plugin.getLogger().log(Level.SEVERE, "Error occurred while creating the database file.", e);
                 return false;
