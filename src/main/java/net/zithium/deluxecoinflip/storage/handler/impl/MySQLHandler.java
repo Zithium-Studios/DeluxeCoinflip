@@ -12,55 +12,56 @@ import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.handler.StorageHandler;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.Level;
 
-public class SQLiteHandler implements StorageHandler {
+public class MySQLHandler implements StorageHandler {
 
     private static final String TABLE_PLAYERS = "players";
     private static final String TABLE_GAMES = "games";
-    private static final String TABLE_HISTORY = "coinflip_history";
+    private static final String TABLE_HISTORY = "histories";
 
     private DeluxeCoinflipPlugin plugin;
-    private File file;
+
+    private String tablePrefix;
+    private String host;
+    private int port;
+    private String database;
+    private String username;
+    private String password;
+    private boolean useSsl;
 
     @Override
     public boolean onEnable(final DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
 
-        if (!plugin.getDataFolder().exists()) {
-            boolean made = plugin.getDataFolder().mkdirs();
-            if (!made && !plugin.getDataFolder().exists()) {
-                plugin.getLogger().severe("Could not create plugin data folder: " + plugin.getDataFolder().getAbsolutePath());
-                return false;
-            }
-        }
-
-        this.file = new File(plugin.getDataFolder(), "database.db");
-        if (!this.file.exists()) {
-            try {
-                boolean created = this.file.createNewFile();
-                if (!created && !this.file.exists()) {
-                    plugin.getLogger().severe("Could not create database file: " + this.file.getAbsolutePath());
-                    return false;
-                }
-            } catch (IOException e) {
-                plugin.getLogger().log(Level.SEVERE, "Error occurred while creating the database file.", e);
-                return false;
-            }
-        }
+        this.tablePrefix = plugin.getConfig().getString("storage.mysql.table-prefix", "coinflip_");
+        this.host = plugin.getConfig().getString("storage.mysql.host", "127.0.0.1");
+        this.port = plugin.getConfig().getInt("storage.mysql.port", 3306);
+        this.database = plugin.getConfig().getString("storage.mysql.database", "deluxecoinflip");
+        this.username = plugin.getConfig().getString("storage.mysql.username", "root");
+        this.password = plugin.getConfig().getString("storage.mysql.password", "");
+        this.useSsl = plugin.getConfig().getBoolean("storage.mysql.ssl", false);
 
         try {
-            Class.forName("org.sqlite.JDBC");
+            Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
-            plugin.getLogger().log(Level.SEVERE, "SQLite JDBC driver not found.", e);
+            plugin.getLogger().log(Level.SEVERE, "MySQL JDBC driver not found.", e);
             return false;
         }
 
-        this.createTable();
+        try (Connection connection = this.getConnection()) {
+            if (connection == null || connection.isClosed()) {
+                plugin.getLogger().severe("Could not establish a MySQL connection.");
+                return false;
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not connect to MySQL.", e);
+            return false;
+        }
+
+        this.createTables();
         return true;
     }
 
@@ -70,10 +71,19 @@ public class SQLiteHandler implements StorageHandler {
 
         Map<UUID, PlayerData> playerDataMap = DeluxeCoinflipPlugin.getInstance().getStorageManager().getPlayerDataMap();
 
+        final String sql = "INSERT INTO " + getTableName(TABLE_PLAYERS) + " (uuid, wins, losses, profit, total_loss, total_gambled, broadcasts) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?) " +
+                "ON DUPLICATE KEY UPDATE " +
+                "wins = VALUES(wins), " +
+                "losses = VALUES(losses), " +
+                "profit = VALUES(profit), " +
+                "total_loss = VALUES(total_loss), " +
+                "total_gambled = VALUES(total_gambled), " +
+                "broadcasts = VALUES(broadcasts);";
+
         try (Connection connection = this.getConnection()) {
             connection.setAutoCommit(false);
 
-            final String sql = "REPLACE INTO " + TABLE_PLAYERS + " (uuid, wins, losses, profit, total_loss, total_gambled, broadcasts) VALUES (?, ?, ?, ?, ?, ?, ?);";
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 for (PlayerData player : new ArrayList<>(playerDataMap.values())) {
                     preparedStatement.setString(1, player.getUUID().toString());
@@ -99,68 +109,75 @@ public class SQLiteHandler implements StorageHandler {
 
     public Connection getConnection() {
         try {
-            return DriverManager.getConnection("jdbc:sqlite:" + this.file.getAbsolutePath());
+            String url = "jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database
+                    + "?useSSL=" + this.useSsl
+                    + "&allowPublicKeyRetrieval=true"
+                    + "&useUnicode=true"
+                    + "&characterEncoding=UTF-8"
+                    + "&serverTimezone=UTC"
+                    + "&autoReconnect=true";
+
+            return DriverManager.getConnection(url, this.username, this.password);
         } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "Error occurred while setting up the database connection.", e);
-            throw new IllegalStateException("Unable to open SQLite connection", e);
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while setting up the MySQL connection.", e);
+            throw new IllegalStateException("Unable to open MySQL connection", e);
         }
     }
 
-    private void createTable() {
-        try (Connection tableConnection = this.getConnection();
-             Statement statement = tableConnection.createStatement()) {
+    private void createTables() {
+        try (Connection connection = this.getConnection();
+             Statement statement = connection.createStatement()) {
 
-            String createPlayersTable = "CREATE TABLE IF NOT EXISTS " + TABLE_PLAYERS + " (" +
-                    "uuid VARCHAR(255) NOT NULL PRIMARY KEY, " +
-                    "wins INTEGER, " +
-                    "losses INTEGER, " +
-                    "profit BIGINT, " +
-                    "total_loss BIGINT, " +
-                    "total_gambled BIGINT, " +
-                    "broadcasts BOOLEAN" +
-                    ");";
-            statement.execute(createPlayersTable);
+            String createPlayersTable = "CREATE TABLE IF NOT EXISTS " + getTableName(TABLE_PLAYERS) + " (" +
+                    "uuid VARCHAR(36) NOT NULL PRIMARY KEY, " +
+                    "wins INT NOT NULL DEFAULT 0, " +
+                    "losses INT NOT NULL DEFAULT 0, " +
+                    "profit BIGINT NOT NULL DEFAULT 0, " +
+                    "total_loss BIGINT NOT NULL DEFAULT 0, " +
+                    "total_gambled BIGINT NOT NULL DEFAULT 0, " +
+                    "broadcasts TINYINT(1) NOT NULL DEFAULT 1" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+            statement.executeUpdate(createPlayersTable);
 
-            String createGamesTable = "CREATE TABLE IF NOT EXISTS " + TABLE_GAMES + " (" +
-                    "uuid VARCHAR(255) NOT NULL PRIMARY KEY, " +
-                    "provider VARCHAR(255), " +
-                    "amount BIGINT" +
-                    ");";
-            statement.execute(createGamesTable);
+            String createGamesTable = "CREATE TABLE IF NOT EXISTS " + getTableName(TABLE_GAMES) + " (" +
+                    "uuid VARCHAR(36) NOT NULL PRIMARY KEY, " +
+                    "provider VARCHAR(255) NOT NULL, " +
+                    "amount BIGINT NOT NULL" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+            statement.executeUpdate(createGamesTable);
 
-            String createHistoryTable = "CREATE TABLE IF NOT EXISTS " + TABLE_HISTORY + " (" +
-                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    "creator_uuid VARCHAR(255) NOT NULL, " +
-                    "opponent_uuid VARCHAR(255) NOT NULL, " +
-                    "winner_uuid VARCHAR(255) NOT NULL, " +
-                    "loser_uuid VARCHAR(255) NOT NULL, " +
+            String createHistoryTable = "CREATE TABLE IF NOT EXISTS " + getTableName(TABLE_HISTORY) + " (" +
+                    "id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                    "creator_uuid VARCHAR(36) NOT NULL, " +
+                    "opponent_uuid VARCHAR(36) NOT NULL, " +
+                    "winner_uuid VARCHAR(36) NOT NULL, " +
+                    "loser_uuid VARCHAR(36) NOT NULL, " +
                     "provider VARCHAR(255) NOT NULL, " +
                     "bet_amount BIGINT NOT NULL, " +
                     "winnings BIGINT NOT NULL, " +
                     "tax_deduction BIGINT NOT NULL, " +
                     "tax_rate DOUBLE NOT NULL, " +
-                    "forfeit BOOLEAN NOT NULL, " +
-                    "created_at BIGINT NOT NULL" +
-                    ");";
-            statement.execute(createHistoryTable);
-
-            statement.execute("CREATE INDEX IF NOT EXISTS idx_coinflip_history_creator_uuid ON " + TABLE_HISTORY + "(creator_uuid);");
-            statement.execute("CREATE INDEX IF NOT EXISTS idx_coinflip_history_opponent_uuid ON " + TABLE_HISTORY + "(opponent_uuid);");
-            statement.execute("CREATE INDEX IF NOT EXISTS idx_coinflip_history_winner_uuid ON " + TABLE_HISTORY + "(winner_uuid);");
-            statement.execute("CREATE INDEX IF NOT EXISTS idx_coinflip_history_loser_uuid ON " + TABLE_HISTORY + "(loser_uuid);");
-            statement.execute("CREATE INDEX IF NOT EXISTS idx_coinflip_history_created_at ON " + TABLE_HISTORY + "(created_at DESC);");
+                    "forfeit TINYINT(1) NOT NULL, " +
+                    "created_at BIGINT NOT NULL, " +
+                    "INDEX idx_coinflip_history_creator_uuid (creator_uuid), " +
+                    "INDEX idx_coinflip_history_opponent_uuid (opponent_uuid), " +
+                    "INDEX idx_coinflip_history_winner_uuid (winner_uuid), " +
+                    "INDEX idx_coinflip_history_loser_uuid (loser_uuid), " +
+                    "INDEX idx_coinflip_history_created_at (created_at)" +
+                    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+            statement.executeUpdate(createHistoryTable);
 
         } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "Error occurred while creating database tables.", e);
+            plugin.getLogger().log(Level.SEVERE, "Error occurred while creating MySQL tables.", e);
         }
     }
 
     @Override
     public PlayerData getPlayer(final UUID uuid) {
-        final String sql = "SELECT wins, losses, profit, total_loss, total_gambled, broadcasts FROM " + TABLE_PLAYERS + " WHERE uuid = ?;";
+        final String sql = "SELECT wins, losses, profit, total_loss, total_gambled, broadcasts FROM " + getTableName(TABLE_PLAYERS) + " WHERE uuid = ?;";
 
-        try (Connection playerConnection = this.getConnection();
-             PreparedStatement preparedStatement = playerConnection.prepareStatement(sql)) {
+        try (Connection connection = this.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setString(1, uuid.toString());
 
@@ -185,10 +202,18 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public void savePlayer(final PlayerData player) {
-        final String sql = "REPLACE INTO " + TABLE_PLAYERS + " (uuid, wins, losses, profit, total_loss, total_gambled, broadcasts) VALUES (?, ?, ?, ?, ?, ?, ?);";
+        final String sql = "INSERT INTO " + getTableName(TABLE_PLAYERS) + " (uuid, wins, losses, profit, total_loss, total_gambled, broadcasts) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?) " +
+                "ON DUPLICATE KEY UPDATE " +
+                "wins = VALUES(wins), " +
+                "losses = VALUES(losses), " +
+                "profit = VALUES(profit), " +
+                "total_loss = VALUES(total_loss), " +
+                "total_gambled = VALUES(total_gambled), " +
+                "broadcasts = VALUES(broadcasts);";
 
-        try (Connection playerConnection = this.getConnection();
-             PreparedStatement preparedStatement = playerConnection.prepareStatement(sql)) {
+        try (Connection connection = this.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setString(1, player.getUUID().toString());
             preparedStatement.setInt(2, player.getWins());
@@ -197,7 +222,7 @@ public class SQLiteHandler implements StorageHandler {
             preparedStatement.setLong(5, player.getTotalLosses());
             preparedStatement.setLong(6, player.getTotalGambled());
             preparedStatement.setBoolean(7, player.isDisplayBroadcastMessages());
-            preparedStatement.execute();
+            preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to save a player's data.", e);
@@ -206,15 +231,16 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public void saveCoinflip(final CoinflipGame game) {
-        final String sql = "REPLACE INTO " + TABLE_GAMES + " (uuid, provider, amount) VALUES (?, ?, ?);";
+        final String sql = "INSERT INTO " + getTableName(TABLE_GAMES) + " (uuid, provider, amount) VALUES (?, ?, ?) " +
+                "ON DUPLICATE KEY UPDATE provider = VALUES(provider), amount = VALUES(amount);";
 
-        try (Connection coinflipConnection = this.getConnection();
-             PreparedStatement preparedStatement = coinflipConnection.prepareStatement(sql)) {
+        try (Connection connection = this.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setString(1, game.getPlayerUUID().toString());
             preparedStatement.setString(2, game.getProvider());
             preparedStatement.setLong(3, game.getAmount());
-            preparedStatement.execute();
+            preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to save a coinflip game.", e);
@@ -223,13 +249,13 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public void deleteCoinflip(final UUID uuid) {
-        final String sql = "DELETE FROM " + TABLE_GAMES + " WHERE uuid = ?;";
+        final String sql = "DELETE FROM " + getTableName(TABLE_GAMES) + " WHERE uuid = ?;";
 
-        try (Connection coinflipConnection = this.getConnection();
-             PreparedStatement preparedStatement = coinflipConnection.prepareStatement(sql)) {
+        try (Connection connection = this.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setString(1, uuid.toString());
-            preparedStatement.execute();
+            preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Error occurred while attempting to delete a coinflip game.", e);
@@ -239,10 +265,10 @@ public class SQLiteHandler implements StorageHandler {
     @Override
     public Map<UUID, CoinflipGame> getGames() {
         Map<UUID, CoinflipGame> games = new HashMap<>();
-        final String sql = "SELECT uuid, provider, amount FROM " + TABLE_GAMES + ";";
+        final String sql = "SELECT uuid, provider, amount FROM " + getTableName(TABLE_GAMES) + ";";
 
-        try (Connection gamesConnection = this.getConnection();
-             PreparedStatement preparedStatement = gamesConnection.prepareStatement(sql);
+        try (Connection connection = this.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
@@ -261,10 +287,10 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public CoinflipGame getCoinflipGame(@NotNull final UUID uuid) {
-        final String sql = "SELECT provider, amount FROM " + TABLE_GAMES + " WHERE uuid = ?;";
+        final String sql = "SELECT provider, amount FROM " + getTableName(TABLE_GAMES) + " WHERE uuid = ?;";
 
-        try (Connection gameConnection = this.getConnection();
-             PreparedStatement preparedStatement = gameConnection.prepareStatement(sql)) {
+        try (Connection connection = this.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setString(1, uuid.toString());
 
@@ -285,12 +311,12 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public void saveCoinflipHistory(final CoinflipHistory history) {
-        final String sql = "INSERT INTO " + TABLE_HISTORY + " " +
+        final String sql = "INSERT INTO " + getTableName(TABLE_HISTORY) + " " +
                 "(creator_uuid, opponent_uuid, winner_uuid, loser_uuid, provider, bet_amount, winnings, tax_deduction, tax_rate, forfeit, created_at) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
-        try (Connection historyConnection = this.getConnection();
-             PreparedStatement preparedStatement = historyConnection.prepareStatement(sql)) {
+        try (Connection connection = this.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setString(1, history.getCreatorUUID().toString());
             preparedStatement.setString(2, history.getOpponentUUID().toString());
@@ -312,11 +338,11 @@ public class SQLiteHandler implements StorageHandler {
 
     @Override
     public int getCoinflipHistoryCount(final UUID uuid) {
-        final String sql = "SELECT COUNT(*) FROM " + TABLE_HISTORY + " " +
+        final String sql = "SELECT COUNT(*) FROM " + getTableName(TABLE_HISTORY) + " " +
                 "WHERE creator_uuid = ? OR opponent_uuid = ? OR winner_uuid = ? OR loser_uuid = ?;";
 
-        try (Connection historyConnection = this.getConnection();
-             PreparedStatement preparedStatement = historyConnection.prepareStatement(sql)) {
+        try (Connection connection = this.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             String value = uuid.toString();
             preparedStatement.setString(1, value);
@@ -340,13 +366,13 @@ public class SQLiteHandler implements StorageHandler {
     public List<CoinflipHistory> getCoinflipHistory(final UUID uuid, final int offset, final int limit) {
         List<CoinflipHistory> history = new ArrayList<>();
 
-        final String sql = "SELECT * FROM " + TABLE_HISTORY + " " +
+        final String sql = "SELECT * FROM " + getTableName(TABLE_HISTORY) + " " +
                 "WHERE creator_uuid = ? OR opponent_uuid = ? OR winner_uuid = ? OR loser_uuid = ? " +
                 "ORDER BY created_at DESC " +
                 "LIMIT ? OFFSET ?;";
 
-        try (Connection historyConnection = this.getConnection();
-             PreparedStatement preparedStatement = historyConnection.prepareStatement(sql)) {
+        try (Connection connection = this.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             String value = uuid.toString();
             preparedStatement.setString(1, value);
@@ -371,10 +397,10 @@ public class SQLiteHandler implements StorageHandler {
     @Override
     public List<CoinflipHistory> getRecentCoinflipHistory(final int limit) {
         List<CoinflipHistory> history = new ArrayList<>();
-        final String sql = "SELECT * FROM " + TABLE_HISTORY + " ORDER BY created_at DESC LIMIT ?;";
+        final String sql = "SELECT * FROM " + getTableName(getTableName(TABLE_HISTORY)) + " ORDER BY created_at DESC LIMIT ?;";
 
-        try (Connection historyConnection = this.getConnection();
-             PreparedStatement preparedStatement = historyConnection.prepareStatement(sql)) {
+        try (Connection connection = this.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setInt(1, Math.max(limit, 1));
 
@@ -405,5 +431,9 @@ public class SQLiteHandler implements StorageHandler {
                 resultSet.getBoolean("forfeit"),
                 resultSet.getLong("created_at")
         );
+    }
+
+    private String getTableName(String base) {
+        return this.tablePrefix + base;
     }
 }
