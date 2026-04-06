@@ -31,14 +31,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.UnaryOperator;
 import java.util.logging.Level;
@@ -90,6 +83,8 @@ public class GamesGUI {
         placeSectionItem(config, gui, "games-gui.previous-page", player, playerData, events -> gui.previous());
         placeSectionItem(config, gui, "games-gui.next-page", player, playerData, events -> gui.next());
         placeSectionItem(config, gui, "games-gui.stats", player, playerData, null);
+        placeSectionItem(config, gui, "games-gui.history", player, playerData, events ->
+                plugin.getInventoryManager().getHistoryGUI().openInventory(player));
         placeSectionItem(config, gui, "games-gui.refresh", player, playerData, events -> {
             if (!refreshQueued.add(player.getUniqueId())) {
                 return;

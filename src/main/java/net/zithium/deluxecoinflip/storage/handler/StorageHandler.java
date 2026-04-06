@@ -7,8 +7,10 @@ package net.zithium.deluxecoinflip.storage.handler;
 
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.deluxecoinflip.game.CoinflipGame;
+import net.zithium.deluxecoinflip.game.CoinflipHistory;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -70,4 +72,37 @@ public interface StorageHandler {
      * @return the coinflip game, or {@code null} if not found
      */
     CoinflipGame getCoinflipGame(final UUID uuid);
+
+    /**
+     * Saves a completed coinflip result to history storage.
+     *
+     * @param history the completed game history entry
+     */
+    void saveCoinflipHistory(final CoinflipHistory history);
+
+    /**
+     * Gets the total amount of history entries involving the given player.
+     *
+     * @param uuid the player UUID
+     * @return total history count
+     */
+    int getCoinflipHistoryCount(final UUID uuid);
+
+    /**
+     * Gets a paginated slice of coinflip history for a player.
+     *
+     * @param uuid the player UUID
+     * @param offset zero-based row offset
+     * @param limit maximum amount of rows to return
+     * @return latest history entries involving this player
+     */
+    List<CoinflipHistory> getCoinflipHistory(final UUID uuid, final int offset, final int limit);
+
+    /**
+     * Gets the most recent global coinflip history.
+     *
+     * @param limit maximum amount of rows to return
+     * @return latest history entries
+     */
+    List<CoinflipHistory> getRecentCoinflipHistory(final int limit);
 }

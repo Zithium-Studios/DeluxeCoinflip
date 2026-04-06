@@ -71,6 +71,34 @@ public class GameManager {
     }
 
     /**
+     * Save a completed game into the persistent history storage.
+     *
+     * <p>This should only be called once a winner/loser has been decided
+     * and all balances/statistics have been finalized.</p>
+     *
+     * @param history the completed history entry
+     */
+    public void saveHistory(@NotNull CoinflipHistory history) {
+        if (!plugin.isEnabled()) {
+            try {
+                storageManager.getStorageHandler().saveCoinflipHistory(history);
+            } catch (Exception ex) {
+                plugin.getLogger().warning("Failed to save coinflip history during shutdown: " + ex.getMessage());
+            }
+
+            return;
+        }
+
+        scheduler.runAsync(task -> {
+            try {
+                storageManager.getStorageHandler().saveCoinflipHistory(history);
+            } catch (Exception ex) {
+                plugin.getLogger().warning("Failed to save coinflip history: " + ex.getMessage());
+            }
+        });
+    }
+
+    /**
      * Get all coinflip games
      *
      * @return Map of UUID and CoinflipGame object
