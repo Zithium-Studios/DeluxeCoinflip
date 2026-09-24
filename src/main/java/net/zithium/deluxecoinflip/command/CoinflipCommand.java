@@ -6,13 +6,8 @@
 package net.zithium.deluxecoinflip.command;
 
 import co.aikar.commands.BaseCommand;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandCompletion;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Default;
-import co.aikar.commands.annotation.Description;
-import co.aikar.commands.annotation.Optional;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
+import co.aikar.commands.bukkit.contexts.OnlinePlayer;
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.deluxecoinflip.api.events.CoinflipCreatedEvent;
 import net.zithium.deluxecoinflip.cache.ActiveGamesCache;
@@ -101,6 +96,27 @@ public class CoinflipCommand extends BaseCommand {
         sender.sendMessage("");
     }
 
+    @Subcommand("history")
+    @CommandCompletion("@players")
+    public void historySubCommand(final CommandSender sender, @Optional OnlinePlayer target) {
+        if (!(sender instanceof Player viewer)) {
+            sender.sendMessage("Only players can open coinflip history.");
+            return;
+        }
+
+        Player targetPlayer = target != null ? target.getPlayer() : null;
+
+        if (targetPlayer != null && !viewer.hasPermission("coinflip.history.others")) {
+            Messages.NO_PERMISSION.send(viewer);
+            return;
+        }
+
+        plugin.getInventoryManager().getHistoryGUI().openInventory(
+                viewer,
+                targetPlayer != null ? targetPlayer.getUniqueId() : viewer.getUniqueId()
+        );
+    }
+
     @Subcommand("toggle")
     public void toggleSubCommand(final CommandSender sender) {
         if (!(sender instanceof Player player)) {
@@ -125,7 +141,7 @@ public class CoinflipCommand extends BaseCommand {
         }
     }
 
-    @Subcommand("delete|remove")
+    @Subcommand("delete|remove|cancel")
     public void deleteSubCommand(final CommandSender sender) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage("Only players can remove a coinflip game.");
