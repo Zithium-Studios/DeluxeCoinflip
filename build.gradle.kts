@@ -27,10 +27,11 @@ dependencies {
     implementation("org.bstats:bstats-bukkit:3.1.0")
     implementation("com.github.ItzSave:ZithiumLibrary:1f5182b77f")
     implementation("com.tcoded:FoliaLib:0.5.1")
+    implementation("net.kyori:adventure-api:5.2.0")
 
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
 
-    compileOnly("me.clip:placeholderapi:2.12.2")
+    compileOnly("me.clip:placeholderapi:2.12.3")
     compileOnly("com.mojang:authlib:1.5.21")
     compileOnly("org.jetbrains:annotations:26.0.2-1")
 
@@ -41,7 +42,7 @@ dependencies {
 }
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 tasks.compileJava {
@@ -78,5 +79,6 @@ tasks {
         relocate("net.zithium.library", "net.zithium.deluxecoinflip.libs.library")
         relocate("com.tcoded.folialib", "net.zithium.deluxecoinflip.libs.folialib")
         relocate("org.bstats", "net.zithium.deluxecoinflip.libs.metrics") // bStats
+        relocate("net.kyori.adventure", "net.zithium.library.shaded.adventure")
     }
 }

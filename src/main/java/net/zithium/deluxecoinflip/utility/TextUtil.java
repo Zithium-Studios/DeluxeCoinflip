@@ -5,7 +5,6 @@
 
 package net.zithium.deluxecoinflip.utility;
 
-import net.zithium.library.utils.ColorUtil;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
+import net.zithium.deluxecoinflip.utility.ColorUtil;
 
 public final class TextUtil {
 
