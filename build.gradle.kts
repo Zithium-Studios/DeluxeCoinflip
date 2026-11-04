@@ -1,10 +1,12 @@
+import org.gradle.api.file.DuplicatesStrategy
+
 plugins {
     id("java")
     id("com.gradleup.shadow") version "9.2.2"
 }
 
 group = "net.zithium"
-version = "2.11.3"
+version = "2.11.4"
 description = "DeluxeCoinflip"
 
 repositories {
@@ -27,7 +29,11 @@ dependencies {
     implementation("org.bstats:bstats-bukkit:3.1.0")
     implementation("com.github.ItzSave:ZithiumLibrary:1f5182b77f")
     implementation("com.tcoded:FoliaLib:0.5.1")
-    implementation("net.kyori:adventure-api:5.2.0")
+
+    implementation(platform("net.kyori:adventure-bom:4.22.0"))
+    implementation("net.kyori:adventure-api")
+    implementation("net.kyori:adventure-text-minimessage")
+    implementation("net.kyori:adventure-platform-bukkit:4.4.1")
 
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
 
@@ -35,10 +41,19 @@ dependencies {
     compileOnly("com.mojang:authlib:1.5.21")
     compileOnly("org.jetbrains:annotations:26.0.2-1")
 
-    compileOnly("com.github.Realizedd:TokenManager:3.2.4") { isTransitive = false }
+    compileOnly("com.github.Realizedd:TokenManager:3.2.4") {
+        isTransitive = false
+    }
     compileOnly("net.milkbowl.vault:VaultAPI:1.7")
     compileOnly("org.black_ixx:playerpoints:3.2.6")
-    compileOnly(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    compileOnly(
+        fileTree(
+            mapOf(
+                "dir" to "libs",
+                "include" to listOf("*.jar")
+            )
+        )
+    )
 }
 
 java {
@@ -50,35 +65,40 @@ tasks.compileJava {
 }
 
 tasks {
+    jar {
+        enabled = false
+    }
+
     build {
         dependsOn("shadowJar")
     }
 
     processResources {
-        val props = mapOf("version" to version)
+        val props = mapOf("version" to project.version)
+
         inputs.properties(props)
         filteringCharset = "UTF-8"
+
         filesMatching("plugin.yml") {
             expand(props)
         }
     }
 
     shadowJar {
-        minimize {
-            exclude(dependency("com.tcoded:FoliaLib:.*"))
-        }
-
-        dependencies {
-            exclude(dependency("net.kyori:.*"))
-        }
-
-        exclude("net/kyori/**")
-
         archiveFileName.set("DeluxeCoinflip-${project.version}.jar")
+
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+        mergeServiceFiles()
+
+        filesMatching("META-INF/services/**") {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        }
+
         relocate("dev.triumphteam.gui", "net.zithium.deluxecoinflip.libs.gui")
         relocate("net.zithium.library", "net.zithium.deluxecoinflip.libs.library")
         relocate("com.tcoded.folialib", "net.zithium.deluxecoinflip.libs.folialib")
-        relocate("org.bstats", "net.zithium.deluxecoinflip.libs.metrics") // bStats
-        relocate("net.kyori.adventure", "net.zithium.library.shaded.adventure")
+        relocate("org.bstats", "net.zithium.deluxecoinflip.libs.metrics")
+        relocate("net.kyori", "net.zithium.deluxecoinflip.libs.kyori")
     }
 }
