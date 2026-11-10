@@ -317,6 +317,7 @@ gamebuilder-gui:
       - "&r"
   custom-amount:
     slot: 18
+    enabled: true
     material: ANVIL
     display_name: "&6&lSet Custom Amount"
     lore:

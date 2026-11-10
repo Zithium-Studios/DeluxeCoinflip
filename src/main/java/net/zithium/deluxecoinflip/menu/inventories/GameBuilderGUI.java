@@ -68,7 +68,9 @@ public class GameBuilderGUI {
         setFillerItems(gui, cfg);
         setupCurrencySelector(gui, player, game, cfg);
         setupAmountItems(gui, player, game, cfg);
+
         setupCustomAmount(gui, player, game, cfg);
+
         setupCreateGame(gui, player, game, cfg);
 
         scheduler.runAtEntity(player, task -> gui.open(player));
@@ -173,6 +175,10 @@ public class GameBuilderGUI {
     private void setupCustomAmount(Gui gui, Player player, CoinflipGame game, FileConfiguration cfg) {
         ConfigurationSection section = cfg.getConfigurationSection("gamebuilder-gui.custom-amount");
         if (section == null) {
+            return;
+        }
+
+        if (!section.getBoolean("enabled", true)) {
             return;
         }
 
