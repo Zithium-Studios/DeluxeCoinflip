@@ -16,3 +16,5 @@ softdepend:
 permissions:
   coinflip.admin:
     default: op
+  coinflip.history.others:
+    default: op

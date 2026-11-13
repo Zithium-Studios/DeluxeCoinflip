@@ -200,6 +200,17 @@ games-gui:
     display_name: "&a&lCreate Game"
     lore:
       - "&7Click here to create a new game!"
+
+  history:
+    enabled: true
+    slot: 28
+    material: WRITABLE_BOOK
+    display_name: "&e&lHistory"
+    lore:
+      - "&7View your recent coinflip matches."
+      - ""
+      - "&fClick to open."
+
   refresh:
     # Set false to disable the refresh button
     enabled: true
@@ -208,6 +219,7 @@ games-gui:
     display_name: "&b&lRefresh"
     lore:
       - "&7Refresh the list."
+
   coinflip-game:
     display_name: "&e{PLAYER}"
     material: PLAYER_HEAD
@@ -220,6 +232,7 @@ games-gui:
       - "  &f{CURRENCY}"
       - ""
       - "&7&oClick here to start a Coinflip game"
+
   no-games:
     slot: 13
     material: BARRIER
@@ -228,24 +241,28 @@ games-gui:
       - ""
       - "&fThere are no active coinflip games."
       - "&fStart one with &e/coinflip create <amount>"
+
   error-no-funds:
     material: BARRIER
     display_name: "&cInsufficient funds!"
     lore:
       - ""
       - "&fYou do not have enough funds to play this coinflip"
+
   next-page:
     slot: 32
     material: PAPER
     display_name: "&2&lNext Page"
     lore:
       - "&7Click to go to the next page."
+
   previous-page:
     slot: 30
     material: PAPER
     display_name: "&c&lPrevious Page"
     lore:
       - "&7Click to go to the previous page."
+
   sounds:
     # Played when the player tries to join a game but lacks funds.
     error_no_funds:
@@ -253,6 +270,63 @@ games-gui:
       name: "BLOCK_NOTE_BLOCK_PLING"
       volume: 1.0
       pitch: 0.0
+
+history-gui:
+  title: "&l{PLAYER}'s COINFLIP HISTORY"
+  rows: 4
+  date-format: "dd/MM/yyyy HH:mm"
+
+  filler-items:
+    border:
+      material: GRAY_STAINED_GLASS_PANE
+      display_name: "&r"
+      slots: [ 27, 28, 29, 33, 34, 35 ]
+
+  history-item:
+    material: PLAYER_HEAD
+    display_name: "&e{OPPONENT}"
+    lore:
+      - ""
+      - "&7Result: {RESULT}"
+      - "&7Amount: &f{AMOUNT}"
+      - "&7Winnings: &f{WINNINGS}"
+      - "&7Currency: &f{CURRENCY}"
+      - "&7Tax: &f{TAX_DEDUCTION} ({TAX_RATE}%)"
+      - "&7Date: &f{DATE}"
+      - "&7Type: &f{TYPE}"
+      - ""
+
+  no-history:
+    slot: 13
+    material: BARRIER
+    display_name: "&cNo history found!"
+    lore:
+      - ""
+      - "&fYou have not completed any coinflip games yet."
+
+  back:
+    enabled: true
+    slot: 31
+    material: ARROW
+    display_name: "&c&lBack"
+    lore:
+      - "&7Return to the games menu."
+
+  next-page:
+    enabled: true
+    slot: 32
+    material: PAPER
+    display_name: "&2&lNext Page"
+    lore:
+      - "&7Click to go to the next page."
+
+  previous-page:
+    enabled: true
+    slot: 30
+    material: PAPER
+    display_name: "&c&lPrevious Page"
+    lore:
+      - "&7Click to go to the previous page."
 
 gamebuilder-gui:
   title: "&lGAME BUILDER"
