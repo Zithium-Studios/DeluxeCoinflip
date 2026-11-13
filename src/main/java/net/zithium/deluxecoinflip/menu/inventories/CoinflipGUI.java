@@ -17,6 +17,7 @@ import net.zithium.deluxecoinflip.config.Messages;
 import net.zithium.deluxecoinflip.economy.EconomyManager;
 import net.zithium.deluxecoinflip.economy.provider.EconomyProvider;
 import net.zithium.deluxecoinflip.game.CoinflipGame;
+import net.zithium.deluxecoinflip.game.CoinflipHistory;
 import net.zithium.deluxecoinflip.game.GameAnimationRunner;
 import net.zithium.deluxecoinflip.storage.PlayerData;
 import net.zithium.deluxecoinflip.storage.StorageManager;
@@ -33,12 +34,7 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -270,6 +266,26 @@ public class CoinflipGUI {
         updatePlayerStats(storageManager, winner, finalWinAmount, beforeTax, true);
         updatePlayerStats(storageManager, loser, 0L, beforeTax, false);
 
+        /*
+         * Save completed game into persistent history after the final
+         * winner/loser, tax and winnings have been resolved.
+         */
+        CoinflipHistory history = new CoinflipHistory(
+                0L,
+                game.getPlayerUUID(),
+                opponentId,
+                winnerId,
+                loserId,
+                game.getProvider(),
+                game.getAmount(),
+                finalWinAmount,
+                taxed,
+                taxEnabled ? taxRate : 0.0D,
+                forfeit,
+                System.currentTimeMillis()
+        );
+        storageManager.getStorageHandler().saveCoinflipHistory(history);
+
         String winAmountFormatted = TextUtil.numberFormat(finalWinAmount);
         String taxedFormatted = TextUtil.numberFormat(taxed);
         String providerName = provider.getDisplayName();
@@ -281,9 +297,14 @@ public class CoinflipGUI {
             String loserName = loser.getName() != null ? loser.getName() : "Unknown";
 
             if (winnerOnline != null) {
+                scheduler.runAtEntity(winnerOnline, innerTask -> winnerOnline.closeInventory());
                 Messages.GAME_FORFEIT.send(winnerOnline, replacePlaceholders(
                         String.valueOf(taxRate), taxedFormatted, winner.getName(), loserName,
                         providerName, winAmountFormatted));
+            }
+
+            if (loserOnline != null) {
+                scheduler.runAtEntity(loserOnline, innerTask -> loserOnline.closeInventory());
             }
         } else {
             if (winnerOnline != null) {
@@ -301,7 +322,10 @@ public class CoinflipGUI {
             broadcastWinningMessage(finalWinAmount, taxed, winner.getName(), loser.getName(), providerName);
         }
 
-        if (config.getBoolean("discord.webhook.enabled", false) || config.getBoolean("discord.bot.enabled", false)) {
+        final boolean webhookEnabled = config.getBoolean("discord.webhook.enabled", false)
+                || config.getBoolean("discord.bot.enabled", false);
+
+        if (webhookEnabled) {
             plugin.getDiscordHook().executeWebhook(winner, loser, providerName, winAmount)
                     .exceptionally(ex -> {
                         plugin.getLogger().log(Level.SEVERE, "Discord webhook error", ex);
@@ -352,7 +376,7 @@ public class CoinflipGUI {
     }
 
     private Object[] replacePlaceholders(String taxRate, String taxDeduction, String winner, String loser, String currency, String winnings) {
-        return new Object[] {
+        return new Object[]{
                 "{TAX_RATE}", taxRate,
                 "{TAX_DEDUCTION}", taxDeduction,
                 "{WINNER}", winner,

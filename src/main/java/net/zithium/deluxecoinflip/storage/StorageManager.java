@@ -9,6 +9,7 @@ import com.tcoded.folialib.impl.PlatformScheduler;
 import net.zithium.deluxecoinflip.DeluxeCoinflipPlugin;
 import net.zithium.deluxecoinflip.exception.InvalidStorageHandlerException;
 import net.zithium.deluxecoinflip.storage.handler.StorageHandler;
+import net.zithium.deluxecoinflip.storage.handler.impl.MySQLHandler;
 import net.zithium.deluxecoinflip.storage.handler.impl.SQLiteHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
@@ -17,6 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,92 +31,111 @@ public class StorageManager implements Listener {
     private final Map<UUID, PlayerData> playerDataMap;
     private StorageHandler storageHandler;
 
-    public StorageManager(DeluxeCoinflipPlugin plugin) {
+    public StorageManager(final DeluxeCoinflipPlugin plugin) {
         this.plugin = plugin;
         this.scheduler = DeluxeCoinflipPlugin.scheduler();
         this.playerDataMap = new ConcurrentHashMap<>();
     }
 
     public void onEnable() {
-        final String configuredType = plugin.getConfig().getString("storage.type");
-        if ("SQLITE".equalsIgnoreCase(configuredType)) {
-            storageHandler = new SQLiteHandler();
-        } else {
-            throw new InvalidStorageHandlerException("Invalid storage handler specified: " + configuredType);
+        final String configuredType = plugin.getConfig().getString("storage.type", "SQLITE");
+        final String storageType = configuredType.trim().toUpperCase(Locale.ROOT);
+
+        switch (storageType) {
+            case "SQLITE":
+                this.storageHandler = new SQLiteHandler();
+                break;
+            case "MYSQL":
+                this.storageHandler = new MySQLHandler();
+                break;
+            default:
+                throw new InvalidStorageHandlerException("Invalid storage handler specified: " + configuredType);
         }
 
-        if (!storageHandler.onEnable(plugin)) {
+        if (!this.storageHandler.onEnable(plugin)) {
             plugin.getServer().getPluginManager().disablePlugin(plugin);
             return;
         }
 
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
 
-        Bukkit.getOnlinePlayers().forEach(player -> loadPlayerData(player.getUniqueId()));
+        Bukkit.getOnlinePlayers().forEach(player -> this.loadPlayerData(player.getUniqueId()));
     }
 
-    public void onDisable(boolean shutdown) {
-        if (shutdown && storageHandler != null) {
-            storageHandler.onDisable();
+    public void onDisable(final boolean shutdown) {
+        if (shutdown && this.storageHandler != null) {
+            this.storageHandler.onDisable();
         }
+
+        this.playerDataMap.clear();
     }
 
-    public Optional<PlayerData> getPlayer(UUID uuid) {
-        return Optional.ofNullable(playerDataMap.get(uuid));
+    public Optional<PlayerData> getPlayer(final UUID uuid) {
+        return Optional.ofNullable(this.playerDataMap.get(uuid));
     }
 
-    public void updateOfflinePlayerWin(UUID uuid, long profit, long beforeTax) {
-        scheduler.runAsync(task -> {
-            PlayerData playerData = storageHandler.getPlayer(uuid);
+    public PlayerData getOrLoadPlayer(final UUID uuid) {
+        return this.playerDataMap.computeIfAbsent(uuid, ignored -> this.storageHandler.getPlayer(uuid));
+    }
+
+    public void updateOfflinePlayerWin(final UUID uuid, final long profit, final long beforeTax) {
+        this.scheduler.runAsync(task -> {
+            final PlayerData playerData = this.storageHandler.getPlayer(uuid);
             playerData.updateWins();
             playerData.updateProfit(profit);
             playerData.updateGambled(beforeTax);
-            storageHandler.savePlayer(playerData);
+            this.storageHandler.savePlayer(playerData);
         });
     }
 
-    public void updateOfflinePlayerLoss(UUID uuid, long beforeTax) {
-        scheduler.runAsync(task -> {
-            PlayerData playerData = storageHandler.getPlayer(uuid);
+    public void updateOfflinePlayerLoss(final UUID uuid, final long beforeTax) {
+        this.scheduler.runAsync(task -> {
+            final PlayerData playerData = this.storageHandler.getPlayer(uuid);
             playerData.updateLosses();
             playerData.updateLosses(beforeTax);
             playerData.updateGambled(beforeTax);
-            storageHandler.savePlayer(playerData);
+            this.storageHandler.savePlayer(playerData);
         });
     }
 
-    public void loadPlayerData(UUID uuid) {
-        scheduler.runAsync(task -> {
-            PlayerData data = storageHandler.getPlayer(uuid);
-            playerDataMap.put(uuid, data);
+    public void loadPlayerData(final UUID uuid) {
+        this.scheduler.runAsync(task -> {
+            final PlayerData data = this.storageHandler.getPlayer(uuid);
+            this.playerDataMap.put(uuid, data);
         });
     }
 
-    public void savePlayerData(PlayerData player, boolean removeCache) {
-        UUID uuid = player.getUUID();
-        scheduler.runAsync(task -> {
-            storageHandler.savePlayer(player);
+    public void savePlayerData(final PlayerData player, final boolean removeCache) {
+        final UUID uuid = player.getUUID();
+        this.scheduler.runAsync(task -> {
+            this.storageHandler.savePlayer(player);
             if (removeCache) {
-                playerDataMap.remove(uuid);
+                this.playerDataMap.remove(uuid);
+            } else {
+                this.playerDataMap.put(uuid, player);
             }
         });
     }
 
+    public void saveAllPlayerData() {
+        this.playerDataMap.values().forEach(player -> this.storageHandler.savePlayer(player));
+    }
+
     public Map<UUID, PlayerData> getPlayerDataMap() {
-        return playerDataMap;
+        return this.playerDataMap;
     }
 
     public StorageHandler getStorageHandler() {
-        return storageHandler;
+        return this.storageHandler;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        loadPlayerData(event.getPlayer().getUniqueId());
+    public void onPlayerJoin(final PlayerJoinEvent event) {
+        this.loadPlayerData(event.getPlayer().getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        getPlayer(event.getPlayer().getUniqueId()).ifPresent(data -> savePlayerData(data, true));
+    public void onPlayerQuit(final PlayerQuitEvent event) {
+        this.getPlayer(event.getPlayer().getUniqueId()).ifPresent(data -> this.savePlayerData(data, true));
     }
 }

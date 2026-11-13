@@ -29,6 +29,7 @@ dependencies {
     implementation("org.bstats:bstats-bukkit:3.1.0")
     implementation("com.github.ItzSave:ZithiumLibrary:1f5182b77f")
     implementation("com.tcoded:FoliaLib:0.5.1")
+    implementation("com.mysql:mysql-connector-j:9.6.0")
 
     implementation(platform("net.kyori:adventure-bom:4.22.0"))
     implementation("net.kyori:adventure-api")
